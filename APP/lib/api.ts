@@ -18,7 +18,6 @@ import type {
   Health,
   Incident,
   IncidentStatus,
-  Job,
   MetricsResponse,
   ProblemVideo,
   ReportFile,
@@ -301,70 +300,6 @@ export const getMetrics = (runId?: string, backend: Backend = "cctv", signal?: A
 
 export const getReports = (backend: Backend = "cctv", signal?: AbortSignal) =>
   request<ReportFile[]>("/api/reports", { backend, signal });
-
-/* -------------------------------------------------------------------------
- * Upload jobs
- * ---------------------------------------------------------------------- */
-
-export const getJobs = (backend: Backend = "cctv", signal?: AbortSignal) =>
-  request<Job[]>("/api/jobs", { backend, signal });
-
-export const getJob = (jobId: string, backend: Backend = "cctv", signal?: AbortSignal) =>
-  request<Job>(`/api/jobs/${encodeURIComponent(jobId)}`, { backend, signal });
-
-export const jobVideoUrl = (jobId: string, backend: Backend = "cctv") =>
-  apiUrl(`/api/jobs/${encodeURIComponent(jobId)}/video`, backend);
-
-export const jobPosterUrl = (jobId: string, backend: Backend = "cctv") =>
-  apiUrl(`/api/jobs/${encodeURIComponent(jobId)}/poster`, backend);
-
-/**
- * POST /api/jobs
- *
- * The backend streams the RAW request body to disk and reads the original
- * filename from the `x-filename` header - it is deliberately NOT a multipart
- * form. XMLHttpRequest is used instead of fetch() purely because fetch gives
- * no upload-progress events, and the job tray needs them.
- */
-export function uploadVideo(
-  file: File,
-  onProgress?: (percent: number) => void,
-  backend: Backend = "cctv",
-): { promise: Promise<Job>; abort: () => void } {
-  const xhr = new XMLHttpRequest();
-  const promise = new Promise<Job>((resolve, reject) => {
-    xhr.open("POST", apiUrl("/api/jobs", backend));
-    xhr.setRequestHeader("x-filename", encodeURIComponent(file.name));
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && onProgress) {
-        onProgress(Math.round((event.loaded / event.total) * 100));
-      }
-    };
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          resolve(JSON.parse(xhr.responseText) as Job);
-        } catch (cause) {
-          reject(new ApiError("upload succeeded but the response was not JSON", xhr.status, backend, "/api/jobs"));
-        }
-      } else {
-        let detail = `${xhr.status} ${xhr.statusText}`;
-        try {
-          const parsed = JSON.parse(xhr.responseText) as { detail?: unknown };
-          if (typeof parsed.detail === "string") detail = parsed.detail;
-        } catch {
-          /* keep the status line */
-        }
-        reject(new ApiError(detail, xhr.status, backend, "/api/jobs"));
-      }
-    };
-    xhr.onerror = () =>
-      reject(new ApiError(`${backend.toUpperCase()} backend not reachable`, 0, backend, "/api/jobs"));
-    xhr.onabort = () => reject(new ApiError("upload cancelled", 0, backend, "/api/jobs"));
-    xhr.send(file);
-  });
-  return { promise, abort: () => xhr.abort() };
-}
 
 /* -------------------------------------------------------------------------
  * ProblemSet review videos

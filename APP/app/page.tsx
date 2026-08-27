@@ -6,7 +6,6 @@ import { useApi } from "@/lib/useApi";
 import KpiCard from "@/components/KpiCard";
 import EmptyState from "@/components/EmptyState";
 import IncidentCard from "@/components/IncidentCard";
-import JobTray from "@/components/JobTray";
 import { eventLabel } from "@/lib/format";
 
 /**
@@ -103,7 +102,7 @@ export default function OverviewPage() {
             ) : (
               <EmptyState
                 title="No incidents recorded yet"
-                detail="Run the CCTV pipeline over a camera or upload a clip to populate this feed."
+                detail="Run the CCTV pipeline over a camera to populate this feed."
               />
             )}
           </div>
@@ -127,18 +126,6 @@ export default function OverviewPage() {
               ) : (
                 <p className="text-[12.5px] text-ink-3">No incidents yet.</p>
               )}
-            </div>
-          </div>
-
-          <div className="panel">
-            <div className="panel-head">
-              <span className="panel-title">Analysis jobs</span>
-              <Link href="/upload" className="text-[12.5px] text-accent hover:underline">
-                Upload →
-              </Link>
-            </div>
-            <div className="p-3">
-              <JobTray limit={3} />
             </div>
           </div>
         </div>

@@ -43,9 +43,6 @@ export default function CctvPage() {
     <div className="mx-auto max-w-[1300px] space-y-5 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-[18px] font-semibold text-ink-0">CCTV</h1>
-        <Link href="/upload" className="btn">
-          Upload a new clip
-        </Link>
       </div>
 
       {camerasLoading ? (

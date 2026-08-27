@@ -54,3 +54,4 @@ Thumbs.db
 
 # Logs
 *.log
+APP/tsconfig.tsbuildinfo

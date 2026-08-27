@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "react-leaflet";
 import type { Camera, Incident, RoadGraphGeoJSON, RouteGeometry } from "@/lib/types";
+import type { ElectronicCityDemoState } from "@/lib/electronicCityDemo";
 import { normaliseSeverity } from "@/lib/types";
 import { SEVERITY_HEX, UNKNOWN_SEVERITY_HEX } from "./SeverityBadge";
 import { eventLabel, incidentRef } from "@/lib/format";
@@ -42,6 +43,8 @@ export interface MapCanvasProps {
   accessRoute?: RouteGeometry | null;
   selectedIncidentId?: number | null;
   onSelectIncident?: (incident: Incident) => void;
+  /** Clearly-labelled showcase layer; it never changes backend data. */
+  demo?: ElectronicCityDemoState | null;
   className?: string;
 }
 
@@ -53,6 +56,7 @@ export default function MapCanvas({
   accessRoute = null,
   selectedIncidentId = null,
   onSelectIncident,
+  demo = null,
   className = "",
 }: MapCanvasProps) {
   /** Cameras carry the only real coordinates in the system. */
@@ -110,6 +114,7 @@ export default function MapCanvas({
   }, [graph]);
 
   const centre = useMemo<[number, number]>(() => {
+    if (demo) return demo.centre;
     const points = [
       ...pinnedIncidents.map((entry) => entry.position),
       ...locatedCameras.map(
@@ -121,15 +126,15 @@ export default function MapCanvas({
     const lat = points.reduce((sum, point) => sum + point[0], 0) / points.length;
     const lon = points.reduce((sum, point) => sum + point[1], 0) / points.length;
     return [lat, lon];
-  }, [pinnedIncidents, locatedCameras, graphLines]);
+  }, [demo, pinnedIncidents, locatedCameras, graphLines]);
 
-  const hasAnything = pinnedIncidents.length + locatedCameras.length + graphLines.length > 0;
+  const hasAnything = Boolean(demo) || pinnedIncidents.length + locatedCameras.length + graphLines.length > 0;
 
   return (
     <div className={`relative h-full w-full ${className}`}>
       <MapContainer
         center={centre}
-        zoom={hasAnything ? 13 : 11}
+        zoom={demo ? 15 : hasAnything ? 13 : 11}
         scrollWheelZoom
         className="h-full w-full"
       >
@@ -186,6 +191,97 @@ export default function MapCanvas({
               {accessRoute.length_m} m · {accessRoute.cost_s} s
             </Popup>
           </Polyline>
+        ) : null}
+
+        {/* Electronic City Phase 1 showcase. All of these marks are supplied
+            by APP/lib/electronicCityDemo.ts and intentionally stay outside
+            the backend incident/camera records. */}
+        {demo ? (
+          <>
+            {demo.route.coords.length ? (
+              <Polyline
+                positions={demo.route.coords}
+                pathOptions={{ color: "#4da3ff", weight: 5, opacity: 0.95 }}
+              >
+                <Popup>
+                  <b>SIMULATED hospital access route</b>
+                  <br />
+                  {demo.route.facility.name}
+                  <br />
+                  {demo.route.distanceM.toLocaleString()} m · ~{demo.route.etaMinutes} min
+                  <br />
+                  Demo road model only; no dispatch is issued.
+                </Popup>
+              </Polyline>
+            ) : null}
+
+            {demo.cameras.map((camera) => (
+              <CircleMarker
+                key={`demo-camera-${camera.id}`}
+                center={camera.position}
+                radius={camera.status === "incident" ? 8 : 6}
+                pathOptions={{
+                  color: camera.status === "incident" ? "#e5a73f" : "#3fb9a6",
+                  fillColor: camera.status === "incident" ? "#e5a73f" : "#3fb9a6",
+                  fillOpacity: 0.75,
+                  weight: 2,
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -8]}>
+                  <b>{camera.id}</b> · {camera.name}
+                </Tooltip>
+                <Popup>
+                  <b>{camera.name}</b>
+                  <br />
+                  {camera.road}
+                  <br />
+                  <span style={{ color: "#8b95a5" }}>SYNTHETIC CCTV showcase location</span>
+                </Popup>
+              </CircleMarker>
+            ))}
+
+            {demo.hospitals.map((hospital) => (
+              <CircleMarker
+                key={`demo-hospital-${hospital.id}`}
+                center={hospital.position}
+                radius={hospital.id === demo.route.facility.id ? 9 : 6}
+                pathOptions={{
+                  color: "#4da3ff",
+                  fillColor: "#4da3ff",
+                  fillOpacity: hospital.id === demo.route.facility.id ? 0.85 : 0.45,
+                  weight: hospital.id === demo.route.facility.id ? 3 : 2,
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -8]}>
+                  <b>H</b> · {hospital.name}
+                </Tooltip>
+                <Popup>
+                  <b>{hospital.name}</b>
+                  <br />
+                  <span style={{ color: "#8b95a5" }}>{hospital.source}</span>
+                </Popup>
+              </CircleMarker>
+            ))}
+
+            <CircleMarker
+              center={demo.incident.position}
+              radius={12}
+              pathOptions={{ color: "#e5484d", fillColor: "#e5484d", fillOpacity: 0.75, weight: 3 }}
+            >
+              <Tooltip direction="top" offset={[0, -10]}>
+                <b>{demo.incident.id}</b> · congestion scenario
+              </Tooltip>
+              <Popup>
+                <b>{demo.incident.label}</b>
+                <br />
+                {demo.incident.congestionActive
+                  ? `Congestion active: ${demo.incident.closedEdgeLabel} is excluded.`
+                  : "No demo road closure active."}
+                <br />
+                <span style={{ color: "#8b95a5" }}>SYNTHETIC scenario; not a backend incident.</span>
+              </Popup>
+            </CircleMarker>
+          </>
         ) : null}
 
         {/* cameras */}

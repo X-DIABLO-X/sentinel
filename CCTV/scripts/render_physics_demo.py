@@ -77,6 +77,7 @@ from netra.detect import (  # noqa: E402
 from netra.events.rotation_gate import (  # noqa: E402
     PairResult,
     RotationGateConfig,
+    samples_from_track,
     score_pairs,
 )
 from netra.predict import pixels_per_metre  # noqa: E402
@@ -136,12 +137,17 @@ def parse_args() -> argparse.Namespace:
 
 def _label(frame: np.ndarray, x: int, y_top: int, lines: list[str],
           color: tuple[int, int, int]) -> None:
-    """Stack label lines upward from (x, y_top), each on its own filled tag."""
+    """Stack label lines upward from (x, y_top), each on its own filled tag.
+
+    Font scale 0.42 (was 0.45) -- matches DRONE/scripts/run_drone_analysis.py's
+    own ``_label``, and keeps the now-longer stack (speed, accel, momentum,
+    evidence) legible without the tags ballooning in height.
+    """
     ty = y_top - 4
     for line in reversed(lines):
-        (tw, th), _ = cv2.getTextSize(line, FONT, 0.45, 1)
+        (tw, th), _ = cv2.getTextSize(line, FONT, 0.42, 1)
         cv2.rectangle(frame, (x, ty - th - 4), (x + tw + 6, ty + 2), (0, 0, 0), -1)
-        cv2.putText(frame, line, (x + 3, ty - 2), FONT, 0.45, color, 1, cv2.LINE_AA)
+        cv2.putText(frame, line, (x + 3, ty - 2), FONT, 0.42, color, 1, cv2.LINE_AA)
         ty -= th + 8
 
 
@@ -198,11 +204,32 @@ def run_tracking(video_path: Path, detector: Detector, tracker: ByteTracker,
         snap: dict[int, dict] = {}
         for tr in tracks:
             gx, gy = tr.ground_point
+
+            # Acceleration / momentum, from rotation_gate's own kinematics
+            # (TrackSample.accel_mps2 / .momentum_kgms -- see
+            # netra/events/rotation_gate.py samples_from_track()). Guarded by
+            # the same min_track_samples the rest of rotation_gate uses to
+            # decide a track is long enough to trust (config.yaml
+            # collision.rotation_gate.min_track_frames, default 8) -- a
+            # 2-3 sample central difference is noise, not a measurement, so
+            # it stays unset (never drawn) rather than shown.
+            accel_mps2 = None
+            momentum_kgms = None
+            hist_len = len(getattr(tr, "box_history", ()) or ())
+            if hist_len >= rg_cfg.min_track_samples:
+                tr_samples = samples_from_track(tr)
+                if tr_samples:
+                    last_sample = tr_samples[-1]
+                    accel_mps2 = last_sample.accel_mps2
+                    momentum_kgms = last_sample.momentum_kgms
+
             snap[tr.track_id] = {
                 "box": [float(v) for v in tr.box],
                 "cls": int(tr.cls),
                 "speed_px_s": float(tr.speed_px()),
                 "ground_point": [float(gx), float(gy)],
+                "accel_mps2": accel_mps2,
+                "momentum_kgms": momentum_kgms,
             }
             ts = track_summary.setdefault(tr.track_id, {
                 "cls": int(tr.cls),
@@ -213,6 +240,8 @@ def run_tracking(video_path: Path, detector: Detector, tracker: ByteTracker,
             ts["last_t"] = float(tr.last_t)
             ts["max_speed_px_s"] = max(ts["max_speed_px_s"], float(tr.speed_px()))
             ts["n_frames"] += 1
+            ts["last_accel_mps2"] = accel_mps2
+            ts["last_momentum_kgms"] = momentum_kgms
         frame_records[frame_idx] = snap
 
         if score_every <= 1 or frame_idx % score_every == 0:
@@ -318,6 +347,18 @@ def render(video_path: Path, out_path: Path, run_info: dict, threshold: float,
                 f"#{tid} {cls_name}",
                 f"{speed_px_s:.0f} px/s (~{speed_kmh_est:.0f} km/h est.)",
             ]
+            # accel/momentum: same label text and unit convention as
+            # DRONE/scripts/run_drone_analysis.py's per-vehicle stack
+            # ("accel ~{:+.1f} m/s2 est." / "p ~{:.0f} kg m/s est."), so a
+            # viewer sees the same physics-readout style on both renderers.
+            # None (track too young -- see run_tracking's min_track_samples
+            # guard) means omit the line, never show a noisy/undefined number.
+            accel_mps2 = info.get("accel_mps2")
+            momentum_kgms = info.get("momentum_kgms")
+            if accel_mps2 is not None:
+                lines.append(f"accel ~{accel_mps2:+.1f} m/s2 est.")
+            if momentum_kgms is not None:
+                lines.append(f"p ~{momentum_kgms:.0f} kg m/s est.")
             if sc > 0.0:
                 lines.append(f"evidence {sc:.2f}")
             _label(frame, x1, y1, lines, col)
@@ -374,6 +415,8 @@ def build_result_json(video_path: Path, run_info: dict, threshold: float,
     for tid, ts in run_info["track_summary"].items():
         cls_name = ROAD_USER_CLASSES.get(ts["cls"], str(ts["cls"]))
         duration = max(0.0, ts["last_t"] - ts["first_t"])
+        last_accel = ts.get("last_accel_mps2")
+        last_momentum = ts.get("last_momentum_kgms")
         tracks_out[str(tid)] = {
             "cls": ts["cls"],
             "cls_name": cls_name,
@@ -383,6 +426,11 @@ def build_result_json(video_path: Path, run_info: dict, threshold: float,
             "n_frames_confirmed": ts["n_frames"],
             "max_speed_px_s": round(ts["max_speed_px_s"], 2),
             "best_rotation_gate_score": round(run_info["best_of"].get(tid, 0.0), 4),
+            # Last-observed instantaneous estimate (rotation_gate.TrackSample,
+            # same source as the on-screen labels); None if the track never
+            # reached min_track_samples -- never a fabricated fallback.
+            "last_accel_mps2_estimate": round(last_accel, 3) if last_accel is not None else None,
+            "last_momentum_kgms_estimate": round(last_momentum, 1) if last_momentum is not None else None,
         }
 
     if best_pair is None:

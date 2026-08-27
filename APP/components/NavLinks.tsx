@@ -10,7 +10,6 @@ const LINKS: { href: string; label: string }[] = [
   { href: "/cctv", label: "CCTV" },
   { href: "/drone", label: "Drone" },
   { href: "/calibrate", label: "Calibrate" },
-  { href: "/upload", label: "Upload" },
 ];
 
 export default function NavLinks() {

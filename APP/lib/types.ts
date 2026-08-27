@@ -359,53 +359,11 @@ export interface RouteResponse {
 }
 
 /* -------------------------------------------------------------------------
- * Upload jobs (jobs.py VideoJobManager)
+ * ProblemSet review videos (GET /api/problem-videos)
  * ---------------------------------------------------------------------- */
 
-export type JobStatus = "uploading" | "queued" | "running" | "complete" | "failed";
-
-export interface Job {
-  id: string;
-  filename: string;
-  input?: string;
-  status: JobStatus;
-  /** Finer-grained than status: "uploading" | "queued" | "loading" | ... */
-  phase?: string;
-  percent: number;
-  message?: string;
-  created_at?: number;
-  updated_at?: number;
-  error?: string | null;
-  /** Absolute server path; use jobVideoUrl(id) to display it, not this. */
-  annotated_video?: string | null;
-  camera_id?: string;
-  /** process_one() row from scripts/run_problems.py. */
-  result?: JobResult | null;
-}
-
-/** The analysis row returned by scripts/run_problems.process_one(). */
-export interface JobResult {
-  camera_id?: string;
-  file?: string;
-  calibrated?: boolean;
-  calibration_source?: string;
-  corridors?: number;
-  events_total?: number;
-  events_by_type?: Record<string, number>;
-  events_by_severity?: Record<string, number>;
-  alerts_per_video_hour?: number;
-  collision_candidates_dropped?: number;
-  wall_seconds?: number;
-  annotated_video?: string;
-  report?: string;
-  stats?: Record<string, unknown>;
-  events?: JobEvent[];
-  render?: Record<string, unknown>;
-  render_error?: string;
-  [key: string]: unknown;
-}
-
-export interface JobEvent {
+/** One detected event's summary fields, as returned inside a ProblemVideo row. */
+export interface AnalysisEvent {
   event_type?: string;
   severity?: number;
   severity_label?: string;
@@ -416,10 +374,6 @@ export interface JobEvent {
   explanation?: string;
   [key: string]: unknown;
 }
-
-/* -------------------------------------------------------------------------
- * ProblemSet review videos (GET /api/problem-videos)
- * ---------------------------------------------------------------------- */
 
 /**
  * Rows come straight out of
@@ -434,7 +388,7 @@ export interface ProblemVideo {
   annotated_video?: string;
   events_total?: number;
   events_by_type?: Record<string, number>;
-  events?: JobEvent[];
+  events?: AnalysisEvent[];
   [key: string]: unknown;
 }
 

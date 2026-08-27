@@ -11,6 +11,7 @@ import EvidencePanel from "@/components/EvidencePanel";
 import SeverityBadge from "@/components/SeverityBadge";
 import EmptyState from "@/components/EmptyState";
 import { eventLabel, incidentRef } from "@/lib/format";
+import { electronicCityDemo } from "@/lib/electronicCityDemo";
 
 /**
  * 3-column operator console: incident feed / centre map + run controls /
@@ -36,6 +37,10 @@ export default function MapPage() {
   const [route, setRoute] = useState<RouteResponse | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [routing, setRouting] = useState(false);
+  const [showDemo, setShowDemo] = useState(true);
+  const [congestionActive, setCongestionActive] = useState(false);
+
+  const demo = showDemo ? electronicCityDemo(congestionActive) : null;
 
   async function computeRoute() {
     if (!source.trim() || !target.trim()) return;
@@ -99,9 +104,42 @@ export default function MapPage() {
             diversion={route?.current ?? null}
             selectedIncidentId={selected?.id ?? null}
             onSelectIncident={setSelected}
+            demo={demo}
           />
         </div>
         <div className="border-t border-line bg-panel-1 p-4">
+          <div className="rounded-md border border-accent/30 bg-accent/[0.06] p-3">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="panel-title text-accent">Electronic City Phase 1 showcase</div>
+                <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-ink-2">
+                  Synthetic CCTV sites + nearby reference hospitals. The blue line is the shortest
+                  reachable path in an illustrative local road graph, not live navigation or dispatch.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" className="btn" onClick={() => setShowDemo((value) => !value)}>
+                  {showDemo ? "Hide showcase" : "Show showcase"}
+                </button>
+                {showDemo ? (
+                  <button
+                    type="button"
+                    className={congestionActive ? "btn btn-danger" : "btn btn-primary"}
+                    onClick={() => setCongestionActive((value) => !value)}
+                  >
+                    {congestionActive ? "Clear congestion" : "Simulate congestion"}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            {demo ? (
+              <div className="mt-3 grid gap-2 text-[11.5px] text-ink-2 sm:grid-cols-3">
+                <div><strong className="text-ink-1">1. Detect</strong><br />{demo.incident.id} at Neeladri Junction</div>
+                <div><strong className="text-ink-1">2. Constrain</strong><br />{demo.incident.congestionActive ? "Congested approach excluded" : "No closure applied yet"}</div>
+                <div><strong className="text-ink-1">3. Route</strong><br />{demo.route.facility.name} · {demo.route.distanceM.toLocaleString()} m · ~{demo.route.etaMinutes} min</div>
+              </div>
+            ) : null}
+          </div>
           <div className="flex flex-wrap items-end gap-3">
             <label className="min-w-[160px]">
               <span className="mb-1 block text-[11px] uppercase tracking-wider text-ink-3">
@@ -141,9 +179,9 @@ export default function MapPage() {
             {routeError ? <span className="text-[12px] text-sev-critical">{routeError}</span> : null}
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-ink-3">
-            GET /api/route needs two road-graph NODE ids (from{" "}
-            <code className="font-mono">config/road_graph.json</code>) — there is no endpoint that
-            maps an incident to its nearest node, so they are entered by hand.
+            Advanced backend route: GET <code className="font-mono">/api/route</code> needs two
+            road-graph node IDs. This remains separate from the Phase 1 showcase until a production
+            road graph maps each incident to a real edge.
           </p>
           <div className="mt-2">
             <RouteLegend accessRouteAvailable={false} />
@@ -179,10 +217,24 @@ export default function MapPage() {
               <EvidencePanel incident={selected} />
             </div>
           ) : (
-            <EmptyState
-              title="No incident selected"
-              detail="Click an incident card or a map pin to see its evidence and detail here."
-            />
+            demo ? (
+              <div className="space-y-3">
+                <div>
+                  <div className="panel-title">Showcase decision</div>
+                  <h2 className="mt-1 text-[15px] font-semibold text-ink-0">{demo.incident.label}</h2>
+                </div>
+                <div className="panel px-3 py-3 text-[12px] leading-relaxed text-ink-2">
+                  <p><strong className="text-ink-1">Recommended reference facility</strong><br />{demo.route.facility.name}</p>
+                  <p className="mt-2"><strong className="text-ink-1">Route state</strong><br />{demo.incident.congestionActive ? "Congested edge removed; alternate path selected." : "Direct path selected before congestion."}</p>
+                  <p className="mt-2 text-ink-3">This route is illustrative. Facility availability and dispatch are not inferred.</p>
+                </div>
+              </div>
+            ) : (
+              <EmptyState
+                title="No incident selected"
+                detail="Click an incident card or a map pin to see its evidence and detail here."
+              />
+            )
           )}
         </div>
       </div>
