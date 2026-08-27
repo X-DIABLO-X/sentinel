@@ -235,14 +235,6 @@ flowchart LR
     D_API --> APP
 ```
 
-The dispatch arrow (CCTV → DRONE) is the architectural claim, not yet a wired integration —
-`CCTV/netra/response.py` is built and tested standalone but not yet called from `api.py`.
-`netra/events/rotation_gate.py` **is** wired into `netra/events/collision.py` (§6), gated on
-independent-channel agreement rather than called standalone; §6 reports the partial re-measurement of
-what that wiring changed, including a found regression risk.
-
----
-
 ## 4. Two tiers, built together: CCTV backbone, drone escalation
 
 This system is built for both platforms — the drone is not a stub bolted onto a CCTV-only system, and
