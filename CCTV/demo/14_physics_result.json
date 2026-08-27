@@ -1,5 +1,5 @@
 {
-  "video": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\demo\\14.mp4",
+  "video": "D:\\HARSHIT\\ELCIA\\DATASET\\ACCIDENT\\POSITIVE\\14.mp4",
   "resolution": [
     1280,
     720
@@ -20,15 +20,15 @@
       "min_hits": 3
     },
     "frames_processed": 898,
-    "detect_track_seconds": 36.03,
-    "fps_processed": 24.92,
+    "detect_track_seconds": 48.05,
+    "fps_processed": 18.69,
     "detector_latency_ms": {
       "n": 898,
-      "mean_ms": 25.67,
-      "median_ms": 24.65,
-      "p95_ms": 32.07,
-      "max_ms": 146.03,
-      "implied_fps": 38.96
+      "mean_ms": 29.31,
+      "median_ms": 28.54,
+      "p95_ms": 34.98,
+      "max_ms": 157.87,
+      "implied_fps": 34.12
     },
     "rotation_gate_score_calls": 899,
     "rotation_gate_pairs_ever_considered": 2273,
@@ -43,7 +43,9 @@
       "duration_s": 30.033,
       "n_frames_confirmed": 896,
       "max_speed_px_s": 17.64,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 5.629,
+      "last_momentum_kgms_estimate": 1039.3
     },
     "3": {
       "cls": 2,
@@ -53,7 +55,9 @@
       "duration_s": 13.359,
       "n_frames_confirmed": 398,
       "max_speed_px_s": 12.74,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": -0.559,
+      "last_momentum_kgms_estimate": 29.6
     },
     "5": {
       "cls": 2,
@@ -63,7 +67,9 @@
       "duration_s": 26.685,
       "n_frames_confirmed": 796,
       "max_speed_px_s": 63.85,
-      "best_rotation_gate_score": 0.5666
+      "best_rotation_gate_score": 0.5666,
+      "last_accel_mps2_estimate": 0.229,
+      "last_momentum_kgms_estimate": 640.2
     },
     "6": {
       "cls": 2,
@@ -73,7 +79,9 @@
       "duration_s": 2.478,
       "n_frames_confirmed": 57,
       "max_speed_px_s": 44.02,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 1.983,
+      "last_momentum_kgms_estimate": 966.4
     },
     "9": {
       "cls": 2,
@@ -83,7 +91,9 @@
       "duration_s": 2.879,
       "n_frames_confirmed": 85,
       "max_speed_px_s": 433.58,
-      "best_rotation_gate_score": 0.2975
+      "best_rotation_gate_score": 0.2975,
+      "last_accel_mps2_estimate": -7.752,
+      "last_momentum_kgms_estimate": 5390.0
     },
     "11": {
       "cls": 2,
@@ -93,7 +103,9 @@
       "duration_s": 12.489,
       "n_frames_confirmed": 361,
       "max_speed_px_s": 238.62,
-      "best_rotation_gate_score": 0.2929
+      "best_rotation_gate_score": 0.2929,
+      "last_accel_mps2_estimate": 7.365,
+      "last_momentum_kgms_estimate": 1457.7
     },
     "14": {
       "cls": 2,
@@ -103,7 +115,9 @@
       "duration_s": 2.109,
       "n_frames_confirmed": 44,
       "max_speed_px_s": 547.19,
-      "best_rotation_gate_score": 0.2975
+      "best_rotation_gate_score": 0.2975,
+      "last_accel_mps2_estimate": 69.005,
+      "last_momentum_kgms_estimate": 5718.5
     },
     "21": {
       "cls": 2,
@@ -113,7 +127,9 @@
       "duration_s": 3.147,
       "n_frames_confirmed": 91,
       "max_speed_px_s": 257.02,
-      "best_rotation_gate_score": 0.2998
+      "best_rotation_gate_score": 0.2998,
+      "last_accel_mps2_estimate": 1.023,
+      "last_momentum_kgms_estimate": 2810.0
     },
     "24": {
       "cls": 2,
@@ -123,7 +139,9 @@
       "duration_s": 4.152,
       "n_frames_confirmed": 103,
       "max_speed_px_s": 271.18,
-      "best_rotation_gate_score": 0.2998
+      "best_rotation_gate_score": 0.2998,
+      "last_accel_mps2_estimate": 129.845,
+      "last_momentum_kgms_estimate": 9875.3
     },
     "28": {
       "cls": 2,
@@ -133,7 +151,9 @@
       "duration_s": 12.221,
       "n_frames_confirmed": 358,
       "max_speed_px_s": 531.5,
-      "best_rotation_gate_score": 0.5666
+      "best_rotation_gate_score": 0.5666,
+      "last_accel_mps2_estimate": 8.932,
+      "last_momentum_kgms_estimate": 1561.3
     },
     "33": {
       "cls": 7,
@@ -143,7 +163,9 @@
       "duration_s": 0.402,
       "n_frames_confirmed": 9,
       "max_speed_px_s": 10.21,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": -1.285,
+      "last_momentum_kgms_estimate": 227.7
     },
     "34": {
       "cls": 2,
@@ -153,7 +175,9 @@
       "duration_s": 9.777,
       "n_frames_confirmed": 240,
       "max_speed_px_s": 340.7,
-      "best_rotation_gate_score": 0.2929
+      "best_rotation_gate_score": 0.2929,
+      "last_accel_mps2_estimate": 13.396,
+      "last_momentum_kgms_estimate": 2949.6
     },
     "41": {
       "cls": 2,
@@ -163,7 +187,9 @@
       "duration_s": 1.339,
       "n_frames_confirmed": 39,
       "max_speed_px_s": 944.5,
-      "best_rotation_gate_score": 0.5319
+      "best_rotation_gate_score": 0.5319,
+      "last_accel_mps2_estimate": -62.331,
+      "last_momentum_kgms_estimate": 4873.4
     },
     "47": {
       "cls": 2,
@@ -173,7 +199,9 @@
       "duration_s": 17.076,
       "n_frames_confirmed": 509,
       "max_speed_px_s": 423.27,
-      "best_rotation_gate_score": 0.6024
+      "best_rotation_gate_score": 0.6024,
+      "last_accel_mps2_estimate": -0.104,
+      "last_momentum_kgms_estimate": 56.4
     },
     "49": {
       "cls": 2,
@@ -183,7 +211,9 @@
       "duration_s": 16.573,
       "n_frames_confirmed": 494,
       "max_speed_px_s": 577.81,
-      "best_rotation_gate_score": 0.6024
+      "best_rotation_gate_score": 0.6024,
+      "last_accel_mps2_estimate": 2.568,
+      "last_momentum_kgms_estimate": 232.7
     },
     "53": {
       "cls": 2,
@@ -193,7 +223,9 @@
       "duration_s": 9.107,
       "n_frames_confirmed": 257,
       "max_speed_px_s": 325.02,
-      "best_rotation_gate_score": 0.2371
+      "best_rotation_gate_score": 0.2371,
+      "last_accel_mps2_estimate": 2.24,
+      "last_momentum_kgms_estimate": 934.5
     },
     "61": {
       "cls": 2,
@@ -203,7 +235,9 @@
       "duration_s": 0.536,
       "n_frames_confirmed": 15,
       "max_speed_px_s": 63.28,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 15.377,
+      "last_momentum_kgms_estimate": 2297.1
     },
     "64": {
       "cls": 2,
@@ -213,7 +247,9 @@
       "duration_s": 0.134,
       "n_frames_confirmed": 3,
       "max_speed_px_s": 7.98,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": null,
+      "last_momentum_kgms_estimate": null
     },
     "70": {
       "cls": 2,
@@ -223,7 +259,9 @@
       "duration_s": 3.984,
       "n_frames_confirmed": 118,
       "max_speed_px_s": 4.6,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": -1.446,
+      "last_momentum_kgms_estimate": 128.6
     },
     "74": {
       "cls": 2,
@@ -233,7 +271,9 @@
       "duration_s": 2.344,
       "n_frames_confirmed": 69,
       "max_speed_px_s": 20.36,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 4.591,
+      "last_momentum_kgms_estimate": 764.9
     },
     "75": {
       "cls": 2,
@@ -243,7 +283,9 @@
       "duration_s": 0.134,
       "n_frames_confirmed": 3,
       "max_speed_px_s": 19.38,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": null,
+      "last_momentum_kgms_estimate": null
     },
     "78": {
       "cls": 2,
@@ -253,7 +295,9 @@
       "duration_s": 7.768,
       "n_frames_confirmed": 231,
       "max_speed_px_s": 18.88,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": -5.856,
+      "last_momentum_kgms_estimate": 219.5
     },
     "87": {
       "cls": 7,
@@ -263,7 +307,9 @@
       "duration_s": 1.172,
       "n_frames_confirmed": 32,
       "max_speed_px_s": 126.35,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 0.32,
+      "last_momentum_kgms_estimate": 302.8
     },
     "90": {
       "cls": 2,
@@ -273,7 +319,9 @@
       "duration_s": 0.134,
       "n_frames_confirmed": 3,
       "max_speed_px_s": 0.73,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": null,
+      "last_momentum_kgms_estimate": null
     },
     "92": {
       "cls": 2,
@@ -283,7 +331,9 @@
       "duration_s": 4.085,
       "n_frames_confirmed": 108,
       "max_speed_px_s": 11.38,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 1.515,
+      "last_momentum_kgms_estimate": 246.5
     },
     "96": {
       "cls": 7,
@@ -293,7 +343,9 @@
       "duration_s": 2.176,
       "n_frames_confirmed": 42,
       "max_speed_px_s": 32.6,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": -0.723,
+      "last_momentum_kgms_estimate": 182.1
     },
     "101": {
       "cls": 2,
@@ -303,7 +355,9 @@
       "duration_s": 0.837,
       "n_frames_confirmed": 24,
       "max_speed_px_s": 598.9,
-      "best_rotation_gate_score": 0.0
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 2.371,
+      "last_momentum_kgms_estimate": 3887.9
     }
   },
   "collision": {

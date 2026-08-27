@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { getCameras, getIncidents, getProblemVideos, problemPosterUrl, problemVideoUrl } from "@/lib/api";
+import {
+  demoPosterUrl,
+  demoVideoUrl,
+  getCameras,
+  getDemoVideos,
+  getIncidents,
+  getProblemVideos,
+  problemPosterUrl,
+  problemVideoUrl,
+} from "@/lib/api";
 import { useApi } from "@/lib/useApi";
 import IncidentCard from "@/components/IncidentCard";
 import EmptyState from "@/components/EmptyState";
@@ -34,6 +43,11 @@ export default function CctvPage() {
 
   const { data: problemVideos, firstLoad: problemLoading } = useApi(
     (signal) => getProblemVideos("cctv", signal),
+    [],
+  );
+
+  const { data: demoVideos, firstLoad: demoLoading } = useApi(
+    (signal) => getDemoVideos("cctv", signal),
     [],
   );
 
@@ -130,6 +144,54 @@ export default function CctvPage() {
           </div>
         </div>
       )}
+
+      <div className="panel">
+        <div className="panel-head">
+          <span className="panel-title">
+            Physics demo — rotation-gate engine{demoLoading ? "" : ` (${demoVideos?.length ?? 0})`}
+          </span>
+        </div>
+        <div className="p-4">
+          {demoLoading ? (
+            <p className="text-[12.5px] text-ink-3">Loading…</p>
+          ) : !demoVideos?.length ? (
+            <EmptyState
+              title="No physics-render demo clips available"
+              detail={
+                <>
+                  GET /api/demo-videos returned nothing — <code className="font-mono">CCTV/demo/</code>{" "}
+                  has no <code className="font-mono">*_physics_result.json</code> files in this port of
+                  the backend.
+                </>
+              }
+            />
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {demoVideos.map((row) => (
+                <div key={row.stem} className="panel overflow-hidden">
+                  <video
+                    className="block w-full bg-panel-0"
+                    src={demoVideoUrl(row.stem)}
+                    poster={demoPosterUrl(row.stem)}
+                    controls
+                    muted
+                    playsInline
+                  />
+                  <div className="px-3 py-2 text-[11.5px] text-ink-2">
+                    <div className="truncate font-mono">{row.file}</div>
+                    <div className="text-ink-3">
+                      {row.collision_score != null
+                        ? `score ${row.collision_score.toFixed(3)} · ${row.interaction ?? "?"} ·
+                           ${row.collision_confident ? "CONFIDENT" : "below threshold"}`
+                        : "no collision candidate"}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="panel">
         <div className="panel-head">

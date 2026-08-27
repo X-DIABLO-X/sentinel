@@ -37,6 +37,10 @@ CCTV/reports/
 # copied into docs/assets/ instead, which IS committed.
 CCTV/evidence/
 
+# Browser-compatible video/poster cache for /api/problem-videos and
+# /api/demo-videos (regenerated on first request per clip, not source).
+CCTV/uploads/
+
 # Weight files ultralytics auto-downloads to cwd if a run script doesn't
 # point at models/ explicitly — the real copies live in CCTV/models/.
 CCTV/*.pt

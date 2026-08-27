@@ -393,6 +393,28 @@ export interface ProblemVideo {
 }
 
 /* -------------------------------------------------------------------------
+ * Physics-render demo clips (GET /api/demo-videos)
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Rows come from scanning CCTV/demo/*_physics_result.json directly — our own
+ * rotation_gate.py render output, not NETRA's ProblemSet. Never a hardcoded
+ * list: whatever is really on disk is what shows up here.
+ */
+export interface DemoVideo {
+  file: string;
+  stem: string;
+  duration_s?: number;
+  track_count?: number;
+  collision_score?: number;
+  collision_confident?: boolean;
+  interaction?: string;
+  relative_heading_deg?: number;
+  contact_t?: number;
+  track_ids?: number[];
+}
+
+/* -------------------------------------------------------------------------
  * Metrics / reports
  * ---------------------------------------------------------------------- */
 

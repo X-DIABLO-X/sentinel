@@ -1,0 +1,214 @@
+{
+  "video": "D:\\HARSHIT\\ELCIA\\DATASET\\ACCIDENT\\POSITIVE\\7.mp4",
+  "resolution": [
+    1280,
+    720
+  ],
+  "native_fps": 22.938,
+  "frame_count": 689,
+  "duration_s": 30.037,
+  "processing": {
+    "detector_weights": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\models\\yolo26m.pt",
+    "detector_backend": "torch",
+    "device": "cuda:0",
+    "tracker": {
+      "high_thresh": 0.35,
+      "low_thresh": 0.1,
+      "match_thresh": 0.8,
+      "second_match_thresh": 0.5,
+      "max_time_lost": 30,
+      "min_hits": 3
+    },
+    "frames_processed": 689,
+    "detect_track_seconds": 41.69,
+    "fps_processed": 16.53,
+    "detector_latency_ms": {
+      "n": 689,
+      "mean_ms": 44.16,
+      "median_ms": 35.89,
+      "p95_ms": 65.2,
+      "max_ms": 570.56,
+      "implied_fps": 22.65
+    },
+    "rotation_gate_score_calls": 690,
+    "rotation_gate_pairs_ever_considered": 62,
+    "speed_units_note": "px/s is the honest reported speed -- these cameras have no image-to-ground calibration (checked config/cameras/*.json). km/h figures are a class-width monocular ESTIMATE (same method rotation_gate uses internally), not a calibrated measurement."
+  },
+  "tracks": {
+    "1": {
+      "cls": 7,
+      "cls_name": "truck",
+      "first_t": 0.0,
+      "last_t": 29.993,
+      "duration_s": 29.993,
+      "n_frames_confirmed": 687,
+      "max_speed_px_s": 8.34,
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 0.068,
+      "last_momentum_kgms_estimate": 146.7
+    },
+    "2": {
+      "cls": 7,
+      "cls_name": "truck",
+      "first_t": 0.392,
+      "last_t": 29.993,
+      "duration_s": 29.601,
+      "n_frames_confirmed": 666,
+      "max_speed_px_s": 16.8,
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 0.432,
+      "last_momentum_kgms_estimate": 250.8
+    },
+    "6": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 3.575,
+      "last_t": 5.842,
+      "duration_s": 2.267,
+      "n_frames_confirmed": 48,
+      "max_speed_px_s": 663.68,
+      "best_rotation_gate_score": 0.2855,
+      "last_accel_mps2_estimate": -55.5,
+      "last_momentum_kgms_estimate": 1568.2
+    },
+    "10": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 4.229,
+      "last_t": 5.842,
+      "duration_s": 1.613,
+      "n_frames_confirmed": 36,
+      "max_speed_px_s": 313.13,
+      "best_rotation_gate_score": 0.2855,
+      "last_accel_mps2_estimate": -7.771,
+      "last_momentum_kgms_estimate": 2430.8
+    },
+    "12": {
+      "cls": 5,
+      "cls_name": "bus",
+      "first_t": 5.667,
+      "last_t": 9.417,
+      "duration_s": 3.749,
+      "n_frames_confirmed": 60,
+      "max_speed_px_s": 18.69,
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 3.631,
+      "last_momentum_kgms_estimate": 6177.0
+    },
+    "20": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 7.76,
+      "last_t": 8.152,
+      "duration_s": 0.392,
+      "n_frames_confirmed": 8,
+      "max_speed_px_s": 37.32,
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 5.602,
+      "last_momentum_kgms_estimate": 3205.7
+    },
+    "23": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 13.95,
+      "last_t": 28.511,
+      "duration_s": 14.561,
+      "n_frames_confirmed": 322,
+      "max_speed_px_s": 61.33,
+      "best_rotation_gate_score": 0.0266,
+      "last_accel_mps2_estimate": 2.662,
+      "last_momentum_kgms_estimate": 1250.5
+    },
+    "24": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 16.959,
+      "last_t": 19.269,
+      "duration_s": 2.311,
+      "n_frames_confirmed": 52,
+      "max_speed_px_s": 36.69,
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 2.484,
+      "last_momentum_kgms_estimate": 739.4
+    },
+    "26": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 19.095,
+      "last_t": 29.993,
+      "duration_s": 10.899,
+      "n_frames_confirmed": 249,
+      "max_speed_px_s": 28.85,
+      "best_rotation_gate_score": 0.0266,
+      "last_accel_mps2_estimate": 5.996,
+      "last_momentum_kgms_estimate": 1623.3
+    }
+  },
+  "collision": {
+    "confident": true,
+    "threshold": 0.15,
+    "track_ids": [
+      10,
+      6
+    ],
+    "score": 0.2855,
+    "contact": 1.0,
+    "gap": -0.8263,
+    "contact_t": 5.281,
+    "contact_refined": true,
+    "interaction": "following",
+    "relative_heading_deg": 34.4,
+    "interaction_prior": 0.55,
+    "geometric_mean_evidence": 0.5192,
+    "evidence_a": {
+      "track_id": 10,
+      "rotation": 0.7186,
+      "gate": 0.7749,
+      "yaw_deg": 30.2673,
+      "aspect": 0.7609,
+      "decel": 0.8175,
+      "speed_drop": 0.7857,
+      "momentum_drop": 0.9967,
+      "track_break": 0.0,
+      "appearance": null,
+      "kinematic": 0.5233,
+      "score": 0.4736,
+      "n_window": 31,
+      "channels_used": [
+        "decel",
+        "momentum",
+        "speed_drop",
+        "track_break"
+      ],
+      "yaw_gate_passed": true,
+      "aspect_gate_passed": true,
+      "note": "silhouette changed by 76% after a stable approach"
+    },
+    "evidence_b": {
+      "track_id": 6,
+      "rotation": 0.7,
+      "gate": 0.76,
+      "yaw_deg": 10.9629,
+      "aspect": 0.1197,
+      "decel": 0.8049,
+      "speed_drop": 0.6202,
+      "momentum_drop": 0.4894,
+      "track_break": 1.0,
+      "appearance": null,
+      "kinematic": 0.7888,
+      "score": 0.5691,
+      "n_window": 29,
+      "channels_used": [
+        "decel",
+        "momentum",
+        "speed_drop",
+        "track_break"
+      ],
+      "yaw_gate_passed": true,
+      "aspect_gate_passed": true,
+      "note": "rotation inferred from the track terminating at contact"
+    },
+    "explain": "#10 and #6 came closest at t=5.28s (boxes overlapping, 34 deg relative heading -> following); #10: silhouette changed by 76% after a stable approach; #6: rotation inferred from the track terminating at contact; score 0.286"
+  },
+  "rotation_gate_config_source": "COMBINED/config.yaml :: inference2"
+}

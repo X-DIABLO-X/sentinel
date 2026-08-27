@@ -497,6 +497,91 @@ def create_app(config: dict | None = None) -> FastAPI:
         return FileResponse(poster, media_type="image/jpeg", headers={
             "Cache-Control": "public, max-age=86400, immutable"})
 
+    # -- physics-render demo clips (rotation_gate.py, CCTV/demo/) --------
+    # Genuinely our own build output, not NETRA's ProblemSet -- lists
+    # whatever *_physics_result.json files actually exist in demo/, so this
+    # never drifts out of sync with what's really on disk.
+    @app.get("/api/demo-videos")
+    def demo_videos():
+        demo_dir = ROOT / "demo"
+        rows = []
+        for result_path in demo_dir.glob("*_physics_result.json"):
+            stem = result_path.name[: -len("_result.json")]
+            video_path = demo_dir / f"{stem}.mp4"
+            if not video_path.is_file():
+                continue
+            try:
+                payload = json.loads(result_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            collision = payload.get("collision") or {}
+            rows.append({
+                "file": f"{stem}.mp4",
+                "stem": stem,
+                "duration_s": payload.get("duration_s"),
+                "track_count": len(payload.get("tracks") or {}),
+                "collision_score": collision.get("score"),
+                "collision_confident": collision.get("confident"),
+                "interaction": collision.get("interaction"),
+                "relative_heading_deg": collision.get("relative_heading_deg"),
+                "contact_t": collision.get("contact_t"),
+                "track_ids": collision.get("track_ids"),
+            })
+        return sorted(rows, key=lambda r: r["file"].lower())
+
+    @app.get("/api/demo-videos/{stem}/video")
+    def demo_video(stem: str):
+        demo_dir = (ROOT / "demo").resolve()
+        path = (demo_dir / f"{stem}.mp4").resolve()
+        try:
+            path.relative_to(demo_dir)
+        except ValueError as exc:
+            raise HTTPException(403, "forbidden path") from exc
+        if not path.is_file():
+            raise HTTPException(404, "demo video not found")
+        cache = ROOT / "uploads" / "browser_cache" / f"demo_{stem}.webm"
+        served = browser_video(path, cache)
+        media = "video/webm" if served.suffix.lower() == ".webm" else "video/mp4"
+        return FileResponse(served, media_type=media, headers={
+            "Cache-Control": "public, max-age=86400, immutable"})
+
+    @app.get("/api/demo-videos/{stem}/poster")
+    def demo_poster(stem: str):
+        demo_dir = (ROOT / "demo").resolve()
+        source = (demo_dir / f"{stem}.mp4").resolve()
+        try:
+            source.relative_to(demo_dir)
+        except ValueError as exc:
+            raise HTTPException(403, "forbidden path") from exc
+        if not source.is_file():
+            raise HTTPException(404, "demo video not found")
+        poster = ROOT / "uploads" / "browser_cache" / f"demo_{stem}.jpg"
+        if not poster.exists():
+            import cv2
+            contact_t = 1.0
+            result_path = demo_dir / f"{stem}_result.json"
+            if result_path.is_file():
+                try:
+                    payload = json.loads(result_path.read_text(encoding="utf-8"))
+                    contact_t = float((payload.get("collision") or {}).get("contact_t") or 1.0)
+                except (OSError, ValueError, TypeError):
+                    pass
+            cap = cv2.VideoCapture(str(source))
+            cap.set(cv2.CAP_PROP_POS_MSEC, max(0.0, contact_t - 0.5) * 1000)
+            ok, frame = cap.read()
+            cap.release()
+            if not ok:
+                raise HTTPException(404, "could not decode poster frame")
+            h, w = frame.shape[:2]
+            scale = min(1.0, 960.0 / max(w, h))
+            if scale < 1.0:
+                frame = cv2.resize(frame, (int(w * scale), int(h * scale)),
+                                   interpolation=cv2.INTER_AREA)
+            poster.parent.mkdir(parents=True, exist_ok=True)
+            cv2.imwrite(str(poster), frame, [cv2.IMWRITE_JPEG_QUALITY, 84])
+        return FileResponse(poster, media_type="image/jpeg", headers={
+            "Cache-Control": "public, max-age=86400, immutable"})
+
     @app.get("/api/jobs/{job_id}")
     def video_job(job_id: str):
         job = jobs.get(job_id)

@@ -15,6 +15,7 @@ import type {
   Backend,
   Camera,
   DashboardSnapshot,
+  DemoVideo,
   Health,
   Incident,
   IncidentStatus,
@@ -318,6 +319,24 @@ export const problemVideoUrl = (stem: string, backend: Backend = "cctv") =>
 
 export const problemPosterUrl = (stem: string, backend: Backend = "cctv") =>
   apiUrl(`/api/problem-videos/${encodeURIComponent(stem)}/poster`, backend);
+
+/* -------------------------------------------------------------------------
+ * Physics-render demo clips
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Reads CCTV/demo/*_physics_result.json server-side — our own rotation-gate
+ * render output (scripts/render_physics_demo.py), scanned live from disk, so
+ * this list is never a stale hardcoded set.
+ */
+export const getDemoVideos = (backend: Backend = "cctv", signal?: AbortSignal) =>
+  request<DemoVideo[]>("/api/demo-videos", { backend, signal });
+
+export const demoVideoUrl = (stem: string, backend: Backend = "cctv") =>
+  apiUrl(`/api/demo-videos/${encodeURIComponent(stem)}/video`, backend);
+
+export const demoPosterUrl = (stem: string, backend: Backend = "cctv") =>
+  apiUrl(`/api/demo-videos/${encodeURIComponent(stem)}/poster`, backend);
 
 /* -------------------------------------------------------------------------
  * TODO - endpoints this console wants that the backend does NOT expose
