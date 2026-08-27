@@ -95,6 +95,22 @@ def create_app(config: dict | None = None) -> FastAPI:
     app.add_middleware(CORSMiddleware, allow_origins=["*"],
                        allow_methods=["*"], allow_headers=["*"])
 
+    @app.middleware("http")
+    async def _no_cache_on_errors(request, call_next):
+        """Never let a failure response be cached.
+
+        Media routes hand back long-lived, immutable Cache-Control on success,
+        which is right -- an evidence clip for a closed incident never changes.
+        But a 404 served while an asset was still being deployed could be
+        heuristically cached by the browser and then keep showing "could not be
+        loaded" long after the file was actually in place. Errors are always
+        transient here, so mark them explicitly uncacheable.
+        """
+        response = await call_next(request)
+        if response.status_code >= 400:
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
     scene_cache: dict[str, SceneModel] | None = None
 
     def scenes(refresh: bool = False) -> dict[str, SceneModel]:

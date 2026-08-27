@@ -5,8 +5,10 @@ import { cameraFrameUrl } from "@/lib/api";
 import type { Backend } from "@/lib/types";
 
 /**
- * GET /api/cameras/{id}/frame - the calibration still, used on /cctv and
- * /calibrate. The backend reads the camera's configured source video and
+ * GET /api/cameras/{id}/frame - the camera's first frame, used on /cctv as
+ * the fallback when no physics render exists for that camera. The backend
+ * serves a pre-generated snapshot where one was shipped, otherwise reads the
+ * camera's configured source video and
  * 404s with a real reason ("could not read a frame from the source") when
  * that file is not present on this host - which, for a checkout that does
  * not carry the full raw-footage dataset, is the common case, not an edge

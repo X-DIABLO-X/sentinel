@@ -29,6 +29,19 @@ export default function EvidencePanel({
 
   const [frameFailed, setFrameFailed] = useState(false);
   const [clipFailed, setClipFailed] = useState(false);
+  // Bumped to force a fresh request on retry. A media element will not re-fetch
+  // a src it has already failed on, and a transient failure (or a 404 the
+  // browser cached from before the file was deployed) otherwise latches
+  // permanently for the life of the page.
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const retry = () => {
+    setFrameFailed(false);
+    setClipFailed(false);
+    setReloadKey((n) => n + 1);
+  };
+
+  const bust = (url: string) => (reloadKey ? `${url}?r=${reloadKey}` : url);
 
   if (!frame && !clip) {
     return (
@@ -58,14 +71,20 @@ export default function EvidencePanel({
       {frame ? (
         <figure className="panel overflow-hidden">
           {frameFailed ? (
-            <div className="px-4 py-6 text-[12.5px] text-ink-3">
-              Evidence frame <code className="font-mono">{frame}</code> could not be loaded from
-              the {backend.toUpperCase()} backend.
+            <div className="space-y-2 px-4 py-6 text-[12.5px] text-ink-3">
+              <p>
+                Evidence frame <code className="font-mono">{frame}</code> could not be loaded from
+                the {backend.toUpperCase()} backend.
+              </p>
+              <button type="button" className="btn" onClick={retry}>
+                Retry
+              </button>
             </div>
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={evidenceUrl(incident.id, frame, backend)}
+              key={`frame-${reloadKey}`}
+              src={bust(evidenceUrl(incident.id, frame, backend))}
               alt={`Annotated evidence frame for incident ${incident.id}`}
               className="block w-full bg-panel-0"
               onError={() => setFrameFailed(true)}
@@ -80,17 +99,23 @@ export default function EvidencePanel({
       {clip ? (
         <figure className="panel overflow-hidden">
           {clipFailed ? (
-            <div className="px-4 py-6 text-[12.5px] text-ink-3">
-              Evidence clip <code className="font-mono">{clip}</code> could not be loaded. Legacy
-              clips are transcoded to WebM on first request; retry once.
+            <div className="space-y-2 px-4 py-6 text-[12.5px] text-ink-3">
+              <p>
+                Evidence clip <code className="font-mono">{clip}</code> could not be loaded.
+              </p>
+              <button type="button" className="btn" onClick={retry}>
+                Retry
+              </button>
             </div>
           ) : (
             <video
-              src={evidenceUrl(incident.id, clip, backend)}
+              key={`clip-${reloadKey}`}
+              src={bust(evidenceUrl(incident.id, clip, backend))}
               controls
               muted
               loop
               playsInline
+              preload="metadata"
               className="block w-full bg-panel-0"
               onError={() => setClipFailed(true)}
             />

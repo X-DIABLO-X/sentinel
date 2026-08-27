@@ -381,8 +381,8 @@ export const MISSING_ENDPOINTS = [
     why:
       "DRONE has no camera catalogue, scene calibration, or road graph of its " +
       "own - it is a hover-dispatch verifier for an already-confirmed CCTV " +
-      "incident, not a second independent camera network. /calibrate and " +
-      "/map stay CCTV-only; the drone page shows only what GET /api/health, " +
+      "incident, not a second independent camera network. /map stays " +
+      "CCTV-only; the drone page shows only what GET /api/health, " +
       "/api/dashboard and /api/results genuinely return.",
     ui: "app/drone/page.tsx",
   },
@@ -398,8 +398,9 @@ export const MISSING_ENDPOINTS = [
     wanted: "Auto-calibration trigger over HTTP",
     why:
       "scripts/autocalibrate.py is a CLI. The API only accepts an already-built " +
-      "scene model via POST /api/cameras/{id}/calibration. The calibrate page " +
-      "reviews and confirms geometry; it cannot kick off a fresh auto-calibration.",
-    ui: "app/calibrate/page.tsx - CLI command shown instead of a button",
+      "scene model via POST /api/cameras/{id}/calibration - it cannot kick off " +
+      "a fresh auto-calibration. The geometry-review screen this would have " +
+      "driven was removed from the console; calibration is a CLI step.",
+    ui: "none - calibration is done via the CLI, not the console",
   },
 ] as const;

@@ -53,6 +53,23 @@ export default function CctvPage() {
 
   const camera = cameras?.find((c) => c.camera_id === active) ?? null;
 
+  /**
+   * The physics render for the selected camera, when one exists.
+   *
+   * Renders are named after the source clip (ACCIDENTS_11 -> 11.mp4 ->
+   * 11_physics.mp4), so match on the camera id's trailing segment rather than
+   * hardcoding a table — a newly rendered clip then shows up on its camera
+   * with no frontend change. Only the clips actually returned by
+   * /api/demo-videos are considered, so this can never point at a file that
+   * isn't really there.
+   */
+  const cameraClip = (() => {
+    if (!camera || !demoVideos?.length) return null;
+    const tail = camera.camera_id.split("_").pop();
+    if (!tail) return null;
+    return demoVideos.find((v) => v.stem === `${tail}_physics`) ?? null;
+  })();
+
   return (
     <div className="mx-auto max-w-[1300px] space-y-5 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -106,16 +123,39 @@ export default function CctvPage() {
                       {camera.corridors?.length ?? 0} corridors · {camera.zones?.length ?? 0} zones
                     </span>
                   </div>
-                  <CameraFrame
-                    key={camera.camera_id}
-                    cameraId={camera.camera_id}
-                    alt={`Calibration still from ${camera.camera_id}`}
-                    className="block w-full bg-panel-0"
-                  />
+                  {cameraClip ? (
+                    <video
+                      key={cameraClip.stem}
+                      className="block w-full bg-panel-0"
+                      src={demoVideoUrl(cameraClip.stem)}
+                      poster={demoPosterUrl(cameraClip.stem)}
+                      controls
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
+                  ) : (
+                    <CameraFrame
+                      key={camera.camera_id}
+                      cameraId={camera.camera_id}
+                      alt={`First frame from ${camera.camera_id}`}
+                      className="block w-full bg-panel-0"
+                    />
+                  )}
                   <div className="border-t border-line px-4 py-2.5 text-[11.5px] text-ink-3">
-                    First frame from the source, used as the calibration canvas. No live stream —
-                    see <Link href="/calibrate" className="text-accent hover:underline">Calibrate</Link>{" "}
-                    for the geometry review.
+                    {cameraClip ? (
+                      <>
+                        Physics-annotated analysis of this camera&apos;s clip — per-vehicle speed,
+                        acceleration, momentum and trajectory, drawn by{" "}
+                        <code className="font-mono">rotation_gate.py</code>. Playback of a
+                        pre-rendered analysis, not a live stream.
+                      </>
+                    ) : (
+                      <>
+                        First frame from the source. No live stream, and no physics render exists
+                        for this camera yet — the analysed clips are listed below.
+                      </>
+                    )}
                   </div>
                 </div>
 
