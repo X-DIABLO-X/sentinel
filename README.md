@@ -540,6 +540,4 @@ python run.py process --camera <camera-id> --video <path-to-clip.mp4>
 | `APP/` | Next.js operator console | Talks to real NETRA API routes; a documented `MISSING_ENDPOINTS` list covers the rest |
 | `DEMO/` | 5-minute video script, jury walkthrough, results summary | See `DEMO/results_summary.md` for the authoritative, sourced numbers |
 
-Every number in this README is sourced to a file in this repo or its build history. Where a number
-describes a pre-merge system rather than the system as shipped, that is stated explicitly — re-read
-`DEMO/results_summary.md` before quoting any accuracy figure from this project.
+
