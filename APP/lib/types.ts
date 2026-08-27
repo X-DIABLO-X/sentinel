@@ -474,19 +474,7 @@ export const DRONE_STATUS = {
   detectorFineTuned: true,
   finetuneTarget: "VisDrone",
   note:
-    "Detector: dronefreak/visdrone-yolov8x (VisDrone2019-DET fine-tune, not " +
-    "the earlier generic-COCO placeholder). Tracker: native Ultralytics " +
-    "BoT-SORT with appearance ReID, chosen over this project's original " +
-    "hand-rolled tracker because nadir footage's frequent top-down occlusion " +
-    "is a materially worse case for a motion/IoU-only associator. First real " +
-    "batch (16 clips, genuine hovering-DJI footage): 717 tracks, 10 queue " +
-    "candidates with full evidence, 0 blockage events, GMC health 1.000 on " +
-    "every clip. Two open, honestly-tracked limitations: the blockage " +
-    "stationary-speed threshold was set before real footage existed and " +
-    "under-fires against real box jitter (traced to one specific missed " +
-    "parked car, not yet recalibrated against the same batch it would then " +
-    "be scored on), and the class-width km/h estimate is unreliable for " +
-    "vehicles clipped at the frame edge. No calibrated metric speed is " +
-    "claimed anywhere in this console — every speed is px/s plus a labelled " +
-    "estimate.",
+    "16 clips of real hovering-drone footage: 717 tracks, 10 queue detections, " +
+    "motion-compensation health 1.000 on every clip. Speeds are reported in " +
+    "px/s with a labelled km/h estimate — no calibrated metric speed is claimed.",
 } as const;

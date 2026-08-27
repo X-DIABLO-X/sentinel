@@ -131,18 +131,53 @@ def get_results(name: str) -> dict[str, Any]:
         return json.load(fh)
 
 
-def _load_all_results() -> list[dict[str, Any]]:
-    import json
-    out = []
+_results_cache: dict[str, Any] = {"key": None, "value": []}
+
+
+def _results_signature() -> tuple:
+    """(path, mtime, size) per results file -- changes only when a file is
+    actually added, removed or rewritten."""
     results_dir = _CFG.processing.results_path
     if not results_dir.exists():
-        return out
+        return ()
+    sig = []
     for p in sorted(results_dir.glob("*_results.json")):
         try:
-            with p.open("r", encoding="utf-8") as fh:
-                out.append(json.load(fh))
-        except (OSError, ValueError) as exc:  # pragma: no cover - defensive
-            log.warning("skipping unreadable results file %s: %s", p, exc)
+            st = p.stat()
+            sig.append((p.name, st.st_mtime_ns, st.st_size))
+        except OSError:  # pragma: no cover - defensive
+            continue
+    return tuple(sig)
+
+
+def _load_all_results() -> list[dict[str, Any]]:
+    """Parsed results JSON for every processed clip.
+
+    Cached on the results directory's own (name, mtime, size) signature.
+    Every route here is derived from these files, and re-reading and
+    re-parsing all 16 of them on every request -- including for a single
+    incident lookup, and for each frame the console polls -- was the main
+    cost in the drone routes. A newly written results file still invalidates
+    the cache immediately, so `run_pipeline` output shows up without a
+    restart.
+    """
+    import json
+    key = _results_signature()
+    if _results_cache["key"] == key:
+        return _results_cache["value"]
+
+    out = []
+    results_dir = _CFG.processing.results_path
+    if results_dir.exists():
+        for p in sorted(results_dir.glob("*_results.json")):
+            try:
+                with p.open("r", encoding="utf-8") as fh:
+                    out.append(json.load(fh))
+            except (OSError, ValueError) as exc:  # pragma: no cover - defensive
+                log.warning("skipping unreadable results file %s: %s", p, exc)
+
+    _results_cache["key"] = key
+    _results_cache["value"] = out
     return out
 
 
@@ -193,8 +228,26 @@ def _synthetic_incidents(all_results: list[dict[str, Any]]) -> list[dict[str, An
     return incidents
 
 
+_incidents_cache: dict[str, Any] = {"key": None, "value": []}
+
+
+def _current_incidents() -> list[dict[str, Any]]:
+    """Synthesized incidents for the current results set, cached on the same
+    signature as the underlying files. Keeps id assignment stable between the
+    dashboard listing and a single-incident lookup within one results set,
+    which is what makes /incidents/{id}?backend=drone resolve to the row the
+    console actually linked to."""
+    key = _results_signature()
+    if _incidents_cache["key"] == key:
+        return _incidents_cache["value"]
+    value = _synthetic_incidents(_load_all_results())
+    _incidents_cache["key"] = key
+    _incidents_cache["value"] = value
+    return value
+
+
 def _find_incident(incident_id: int) -> dict[str, Any] | None:
-    for row in _synthetic_incidents(_load_all_results()):
+    for row in _current_incidents():
         if row["id"] == incident_id:
             return row
     return None
@@ -227,7 +280,7 @@ def dashboard() -> dict[str, Any]:
     results/ — empty results/ means an honestly empty dashboard, not mock data.
     """
     all_results = _load_all_results()
-    incidents = _synthetic_incidents(all_results)
+    incidents = _current_incidents()
     by_type: dict[str, int] = {}
     for inc in incidents:
         by_type[inc["event_type"]] = by_type.get(inc["event_type"], 0) + 1

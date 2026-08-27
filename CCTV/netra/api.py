@@ -261,7 +261,10 @@ def create_app(config: dict | None = None) -> FastAPI:
                 raise HTTPException(404, "could not read a frame from the source")
             snap.parent.mkdir(parents=True, exist_ok=True)
             cv2.imwrite(str(snap), frame, [cv2.IMWRITE_JPEG_QUALITY, 88])
-        return FileResponse(snap, media_type="image/jpeg")
+        # A camera's first frame never changes for a fixed source clip, and the
+        # console re-requests it on every camera switch -- let the browser keep it.
+        return FileResponse(snap, media_type="image/jpeg", headers={
+            "Cache-Control": "public, max-age=86400"})
 
     @app.post("/api/cameras/{camera_id}/calibration")
     def save_calibration(camera_id: str, body: CalibrationBody):
@@ -319,6 +322,25 @@ def create_app(config: dict | None = None) -> FastAPI:
         except (ValueError, KeyError) as exc:
             raise HTTPException(400, str(exc)) from exc
 
+    def _evidence_dir(folder: str) -> Path | None:
+        """Locate an incident's evidence directory on THIS host.
+
+        EvidenceWriter records an absolute path from whichever machine ran the
+        analysis (e.g. a Windows ``D:\\...`` path). Deployed on Linux that
+        string is not a path at all, just an odd single filename, so every
+        evidence request 404'd even with the files present. The tail of the
+        record -- ``<camera_id>/<run_hash>/<INC-xxxxx>`` -- is host-independent,
+        so rebuild against the local evidence root and fall back to the stored
+        path only when analysis and serving happen on the same machine.
+        """
+        parts = Path(str(folder).replace("\\", "/")).parts
+        if len(parts) >= 3:
+            cand = evidence_root.joinpath(*parts[-3:])
+            if cand.is_dir():
+                return cand
+        direct = Path(folder)
+        return direct if direct.is_dir() else None
+
     @app.get("/api/incidents/{incident_id}/evidence/{name}")
     def evidence_file(incident_id: int, name: str):
         d = store.incident(incident_id)
@@ -327,7 +349,11 @@ def create_app(config: dict | None = None) -> FastAPI:
         folder = (d.get("evidence") or {}).get("dir")
         if not folder:
             raise HTTPException(404, "no evidence recorded for this incident")
-        p = Path(folder) / name
+        base = _evidence_dir(folder)
+        if base is None:
+            raise HTTPException(
+                404, "evidence directory for this incident is not present on this host")
+        p = base / name
         if not p.exists() or not p.is_file():
             raise HTTPException(404, f"no evidence file {name}")
         # never let a path fragment escape the evidence root
@@ -501,8 +527,35 @@ def create_app(config: dict | None = None) -> FastAPI:
     # Genuinely our own build output, not NETRA's ProblemSet -- lists
     # whatever *_physics_result.json files actually exist in demo/, so this
     # never drifts out of sync with what's really on disk.
+    demo_index_cache: dict[str, Any] = {"key": None, "value": []}
+
+    def _demo_signature() -> tuple:
+        demo_dir = ROOT / "demo"
+        if not demo_dir.is_dir():
+            return ()
+        sig = []
+        for p in sorted(demo_dir.glob("*_physics_result.json")):
+            try:
+                st = p.stat()
+                sig.append((p.name, st.st_mtime_ns, st.st_size))
+            except OSError:  # pragma: no cover - defensive
+                continue
+        return tuple(sig)
+
     @app.get("/api/demo-videos")
     def demo_videos():
+        """Cached on the demo directory's own (name, mtime, size) signature.
+
+        These result files are multi-megabyte -- 13_physics_result.json alone
+        carries every track's full per-frame history -- and the console polls
+        this route, so re-parsing all nine on every request was pure waste. A
+        re-rendered clip changes its signature and invalidates the cache, so
+        new output still appears without a restart.
+        """
+        key = _demo_signature()
+        if demo_index_cache["key"] == key:
+            return demo_index_cache["value"]
+
         demo_dir = ROOT / "demo"
         rows = []
         for result_path in demo_dir.glob("*_physics_result.json"):
@@ -527,7 +580,10 @@ def create_app(config: dict | None = None) -> FastAPI:
                 "contact_t": collision.get("contact_t"),
                 "track_ids": collision.get("track_ids"),
             })
-        return sorted(rows, key=lambda r: r["file"].lower())
+        rows.sort(key=lambda r: r["file"].lower())
+        demo_index_cache["key"] = key
+        demo_index_cache["value"] = rows
+        return rows
 
     @app.get("/api/demo-videos/{stem}/video")
     def demo_video(stem: str):
