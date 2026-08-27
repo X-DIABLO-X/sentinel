@@ -28,8 +28,9 @@ import { eventLabel, incidentRef } from "@/lib/format";
  *    so only the graph is flipped. Getting this backwards puts India in Somalia.
  */
 
-/** Fallback view when nothing on screen has coordinates: central Bengaluru. */
-const FALLBACK_CENTRE: [number, number] = [12.9716, 77.5946];
+/** Fallback view when nothing on screen has coordinates: Electronic City
+ *  Phase 1, Bengaluru — the deployment's default operating area. */
+const FALLBACK_CENTRE: [number, number] = [12.8452, 77.6602];
 
 export interface MapCanvasProps {
   cameras?: Camera[];
