@@ -198,6 +198,18 @@ export default function MapCanvas({
             the backend incident/camera records. */}
         {demo ? (
           <>
+            {demo.incident.closedEdgeCoords ? (
+              <Polyline
+                positions={demo.incident.closedEdgeCoords}
+                pathOptions={{ color: "#e5484d", weight: 6, opacity: 0.95, dashArray: "2,8" }}
+              >
+                <Popup>
+                  <b>SIMULATED congested approach</b>
+                  <br />
+                  Excluded from the Phase 1 demo route model.
+                </Popup>
+              </Polyline>
+            ) : null}
             {demo.route.coords.length ? (
               <Polyline
                 positions={demo.route.coords}

@@ -45,6 +45,7 @@ export interface ElectronicCityDemoState {
     position: LatLon;
     congestionActive: boolean;
     closedEdgeLabel: string | null;
+    closedEdgeCoords: LatLon[] | null;
   };
   route: DemoRoute;
 }
@@ -202,6 +203,9 @@ export function electronicCityDemo(congestionActive: boolean): ElectronicCityDem
       position: NODE_BY_ID.get("incident")!.position,
       congestionActive,
       closedEdgeLabel: congestionActive ? "Neeladri Junction → incident approach" : null,
+      closedEdgeCoords: congestionActive
+        ? [NODE_BY_ID.get("neeladri-junction")!.position, NODE_BY_ID.get("incident")!.position]
+        : null,
     },
     route: {
       facility: recommended.facility,
