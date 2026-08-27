@@ -1,0 +1,256 @@
+{
+  "id": 22,
+  "type": "wrong_way",
+  "label": "Wrong-side movement",
+  "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+  "corridor_id": "c4",
+  "started_t": 2.0,
+  "detected_t": 3.5,
+  "ended_t": null,
+  "duration": 1.5,
+  "detection_delay": 1.5,
+  "onset_method": "detection",
+  "onset_recovered_s": 0.0,
+  "confidence": 0.6567,
+  "severity": 0.3925,
+  "severity_label": "Medium",
+  "severity_parts": {
+    "flow_loss": 0.25,
+    "obstruction": 0.15,
+    "extent": 1.0,
+    "duration": 0.0083,
+    "risk": 0.9925,
+    "impact_subscore": 0.4025,
+    "severity": 0.3925
+  },
+  "priority": 0.2577,
+  "track_ids": [
+    4
+  ],
+  "triggers": {
+    "alignment": -0.7288,
+    "alignment_threshold": -0.6,
+    "observed_heading_deg": 221.4,
+    "legal_heading_deg": 84.6,
+    "legal_direction_reviewed": false,
+    "direction_source": "observed majority flow; legal direction unreviewed",
+    "persistence_s": 1.5,
+    "displacement_px": 115.6,
+    "speed_px_s": 38.01,
+    "cusum_s": 1.716,
+    "cusum_h": 1.2,
+    "detector_confidence": 0.898,
+    "opposing_traffic": 12
+  },
+  "explanation": "Track 4 moved against corridor c4 for 1.5s (alignment -0.73, displacement 116px)",
+  "needs_verification": true,
+  "status": "detected",
+  "evidence": {},
+  "location": {
+    "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+    "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+    "zone": "Traffic",
+    "road_name": "",
+    "road_edge_id": null,
+    "corridor_id": "c4",
+    "latitude": null,
+    "longitude": null,
+    "precision": "zone-only",
+    "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+  },
+  "recommended_action": "Escalate to traffic control; monitor for repeat",
+  "operational_context": {},
+  "severity_disclaimer": "Traffic-impact severity, not injury severity.",
+  "model_run": {
+    "run_id": "5ee96c6ded18",
+    "detector": "yolo26m.pt",
+    "backend": "torch",
+    "device": "cuda:0",
+    "imgsz": 1920,
+    "requested_analysis_fps": 0.0,
+    "effective_analysis_fps": 30.0,
+    "evidence_fps": 8.0,
+    "tracker": "ByteTrack (netra)",
+    "crash_classifier": {
+      "available": false,
+      "weights": null,
+      "threshold": 0.718,
+      "crops_scored": 0,
+      "operating_point": "~0.95 precision / ~0.85 recall on held-out validation"
+    },
+    "engine_version": "netra-1.0",
+    "threshold_hash": "9b95294e284ea247",
+    "config": {
+      "detector": {
+        "weights": null,
+        "backend": "auto",
+        "device": "cuda:0",
+        "imgsz": 1920,
+        "aux_imgsz": 512,
+        "conf": 0.1,
+        "iou": 0.55
+      },
+      "tracker": {
+        "high_thresh": 0.35,
+        "low_thresh": 0.1,
+        "match_thresh": 0.8,
+        "second_match_thresh": 0.5,
+        "max_time_lost": 30,
+        "min_hits": 3
+      },
+      "pipeline": {
+        "analysis_fps": 0.0,
+        "resize_long_side": 1280,
+        "warmup_seconds": 2.0,
+        "max_seconds": null
+      },
+      "signals": {
+        "bg_short_s": 20.0,
+        "bg_long_s": 120.0,
+        "bg_sample_hz": 2.0,
+        "bg_rebuild_s": 1.5,
+        "bg_scale": 0.5,
+        "cp_window": 5,
+        "cp_z": 1.5,
+        "cp_flow_scale": 0.25,
+        "shift_tolerance_px": 12.0
+      },
+      "wrong_way": {
+        "alignment_threshold": 0.6,
+        "min_displacement_px": 18.0,
+        "direction_window_s": 1.5,
+        "min_speed_px": 3.0,
+        "min_persistence_s": 1.5,
+        "cusum_beta": 0.25,
+        "cusum_h": 1.2
+      },
+      "lane_violation": {
+        "enabled": true,
+        "cusum_h": 0.6
+      },
+      "queue": {
+        "min_vehicles": 4,
+        "slow_ratio": 0.35,
+        "slow_abs_px": 6.0,
+        "stopped_ratio": 0.45,
+        "min_occupancy": 0.1,
+        "stop_speed_px": 3.0,
+        "cusum_beta": 0.25,
+        "cusum_h": 3.0,
+        "update_interval_s": 5.0
+      },
+      "blockage": {
+        "stop_speed_px": 2.5,
+        "stop_displacement_px": 12.0,
+        "min_stationary_s": 12.0,
+        "flow_drop_threshold": 0.35,
+        "require_long_background": true,
+        "cusum_beta": 0.3,
+        "cusum_h": 2.5
+      },
+      "pedestrian": {
+        "enabled": true,
+        "min_dwell_s": 10.0
+      },
+      "collision": {
+        "fixed_camera_min_channels": 2,
+        "candidate_score_model": null,
+        "proximity_px": 90.0,
+        "min_approach_angle_deg": 20.0,
+        "decel_px_s2": -25.0,
+        "min_approach_speed_px": 8.0,
+        "cusum_beta": 0.25,
+        "cusum_h": 2.2,
+        "changepoint_weight": 0.5,
+        "cooldown_s": 6.0,
+        "peak_onset_lead_s": 0.6,
+        "stationary_gate": 0.42,
+        "max_pairs": 400,
+        "confirm_window_s": 6.0,
+        "stop_hold_s": 2.0,
+        "min_convergence_ratio": 3.0,
+        "min_start_separation": 2.5,
+        "stop_ratio": 0.3,
+        "deflect_deg": 45.0,
+        "proximity_scale": 1.0,
+        "max_speed_frac": 0.45,
+        "min_confirm_delay_s": 0.4,
+        "rotation_gate": {
+          "min_track_frames": 8,
+          "min_travel_diagonals": 1.0,
+          "min_max_speed_kmh": 5.0,
+          "contact_window_s": 1.0,
+          "heading_lookback_s": 1.0,
+          "min_speed_for_heading": 6.0,
+          "stable_heading_std_deg": 25.0,
+          "stable_aspect_rel_std": 0.3,
+          "ref_yaw_deg": 45.0,
+          "ref_aspect": 0.6,
+          "ref_decel": 30.0,
+          "ref_speed_drop_kmh": 20.0,
+          "ref_momentum": 12000.0,
+          "rotation_floor": 0.2,
+          "break_implies_rotation": 0.7,
+          "break_floor_score": 0.55,
+          "track_break_window_s": 0.4,
+          "track_break_min_life_s": 1.0,
+          "pair_ref_gap": 0.5,
+          "pair_max_gap": 1.5,
+          "following_max_deg": 45.0,
+          "oncoming_min_deg": 160.0,
+          "prior_crossing": 1.0,
+          "prior_following": 0.55,
+          "prior_oncoming": 0.5,
+          "prior_unknown": 0.6,
+          "weights": {
+            "rotation": 0.45,
+            "decel": 0.15,
+            "speed_drop": 0.15,
+            "momentum": 0.1,
+            "appearance": 0.35,
+            "track_break": 0.25
+          },
+          "max_pairs": 400
+        },
+        "pairwise_enabled": false,
+        "pair_history_scale": 4.0,
+        "rotation_gate_threshold": 0.45,
+        "rotation_gate_agree_window_s": 3.0,
+        "impulse_gate": 0.55
+      },
+      "stationary": {
+        "interval_s": 1.5,
+        "conf": 0.2,
+        "min_dwell_s": 2.0
+      },
+      "crash_classifier": {
+        "weights": null,
+        "threshold": 0.718
+      },
+      "onset": {
+        "max_backtrack_s": 15.0
+      },
+      "evidence": {
+        "buffer_seconds": 30.0,
+        "scale": 0.6,
+        "pre_roll_s": 6.0,
+        "post_roll_s": 6.0,
+        "clip_fps": 8.0
+      },
+      "paths": {
+        "cameras": "config/cameras",
+        "database": "netra.db",
+        "evidence": "evidence",
+        "reports": "reports",
+        "road_graph": "config/road_graph.json"
+      },
+      "api": {
+        "host": "127.0.0.1",
+        "port": 8000
+      },
+      "render": {
+        "record_timeline": false
+      }
+    }
+  }
+}
