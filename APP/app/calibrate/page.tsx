@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { cameraFrameUrl, getCameras } from "@/lib/api";
+import { getCameras } from "@/lib/api";
 import { useApi } from "@/lib/useApi";
 import type { Camera, Corridor } from "@/lib/types";
 import EmptyState from "@/components/EmptyState";
+import CameraFrame from "@/components/CameraFrame";
 
 /** True once the scene has learned corridors AND a human has cleared the
  *  "DRAFT" note — mirrors CCTV/ui/calibrate.js `reviewed()` exactly. */
@@ -125,9 +126,9 @@ export default function CalibratePage() {
           <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
             <div className="panel overflow-hidden">
               <div className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={cameraFrameUrl(camera.camera_id)}
+                <CameraFrame
+                  key={camera.camera_id}
+                  cameraId={camera.camera_id}
                   alt={`First frame from ${camera.camera_id}`}
                   className="block w-full bg-panel-0"
                 />

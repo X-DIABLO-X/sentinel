@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { cameraFrameUrl, getCameras, getIncidents, getProblemVideos, problemPosterUrl, problemVideoUrl } from "@/lib/api";
+import { getCameras, getIncidents, getProblemVideos, problemPosterUrl, problemVideoUrl } from "@/lib/api";
 import { useApi } from "@/lib/useApi";
 import IncidentCard from "@/components/IncidentCard";
 import EmptyState from "@/components/EmptyState";
+import CameraFrame from "@/components/CameraFrame";
 
 /**
  * Pick a camera, see its calibration still + its recent event feed. The
@@ -94,9 +95,9 @@ export default function CctvPage() {
                       {camera.corridors?.length ?? 0} corridors · {camera.zones?.length ?? 0} zones
                     </span>
                   </div>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={cameraFrameUrl(camera.camera_id)}
+                  <CameraFrame
+                    key={camera.camera_id}
+                    cameraId={camera.camera_id}
                     alt={`Calibration still from ${camera.camera_id}`}
                     className="block w-full bg-panel-0"
                   />

@@ -18,14 +18,14 @@ function Indicator({ backend, url }: { backend: Backend; url: string }) {
     15000,
   );
   const ok = Boolean(data && !error);
+  const detail =
+    backend === "drone"
+      ? `mode ${data?.mode ?? "—"}, detector ${data?.detector_finetuned ? "fine-tuned" : "placeholder"}, gmc ${data?.gmc_enabled ? "on" : "off"}`
+      : `${data?.cameras ?? 0} cameras, ${data?.road_graph_edges ?? 0} road-graph edges`;
 
   return (
     <span
-      title={
-        ok
-          ? `${url} — ${data?.cameras ?? 0} cameras, ${data?.road_graph_edges ?? 0} road-graph edges`
-          : `${url} — ${error?.message ?? "checking"}`
-      }
+      title={ok ? `${url} — ${detail}` : `${url} — ${error?.message ?? "checking"}`}
       className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-ink-3"
     >
       <Dot ok={ok} pending={firstLoad} />

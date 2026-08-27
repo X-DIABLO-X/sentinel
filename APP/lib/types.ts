@@ -191,8 +191,14 @@ export interface Incident {
   evidence?: EvidenceManifest;
 
   wall_clock?: number | null;
-  created_at?: number | null;
-  updated_at?: number | null;
+  /**
+   * CCTV sends Unix epoch seconds (db.py, SQLite time.time()). DRONE's
+   * synthetic incidents (scripts/api.py _synthetic_incidents) instead carry
+   * an ISO-8601 string straight from each result file's `generated_at`.
+   * format.ts clock()/relative() accept both.
+   */
+  created_at?: number | string | null;
+  updated_at?: number | string | null;
 
   /** Added by api.py enrich_incidents(), not a DB column. */
   source_kind?: SourceKind;
@@ -269,18 +275,40 @@ export interface DashboardSnapshot {
   cameras: Camera[];
 }
 
+/**
+ * GET /api/health. The two backends answer with genuinely different shapes -
+ * this type is the union of both, with every backend-specific field optional.
+ * CCTV (netra/api.py health()) sends cameras/road_graph_edges/severity_model/
+ * statuses/rejection_reasons. DRONE (scripts/api.py health()) sends
+ * service/port/mode/detector_finetuned/placeholder_detector/gmc_enabled/
+ * telemetry_available/road_plane_calibrated instead - it has no camera
+ * catalogue or road graph of its own, so callers must not assume those
+ * fields exist just because `backend` was "drone".
+ */
 export interface Health {
   status: string;
-  cameras: number;
-  road_graph_edges: number;
-  severity_model: {
+
+  /** CCTV only. */
+  cameras?: number;
+  road_graph_edges?: number;
+  severity_model?: {
     impact_weights: Record<string, number>;
     total_weights: Record<string, number>;
     bands: { below: number; label: string }[];
     disclaimer: string;
   };
-  statuses: string[];
-  rejection_reasons: string[];
+  statuses?: string[];
+  rejection_reasons?: string[];
+
+  /** DRONE only. */
+  service?: string;
+  port?: number;
+  mode?: string;
+  detector_finetuned?: boolean;
+  placeholder_detector?: boolean;
+  gmc_enabled?: boolean;
+  telemetry_available?: boolean;
+  road_plane_calibrated?: boolean;
 }
 
 /* -------------------------------------------------------------------------

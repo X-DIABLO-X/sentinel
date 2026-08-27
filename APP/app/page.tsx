@@ -56,7 +56,7 @@ export default function OverviewPage() {
   const summary = data!.summary;
   const incidents = data!.incidents;
   const recent = [...incidents]
-    .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
+    .sort((a, b) => (Number(b.created_at) || 0) - (Number(a.created_at) || 0))
     .slice(0, 6);
 
   const bySeverity = summary.by_severity ?? {};

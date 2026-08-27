@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { Incident } from "@/lib/types";
+import type { Backend, Incident } from "@/lib/types";
 import SeverityBadge from "./SeverityBadge";
 import { eventLabel, incidentRef, num, relative, secs } from "@/lib/format";
 
@@ -17,10 +17,20 @@ export default function IncidentCard({
   selected = false,
   /** When set, the card calls back instead of navigating (3-column console). */
   onSelect,
+  /**
+   * Which backend this incident came from. CCTV incident ids and DRONE's
+   * synthetic incident ids are drawn from separate, colliding id spaces
+   * (DRONE regenerates 1, 2, 3... from whatever is in results/ on every
+   * request) - a bare `/incidents/{id}` link would silently open a CCTV
+   * incident that happens to share the same numeric id. The backend is
+   * threaded into the link so the detail page queries the right process.
+   */
+  backend = "cctv",
 }: {
   incident: Incident;
   selected?: boolean;
   onSelect?: (incident: Incident) => void;
+  backend?: Backend;
 }) {
   const loc = incident.location ?? {};
   const where = loc.road_name || loc.zone || incident.camera_id;
@@ -79,8 +89,11 @@ export default function IncidentCard({
     );
   }
 
+  const href =
+    backend === "drone" ? `/incidents/${incident.id}?backend=drone` : `/incidents/${incident.id}`;
+
   return (
-    <Link href={`/incidents/${incident.id}`} className={className}>
+    <Link href={href} className={className}>
       {inner}
     </Link>
   );

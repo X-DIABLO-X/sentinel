@@ -1,9 +1,11 @@
 "use client";
 
-import { use } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { getIncident } from "@/lib/api";
 import { useApi } from "@/lib/useApi";
+import type { Backend } from "@/lib/types";
 import EvidencePanel from "@/components/EvidencePanel";
 import StatusWorkflow from "@/components/StatusWorkflow";
 import SeverityBadge from "@/components/SeverityBadge";
@@ -19,13 +21,14 @@ import {
   secs,
 } from "@/lib/format";
 
-export default function IncidentDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+function IncidentDetailInner({ id }: { id: string }) {
   const incidentId = Number(id);
+  const searchParams = useSearchParams();
+  const backend: Backend = searchParams.get("backend") === "drone" ? "drone" : "cctv";
 
   const { data: incident, error, firstLoad, reload } = useApi(
-    (signal) => getIncident(incidentId, "cctv", signal),
-    [incidentId],
+    (signal) => getIncident(incidentId, backend, signal),
+    [incidentId, backend],
   );
 
   if (firstLoad) {
@@ -38,7 +41,12 @@ export default function IncidentDetailPage({ params }: { params: Promise<{ id: s
         <EmptyState
           title={`Incident ${incidentRef(incidentId)} not found`}
           tone="warn"
-          detail={<>GET /api/incidents/{incidentId} failed: {error?.message ?? "not found"}</>}
+          detail={
+            <>
+              GET {backend.toUpperCase()} /api/incidents/{incidentId} failed:{" "}
+              {error?.message ?? "not found"}
+            </>
+          }
         >
           <Link href="/incidents" className="btn">
             Back to incident feed
@@ -121,7 +129,7 @@ export default function IncidentDetailPage({ params }: { params: Promise<{ id: s
               <span className="panel-title">Evidence</span>
             </div>
             <div className="p-4">
-              <EvidencePanel incident={incident} />
+              <EvidencePanel incident={incident} backend={backend} />
             </div>
           </div>
 
@@ -213,10 +221,18 @@ export default function IncidentDetailPage({ params }: { params: Promise<{ id: s
             <span className="panel-title">Actions</span>
           </div>
           <div className="p-4">
-            <StatusWorkflow incident={incident} onChanged={reload} />
+            <StatusWorkflow incident={incident} backend={backend} onChanged={reload} />
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function IncidentDetailPage({ params }: { params: { id: string } }) {
+  return (
+    <Suspense fallback={<div className="p-5 text-[13px] text-ink-3">Loading incident…</div>}>
+      <IncidentDetailInner id={params.id} />
+    </Suspense>
   );
 }

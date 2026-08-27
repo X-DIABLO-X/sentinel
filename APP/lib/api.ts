@@ -410,12 +410,26 @@ export const MISSING_ENDPOINTS = [
     ui: "app/map/page.tsx - access-route legend row marked NOT AVAILABLE",
   },
   {
-    wanted: "GET /api/drone/*  (whole DRONE backend)",
+    wanted: "GET /api/incidents/{id}  on the DRONE backend",
     why:
-      "FINAL/DRONE is an empty skeleton: config/, demo/, models/detector/, " +
-      "results/, scripts/ and no api.py. The drone page assumes the DRONE " +
-      "process will mirror this same route contract on port 8011, and until it " +
-      "answers, every panel shows the offline + not-fine-tuned banner.",
+      "DRONE/scripts/api.py now runs a real FastAPI process (health, status, " +
+      "process, results, results/{name}, dashboard) and GET /api/dashboard " +
+      "synthesises Incident-shaped rows from whatever is in results/ - but " +
+      "there is no per-incident route. Those synthetic ids are also not " +
+      "stable identifiers (they are renumbered 1, 2, 3... from disk on every " +
+      "request), so a drone incident card links to /incidents/{id}?backend=drone " +
+      "and gets an honest 'not found' from the DRONE process rather than " +
+      "silently rendering a same-numbered CCTV incident's real data.",
+    ui: "app/incidents/[id]/page.tsx via components/IncidentCard.tsx (backend=\"drone\")",
+  },
+  {
+    wanted: "GET /api/cameras, /api/graph, /api/route  on the DRONE backend",
+    why:
+      "DRONE has no camera catalogue, scene calibration, or road graph of its " +
+      "own - it is a hover-dispatch verifier for an already-confirmed CCTV " +
+      "incident, not a second independent camera network. /calibrate and " +
+      "/map stay CCTV-only; the drone page shows only what GET /api/health, " +
+      "/api/dashboard and /api/results genuinely return.",
     ui: "app/drone/page.tsx",
   },
   {

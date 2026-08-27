@@ -61,20 +61,29 @@ export default function DronePage() {
           detail={
             <>
               GET {DRONE_API}/api/health failed
-              {healthError ? `: ${healthError.message}` : ""}. FINAL/DRONE currently ships only{" "}
-              <code className="font-mono">config/</code>, <code className="font-mono">demo/</code>,{" "}
-              <code className="font-mono">models/detector/</code>,{" "}
-              <code className="font-mono">results/</code> and <code className="font-mono">scripts/</code>{" "}
-              — no <code className="font-mono">api.py</code> yet. Once a DRONE FastAPI process
-              mirrors the CCTV route contract on this port, this page starts rendering live.
+              {healthError ? `: ${healthError.message}` : ""}. The DRONE FastAPI process (
+              <code className="font-mono">FINAL/DRONE/scripts/api.py</code>) is not answering on
+              this port — start it with{" "}
+              <code className="font-mono">python scripts/api.py</code> from{" "}
+              <code className="font-mono">FINAL/DRONE</code>. Once it is up, this page starts
+              rendering live.
             </>
           }
         />
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <KpiCard label="Cameras / feeds" value={health?.cameras ?? 0} />
-          <KpiCard label="Road-graph edges" value={health?.road_graph_edges ?? 0} />
           <KpiCard label="Status" value={health?.status ?? "—"} tone="accent" />
+          <KpiCard label="Mode" value={health?.mode ?? "—"} />
+          <KpiCard
+            label="Detector"
+            value={health?.detector_finetuned ? "fine-tuned" : "placeholder"}
+            tone={health?.detector_finetuned ? "low" : "medium"}
+          />
+          <KpiCard
+            label="GMC"
+            value={health?.gmc_enabled ? "enabled" : "disabled"}
+            tone={health?.gmc_enabled ? "low" : "neutral"}
+          />
         </div>
       )}
 
@@ -90,7 +99,7 @@ export default function DronePage() {
               <EmptyState title="Dashboard unavailable" tone="warn" detail={dashError.message} />
             ) : dashboard?.incidents.length ? (
               dashboard.incidents.map((incident) => (
-                <IncidentCard key={incident.id} incident={incident} />
+                <IncidentCard key={incident.id} incident={incident} backend="drone" />
               ))
             ) : (
               <EmptyState title="No drone escalations recorded yet" />

@@ -19,15 +19,33 @@ export function pct(value: number | null | undefined): number {
   return Math.max(0, Math.min(100, Number(value) * 100));
 }
 
-/** Unix epoch seconds (SQLite time.time()) -> local time string. */
-export function clock(epochSeconds: number | null | undefined): string {
-  if (!epochSeconds) return "—";
-  return new Date(epochSeconds * 1000).toLocaleString();
+/**
+ * Both timestamp shapes seen in this console: CCTV's Unix epoch seconds
+ * (SQLite time.time(), a plain number) and DRONE's ISO-8601 string
+ * (each result file's `generated_at`, passed straight through as
+ * created_at/updated_at by scripts/api.py). Returns epoch milliseconds, or
+ * null when the value cannot be parsed as either - never NaN.
+ */
+function toEpochMs(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value * 1000 : null;
+  }
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? null : parsed;
 }
 
-export function relative(epochSeconds: number | null | undefined): string {
-  if (!epochSeconds) return "—";
-  const delta = Date.now() / 1000 - epochSeconds;
+/** Epoch seconds or ISO string -> local time string. */
+export function clock(value: number | string | null | undefined): string {
+  const ms = toEpochMs(value);
+  if (ms === null) return "—";
+  return new Date(ms).toLocaleString();
+}
+
+export function relative(value: number | string | null | undefined): string {
+  const ms = toEpochMs(value);
+  if (ms === null) return "—";
+  const delta = Date.now() / 1000 - ms / 1000;
   if (delta < 60) return "just now";
   if (delta < 3600) return `${Math.floor(delta / 60)}m ago`;
   if (delta < 86400) return `${Math.floor(delta / 3600)}h ago`;
