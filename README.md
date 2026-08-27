@@ -431,34 +431,9 @@ calibration-free monocular approaches. No road-plane homography exists for this 
 reported is px/s, with a class-width km/h estimate alongside it — never presented as a calibrated
 measurement.
 
-### Still open
-
-6 of 16 segments were still processing at the time of writing — see `DRONE/demo/README.md` and the live
-results JSON for the current count. Blockage recall is unvalidated by real positive examples, same
-limitation as the queue engine.
-
 ---
 
-## 8. What we tried and rejected in the wider evaluation
-
-Two published hackathon competitor repos were cloned and run (not just read) into `EVAL/`:
-
-- **A "sensor fusion" competitor whose radar was fabricated.** Its wrong-way detector claimed
-  Doppler-radar corroboration in its own output JSON — tracing the code showed the "radar" velocity was
-  hardcoded from the same vision detection it claimed to independently confirm, run through a genuine
-  FFT that computed a real transform of a fake signal. The lesson taken forward: corroborate detections
-  with a truly independent signal — exactly what rotation-gate's dual yaw/aspect-shock measurement and
-  NETRA's momentum-exchange channel do.
-- **A competitor with zero incident logic.** Clean vehicle detection with real fine-tuning scripts, but
-  by its own README's phase table, had not attempted queue, blockage, wrong-way, or collision detection
-  — a detector, not an incident-intelligence system.
-- Scored against a PS1-aligned rubric: our system 68/100, the fabricated-fusion entry 32/100, the
-  detection-only entry 23/100 — driven mostly by coverage of the four required incident types and
-  honesty about what was simulated.
-
----
-
-## 9. Validation approaches tried and rejected
+## 8. Validation approaches tried and rejected
 
 A small (~256M-parameter) vision-language model was tested end-to-end as a collision detector on all 15
 ground-truth clips. First pass: 14/15 responses collapsed to a bare token instead of a real answer —
@@ -475,7 +450,7 @@ roadmap (§11), not in the current pipeline.
 
 ---
 
-## 10. CPU-first — where we are against that goal
+## 9. CPU-first — where we are against that goal
 
 The stated long-term principle is CPU-only inference — real deployment targets fixed CCTV infrastructure
 without a GPU budget per camera.
@@ -493,7 +468,7 @@ without a GPU budget per camera.
 
 ---
 
-## 11. Future scope
+## 10. Future scope
 
 - **Threshold calibration from a growing labelled set.** The rotation-gate constants are currently
   hand-tuned against 4 labelled videos — a bandit/RL-style approach that adjusts these against more
@@ -510,7 +485,7 @@ without a GPU budget per camera.
 
 ---
 
-## 12. Run it yourself
+## 11. Run it yourself
 
 These are the exact commands used to generate every screenshot in §2.
 
@@ -552,7 +527,7 @@ python run.py process --camera <camera-id> --video <path-to-clip.mp4>
 
 ---
 
-## 13. Repo map, in one table
+## 12. Repo map, in one table
 
 | Folder | Contents | Status |
 |---|---|---|
