@@ -46,7 +46,7 @@ from typing import Sequence
 
 import numpy as np
 
-__all__ = ["Track", "DroneTracker", "iou_matrix", "ground_point"]
+__all__ = ["Track", "DroneTracker", "NativeTrackRegistry", "iou_matrix", "ground_point"]
 
 NEW = "new"
 TRACKED = "tracked"
@@ -400,6 +400,104 @@ class DroneTracker:
     @property
     def all_tracks(self) -> list[Track]:
         return self.tracks + self.lost_tracks
+
+
+# --------------------------------------------------------------------------
+# Native Ultralytics BoT-SORT bridge
+# --------------------------------------------------------------------------
+
+class NativeTrackRegistry:
+    """Wraps Ultralytics' native BoT-SORT track IDs into this module's ``Track``.
+
+    Superseded ``DroneTracker`` (above) for ``run_drone_analysis.py``'s
+    real-footage run. See that class's own docstring for the full case for
+    the switch (the short version: BoT-SORT's Kalman + appearance ReID +
+    camera-motion compensation is a materially better fit for nadir footage's
+    frequent top-down occlusion than a from-scratch greedy IoU matcher, and
+    reinventing that association logic here would just be a worse copy of
+    what Ultralytics already ships and this project's own research pass
+    specifically flagged as the right tool).
+
+    Unlike ``DroneTracker.update``, this class does **no** association work —
+    by the time ``update()`` is called, ``detect_drone.DroneDetector.track()``
+    has already called the underlying Ultralytics model's own ``.track()``
+    method (BoT-SORT, ``persist=True``) and each detection row already carries
+    the track id BoT-SORT assigned it. This registry's only job is turning
+    ``(track_id, ref_box, px_box, score, cls)`` rows into persistent ``Track``
+    objects with history, so ``physics_drone.py`` and ``queue_blockage_drone.py``
+    — which only know about ``Track``/``TrackSample``, never about BoT-SORT —
+    do not need to change at all. That decoupling is exactly why this bridge
+    is worth the extra (small) class rather than threading BoT-SORT ids
+    through the rest of the pipeline directly.
+
+    A detection with no track id yet (``track_id < 0`` — Ultralytics can emit
+    this on the very first frame or two before a track is confirmed) is
+    dropped rather than given a synthetic id: a synthetic id would silently
+    fragment what BoT-SORT itself considers unconfirmed, undoing the point of
+    delegating association to it.
+    """
+
+    def __init__(self, min_hits: int = 3, max_time_lost: int = 45) -> None:
+        self.tracks: dict[int, Track] = {}
+        self.min_hits = min_hits
+        self.max_time_lost = max_time_lost
+        self.frame_idx = 0
+
+    def reset(self) -> None:
+        self.tracks.clear()
+        self.frame_idx = 0
+
+    def update(self, ref_dets: np.ndarray, px_boxes: np.ndarray,
+               track_ids: np.ndarray, t: float) -> list[Track]:
+        """One frame's already-associated rows.
+
+        ``ref_dets``: (N,6) reference-frame ``[x1,y1,x2,y2,score,cls]``.
+        ``px_boxes``: (N,4) current-frame pixel boxes, display-only.
+        ``track_ids``: (N,) int BoT-SORT track ids, same row order.
+        Returns confirmed live tracks (``hits >= min_hits``), same contract
+        as ``DroneTracker.update``.
+        """
+        self.frame_idx += 1
+        ref_dets = np.asarray(ref_dets, dtype=np.float64).reshape(-1, 6)
+        px_boxes = np.asarray(px_boxes, dtype=np.float64).reshape(-1, 4)
+        track_ids = np.asarray(track_ids).reshape(-1)
+
+        live_ids: set[int] = set()
+        for i in range(track_ids.shape[0]):
+            tid = int(track_ids[i])
+            if tid < 0:
+                continue
+            box, score, cls = ref_dets[i, :4], float(ref_dets[i, 4]), int(ref_dets[i, 5])
+            pxb = px_boxes[i]
+            if not np.all(np.isfinite(box)):
+                continue
+            live_ids.add(tid)
+            existing = self.tracks.get(tid)
+            if existing is not None:
+                existing.update(box, pxb, score, cls, self.frame_idx, t)
+            else:
+                self.tracks[tid] = Track(track_id=tid, cls=cls, score=score, box=box,
+                                         px_box=pxb, frame_idx=self.frame_idx, t=t)
+
+        dead: list[int] = []
+        for tid, tr in self.tracks.items():
+            if tid in live_ids:
+                continue
+            tr.time_since_update += 1
+            if tr.state != LOST:
+                tr.mark_lost()
+            if tr.time_since_update > self.max_time_lost:
+                tr.mark_removed()
+                dead.append(tid)
+        for tid in dead:
+            del self.tracks[tid]
+
+        return [tr for tr in self.tracks.values()
+                if tr.state == TRACKED and tr.hits >= self.min_hits]
+
+    @property
+    def all_tracks(self) -> list[Track]:
+        return list(self.tracks.values())
 
 
 if __name__ == "__main__":   # pragma: no cover - manual smoke check

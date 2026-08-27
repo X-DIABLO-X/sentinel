@@ -108,6 +108,22 @@ class TrackerConfig:
     max_time_lost: int = 30
     min_hits: int = 3
 
+    # -- native Ultralytics BoT-SORT (run_drone_analysis.py's tracking path) --
+    # See track_drone.py's NativeTrackRegistry docstring for why this replaced
+    # the hand-rolled greedy-IoU DroneTracker below for the real-footage run:
+    # BoT-SORT's own appearance ReID + Kalman + camera-motion compensation is
+    # a materially better fit for near-static nadir footage (frequent
+    # top-down occlusion between passing vehicles) than a from-scratch greedy
+    # matcher. DroneTracker/_greedy_match are kept in this module as-is —
+    # pipeline_drone.py (a separately self-verified module) still uses them —
+    # this flag only controls run_drone_analysis.py's path.
+    use_native_botsort: bool = True
+    botsort_yaml: str = "models/tracker/botsort_drone.yaml"
+
+    @property
+    def botsort_yaml_path(self) -> Path:
+        return resolve_path(self.botsort_yaml)
+
 
 @dataclass
 class TelemetryConfig:
@@ -171,6 +187,53 @@ class KinematicsConfig:
 
 
 @dataclass
+class PhysicsConfig:
+    """Acceleration windowing — see physics_drone.py module docstring for why
+    a raw frame-to-frame second derivative is not used (same lesson as
+    CCTV's netra/predict.py: differentiating a noisy per-frame estimate
+    measures the noise, not the vehicle).
+    """
+    accel_window_s: float = 1.0        # gap between the "now" and "before" speed windows
+    min_track_seconds_accel: float = 2.5  # need room for two non-overlapping speed windows
+
+
+@dataclass
+class QueueConfig:
+    """Corridor-free queue detection — spatial clustering of simultaneously
+    slow/stopped tracks. No calibrated corridor polygon exists for drone
+    footage (cf. CCTV's scripts/autocalibrate.py), so proximity is measured
+    in units of the scene's own median vehicle-box diagonal rather than an
+    absolute pixel count, which stays meaningful across altitude/zoom.
+    """
+    enabled: bool = True
+    min_vehicles: int = 3
+    slow_ratio: float = 0.35
+    slow_abs_px_s: float = 15.0
+    proximity_diagonals: float = 2.5
+    min_duration_s: float = 4.0
+    sample_dt_s: float = 0.5
+    merge_overlap: float = 0.5
+    gap_tolerance_s: float = 2.0
+    min_baseline_samples: int = 30
+    baseline_percentile: float = 80.0
+
+
+@dataclass
+class BlockageConfig:
+    """Corridor-free blockage detection — a single stationary track plus
+    (where observable) evidence that passing traffic slowed near it. See
+    queue_blockage_drone.py module docstring for the honest limits of what
+    a corridor-free geometry check can and cannot distinguish.
+    """
+    enabled: bool = True
+    min_stationary_s: float = 6.0
+    proximity_diagonals: float = 3.0
+    slowdown_fraction: float = 0.5
+    min_neighbor_free_speed_px_s: float = 15.0
+    gap_tolerance_s: float = 1.0
+
+
+@dataclass
 class ProcessingConfig:
     frame_stride: int = 1
     max_frames: int | None = None
@@ -202,6 +265,9 @@ class DroneConfig:
     road_plane: RoadPlaneConfig = field(default_factory=RoadPlaneConfig)
     quality: QualityConfig = field(default_factory=QualityConfig)
     kinematics: KinematicsConfig = field(default_factory=KinematicsConfig)
+    physics: PhysicsConfig = field(default_factory=PhysicsConfig)
+    queue: QueueConfig = field(default_factory=QueueConfig)
+    blockage: BlockageConfig = field(default_factory=BlockageConfig)
     processing: ProcessingConfig = field(default_factory=ProcessingConfig)
     api: ApiConfig = field(default_factory=ApiConfig)
 
@@ -281,6 +347,9 @@ def load_config(path: str | os.PathLike | None = None) -> DroneConfig:
         road_plane=_section(raw, "road_plane", RoadPlaneConfig),
         quality=_section(raw, "quality", QualityConfig),
         kinematics=_section(raw, "kinematics", KinematicsConfig),
+        physics=_section(raw, "physics", PhysicsConfig),
+        queue=_section(raw, "queue", QueueConfig),
+        blockage=_section(raw, "blockage", BlockageConfig),
         processing=_section(raw, "processing", ProcessingConfig),
         api=_section(raw, "api", ApiConfig),
         # stored relative to PROJECT_ROOT so results files stay machine-agnostic

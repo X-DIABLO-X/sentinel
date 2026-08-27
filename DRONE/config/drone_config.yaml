@@ -133,6 +133,61 @@ kinematics:
   stationary_speed_px_s: 2.0   # in reference-frame px/s, GMC-compensated
 
 # ---------------------------------------------------------------------------
+# Physics (acceleration/momentum, beyond raw speed)
+# ---------------------------------------------------------------------------
+# Acceleration is (speed_now - speed_before) / accel_window_s, where each speed
+# is itself a trailing-window arc-length/dt estimate (kinematics.speed_window_s
+# wide), NOT a per-frame second derivative. A raw frame-to-frame difference of
+# an already-noisy position estimate is noise, not physics -- the same lesson
+# CCTV's netra/predict.py module docstring documents ("per-frame impulse was
+# noise") for the exact same reason (differentiating a filtered/jittery signal
+# over a ~33ms step amplifies detector/tracker jitter into fake acceleration).
+physics:
+  accel_window_s: 1.0            # gap between the "now" and "before" speed windows
+  min_track_seconds_accel: 2.5   # need room for two non-overlapping speed windows
+
+# ---------------------------------------------------------------------------
+# Queue detection - corridor-free
+# ---------------------------------------------------------------------------
+# CCTV's queue engine (netra/events/queueing.py) needs a calibrated corridor
+# polygon (scripts/autocalibrate.py) that no drone footage has. This is a
+# simpler, honestly-scoped equivalent: spatial clustering of tracks that are
+# simultaneously slow and close together in GMC-compensated reference-frame
+# coordinates, sustained over time. Proximity is measured in units of the
+# scene's own median vehicle-box diagonal (not an absolute pixel count) so it
+# stays meaningful across altitude/zoom. There is no ground truth to validate
+# this against -- same documented limitation as CCTV's own queue engine.
+queue:
+  enabled: true
+  min_vehicles: 3
+  slow_ratio: 0.35
+  slow_abs_px_s: 15.0
+  proximity_diagonals: 2.5
+  min_duration_s: 4.0
+  sample_dt_s: 0.5
+  merge_overlap: 0.5
+  gap_tolerance_s: 2.0
+  min_baseline_samples: 30
+  baseline_percentile: 80.0
+
+# ---------------------------------------------------------------------------
+# Blockage detection - corridor-free
+# ---------------------------------------------------------------------------
+# A single track that goes stationary for a sustained duration. Where other
+# tracks are observed passing close by, their speed drop (or lack of one) near
+# closest approach is used as evidence for/against "impeding traffic" versus
+# "parked off to the side" -- but if no traffic ever passes near a stationary
+# vehicle there is no geometric basis to tell blockage from parked apart, and
+# that is reported explicitly rather than guessed.
+blockage:
+  enabled: true
+  min_stationary_s: 6.0
+  proximity_diagonals: 3.0
+  slowdown_fraction: 0.5
+  min_neighbor_free_speed_px_s: 15.0
+  gap_tolerance_s: 1.0
+
+# ---------------------------------------------------------------------------
 # Processing
 # ---------------------------------------------------------------------------
 processing:

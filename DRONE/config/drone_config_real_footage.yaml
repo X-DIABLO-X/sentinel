@@ -1,0 +1,168 @@
+# DRONE subsystem configuration — REAL-FOOTAGE BATCH RUN VARIANT
+# ============================================================================
+# Differs from drone_config.yaml (the shipped default, tuned/verified against
+# synthetic frames only) in three ways:
+#
+# 1. gmc.downscale 1.0 -> 3.0, gmc.max_features 2000 -> 1200.
+#    Why: measured on real 1920x1080 DJI footage (not synthetic), ORB feature
+#    detection + matching at full resolution ran at ~5.3 fps. Sweep (80-100
+#    frames, gmc.health reported for each):
+#      downscale=1.0                          5.3 fps   health=1.000
+#      downscale=2.0                          9.5 fps   health=1.000
+#      downscale=3.0                         11.2 fps   health=1.000
+#      downscale=3.0, max_features=1200      21.3 fps   health=1.000
+#    gmc.health stayed 1.000 at every point on this sweep -- lower feature
+#    density did not cost a single failed estimate on this footage. gmc.py
+#    already rescales the estimated homography back to full resolution
+#    (GMCEstimator._rescale_homography), so downscale is a supported,
+#    documented performance knob, not an accuracy shortcut invented for this
+#    run. Consistent with the user-confirmed finding that this platform is
+#    near-static (hover, small residual drift) rather than continuous patrol.
+#
+# 2. detector.weights: models/detector/visdrone_yolov8x.pt (was null / COCO
+#    placeholder). Real YOLOv8x fine-tuned on VisDrone2019-DET
+#    (HuggingFace dronefreak/visdrone-yolov8x). Chosen over Ultralytics'
+#    official DOTA-pretrained OBB weights (yolov8s-obb.pt, natively rotated
+#    boxes -- geometrically the "correct" representation for a nadir
+#    vehicle) after a side-by-side check on 5 real frames from this
+#    footage's own roundabout scene: DOTA OBB found 0-2 boxes/frame against
+#    10+ visible motorbikes/cars; this VisDrone checkpoint found essentially
+#    all of them, at meaningfully higher confidence than the smaller
+#    visdrone-yolov11s variant that was also tried (also present at
+#    models/detector/visdrone_yolov11s.pt). Standalone detector throughput on
+#    this GPU (RTX 4050 laptop, 6GB, imgsz=1280): yolov8x ~10 fps,
+#    yolov11s ~52 fps -- x was kept anyway because the quality gap was
+#    visible on real frames, not just in the published VisDrone benchmark
+#    numbers, and GMC (not the detector) is closer to the pipeline's
+#    bottleneck regardless of which of the two is used.
+#
+# 3. tracker.use_native_botsort: true (was implicitly false / no such key).
+#    Native Ultralytics BoT-SORT with appearance ReID replaces the hand-rolled
+#    greedy-IoU DroneTracker for this run -- see
+#    models/tracker/botsort_drone.yaml for the tuned tracker config and its
+#    own docstring for why (nadir footage's frequent top-down occlusion is a
+#    materially worse case for a motion/IoU-only associator than the eye-level
+#    view a from-scratch tracker was originally reasoned against).
+#
+# The shipped drone_config.yaml default is left untouched (placeholder
+# detector, legacy tracker, downscale=1.0) for anyone re-running the
+# synthetic self-checks against the originally verified settings.
+# ============================================================================
+
+mode: hover
+
+gmc:
+  enabled: true
+  feature_type: orb
+  max_features: 1200           # <-- changed from drone_config.yaml (was 2000)
+  ransac_reproj_thresh: 3.0
+  mask_dynamic_boxes: true
+  box_dilate_px: 12
+  min_matches: 12
+  min_inliers: 8
+  ratio_test: 0.75
+  max_scale_change: 1.25
+  max_translation_frac: 0.25
+  downscale: 3.0                # <-- changed from drone_config.yaml (was 1.0)
+
+detector:
+  weights: models/detector/visdrone_yolov8x.pt   # <-- changed from drone_config.yaml (was null)
+  # imgsz 1280->960, half false->true: measured on this footage (5 real
+  # frames from the roundabout clip, side-by-side annotated) -- fp16@960
+  # detection counts and confidences were comparable to fp32@1280 (a few
+  # boxes gained, a few lost, no systematic quality collapse), for roughly
+  # 1.35x standalone detector throughput (13.5 fps vs 10.0 fps on the RTX
+  # 4050 laptop GPU this batch ran on) at meaningfully lower VRAM. Combined
+  # with frame_stride: 2 below, this is what got a 2000-frame clip's total
+  # pass1+pass2 time under this session's per-command processing cap.
+  imgsz: 960
+  conf: 0.25
+  iou: 0.45
+  max_det: 300
+  device: auto
+  half: true
+  classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  vehicle_classes: [2, 3, 4, 5, 6, 7, 8, 9]
+
+tracker:
+  backend: auto
+  high_thresh: 0.35
+  low_thresh: 0.10
+  match_thresh: 0.80
+  max_time_lost: 45            # <-- changed from drone_config.yaml (was 30) -- matches botsort_drone.yaml's track_buffer
+  min_hits: 3
+  use_native_botsort: true     # <-- changed from drone_config.yaml (implicit false) -- see module note above
+  botsort_yaml: models/tracker/botsort_drone.yaml
+
+telemetry:
+  enabled: false
+  path: null
+  format: auto
+  gps_hz: 10.0
+  imu_hz: 200.0
+
+road_plane:
+  homography: null
+  units: metres
+  altitude_m: null
+  focal_px: null
+
+quality:
+  enabled: true
+  min_blur_var: 25.0
+  min_brightness: 20.0
+  max_brightness: 240.0
+  max_gmc_failure_streak: 15
+
+kinematics:
+  speed_window_s: 1.0
+  min_track_seconds: 0.5
+  stationary_speed_px_s: 2.0
+
+physics:
+  accel_window_s: 1.0
+  min_track_seconds_accel: 2.5
+
+queue:
+  enabled: true
+  min_vehicles: 3
+  slow_ratio: 0.35
+  slow_abs_px_s: 15.0
+  proximity_diagonals: 2.5
+  min_duration_s: 4.0
+  sample_dt_s: 0.5
+  merge_overlap: 0.5
+  gap_tolerance_s: 2.0
+  min_baseline_samples: 30
+  baseline_percentile: 80.0
+
+blockage:
+  enabled: true
+  min_stationary_s: 6.0
+  proximity_diagonals: 3.0
+  slowdown_fraction: 0.5
+  min_neighbor_free_speed_px_s: 15.0
+  gap_tolerance_s: 1.0
+
+processing:
+  # frame_stride: 2 (was 1) -- measured necessity, not a quality shortcut
+  # taken lightly: this session's compute budget for the 16-clip batch is one
+  # laptop GPU (RTX 4050, 6GB) processed strictly sequentially, one clip at a
+  # time, each bounded by a hard per-command wall-clock cap. At stride=1 a
+  # ~2000-frame/66s clip did not fit that cap even after the detector-side
+  # speedups below. Every physics quantity here (speed_px_s, acceleration,
+  # trajectory) is time-windowed (kinematics.speed_window_s = 1.0s), not
+  # frame-count-windowed, so halving the sample rate to ~15 fps effective
+  # still gives 10+ samples inside every speed window -- it costs temporal
+  # resolution on the trajectory polyline, not correctness of the physics.
+  # The rendered annotated video is adjusted to match (run_drone_analysis.py's
+  # render() writes only the processed frames, at fps/frame_stride, so
+  # wall-clock duration still matches the source and nothing flickers).
+  frame_stride: 2
+  max_frames: null
+  results_dir: results
+  save_annotated: false
+
+api:
+  host: 127.0.0.1
+  port: 8011

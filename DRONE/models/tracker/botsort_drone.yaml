@@ -1,0 +1,52 @@
+# BoT-SORT tracker config for the DRONE subsystem's real-footage run.
+# ============================================================================
+# Starting point: Ultralytics' shipped ultralytics/cfg/trackers/botsort.yaml
+# defaults (track_high_thresh 0.25, track_low_thresh 0.1, new_track_thresh
+# 0.25, track_buffer 30, match_thresh 0.8, fuse_score True,
+# gmc_method sparseOptFlow). Two deliberate changes from that default, both
+# reasoned from what this project now knows about the real footage:
+#
+# 1. with_reid: true (default is False). The whole reason this project moved
+#    off the hand-rolled greedy-IoU tracker (track_drone.DroneTracker) onto
+#    native BoT-SORT is appearance-based re-ID: from directly overhead, two
+#    vehicles passing near each other overlap far more in image space than
+#    the same pair seen obliquely or at eye level (CCTV's case), so a
+#    motion/IoU-only associator is more prone to an identity switch right at
+#    the moment of closest approach. model: auto uses Ultralytics' built-in
+#    lightweight feature extractor rather than pulling in a separate ReID
+#    network and its own weights file.
+#
+# 2. track_buffer: 45 (default 30, i.e. ~1s @ 30fps). Raised because the
+#    footage is genuinely nadir/top-down: a vehicle can vanish behind a
+#    denser vehicle, tree canopy, or bus shelter for longer than 1s at this
+#    viewing angle before reappearing, and re-identifying it as the same
+#    track (not a new id) matters directly to every downstream physics
+#    number -- a fresh id resets duration_s, breaks the acceleration window
+#    (physics_drone.py needs >= physics.min_track_seconds_accel of
+#    continuous history), and can silently truncate a blockage/queue episode.
+#
+# gmc_method is left at its default (sparseOptFlow). This is BoT-SORT's OWN
+# internal camera-motion compensation, used only to stabilise its own
+# Kalman/IoU association step -- it is a separate, smaller-scope thing from
+# this project's own gmc.py, which is still run on every frame afterward to
+# produce the reference-frame coordinates that physics_drone.py actually
+# measures speed/acceleration/trajectory in. Given the near-static-platform
+# finding (the drone hardly moves), sparseOptFlow's own correction is
+# expected to be small on this footage, same as gmc.py's — see
+# config/drone_config_real_footage.yaml for the measured GMC health numbers.
+# ============================================================================
+
+tracker_type: botsort
+track_high_thresh: 0.25
+track_low_thresh: 0.1
+new_track_thresh: 0.25
+track_buffer: 45              # <-- raised from 30: longer nadir occlusions
+match_thresh: 0.8
+fuse_score: true
+
+gmc_method: sparseOptFlow
+
+proximity_thresh: 0.5
+appearance_thresh: 0.8
+with_reid: true               # <-- enabled: appearance cue for nadir occlusion
+model: auto

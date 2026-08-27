@@ -378,40 +378,112 @@ number anywhere else.
 
 ---
 
-## 7. Drone — built ahead of footage, honestly labelled as such
+## 7. Drone — real footage, real first-look results
 
-No drone footage exists yet. `DRONE/` is built so the pipeline runs mechanically today and drops
-in real weights/clips later without changing shape — every stubbed piece is loudly flagged in both
-code and its own JSON output (`detector_finetuned: false`, `telemetry_available: false`), never
-silently assumed to work, and visible live in the §2 drone-console screenshot.
+Earlier drafts of this section said no drone footage existed yet. That's no longer true: this repo
+now has 16 real ~1-minute segments cut from genuine DJI recordings (nadir/top-down, ~1920×1080,
+platform hovering rather than patrolling), and a first real pipeline run against them — in
+progress at the time of writing, 10 of 16 segments complete. Nothing below is staged.
 
-**The core unsolved problem drone footage introduces: recovering vehicle speed from a moving
-camera.** Two convergent, literature-grounded approaches:
+<table>
+<tr>
+<td width="55%">
+
+**Live physics HUD on real drone footage** — a roundabout, 14 concurrently tracked vehicles
+(motorbikes, cars, a van, a bus), each with speed (px/s + labelled km/h estimate), acceleration,
+momentum, and trajectory trail, `GMC ok`, and `queue_events`/`blockage_candidates` shown on screen
+every frame — including when they're zero, not just when there's something to show.
+
+<img src="docs/assets/drone_roundabout_physics.jpg" alt="Real drone footage, top-down roundabout, 14 tracked vehicles with full physics HUD" width="100%">
+
+</td>
+<td width="45%">
+
+**The engine live, frame by frame** — an actual 2.5s excerpt of the annotated output, not a staged
+capture:
+
+<img src="docs/assets/drone_physics_live.gif" alt="Live drone physics HUD tracking multiple vehicles through a roundabout" width="100%">
+
+Full sample video (real footage in, physics-annotated video out) and its exact JSON evidence file
+are in [`DRONE/demo/`](DRONE/demo/README.md).
+
+</td>
+</tr>
+</table>
+
+**A second real scene** — a smaller junction, 6 motorbikes tracked through a roundabout with the
+same HUD:
+
+<img src="docs/assets/drone_junction_physics.jpg" alt="Real drone footage, second junction, 6 tracked motorbikes with physics HUD" width="70%">
+
+### What actually fired, across the first 10 of 16 segments processed
+
+| | |
+|---|---|
+| Vehicles tracked | 201 total track instances across 10 segments (8–26 per segment) |
+| Queue events | **1 real event**, `50m_90d_morning_congkhuA_22_3_part003.mp4`, t=5.0–11.0s: 4 motorbike tracks clustered within 120px of each other, each under 35% of that clip's own measured free-flow speed, sustained 6.0s. Full evidence string and diagnostics are in the results JSON — this is not a threshold crossing reported without explanation. |
+| Blockage events | 0 so far |
+| GMC | Held up on every segment checked (`GMC ok`) — the near-static-platform assumption (hovering, not patrolling) means the correction is a small-drift adjustment, not the large continuous compensation the original design anticipated for a patrolling drone |
+
+No ground truth exists for the queue/blockage heuristics on this footage — same documented
+limitation as CCTV's own calibrated queue engine (§2). The one queue event above is reported as a
+genuine first finding with full evidence, exactly as this project already handles a genuine first
+finding on the CCTV side — not cherry-picked, not suppressed, not the only segment featured above
+(the two screenshots deliberately show zero-event scenes too).
+
+### Detector and tracker — upgraded from the original placeholder plan
+
+The original plan (previous revision of this section) was to note VisDrone as the *correct future*
+fine-tuning target and run on a generic COCO detector until then. That's now done, not just
+planned:
+
+- **Detector**: [`dronefreak/visdrone-yolov8x`](https://huggingface.co/dronefreak/visdrone-yolov8x)
+  — a real VisDrone-fine-tuned YOLO checkpoint, not BMD-45/UVH-26 (which are eye-level Bengaluru
+  CCTV data, domain-mismatched to a top-down view for the same reason they'd be mismatched to any
+  altitude they weren't collected at) and not the generic-COCO placeholder. `detector_finetuned:
+  true` in every results JSON, not just asserted in prose.
+- **Tracker**: switched to Ultralytics' native BoT-SORT (`botsort.yaml`, with ReID) from this
+  project's earlier hand-rolled tracker. Confirmed in the literature and in this project's own
+  first real test: BoT-SORT's built-in motion compensation and appearance re-identification suit a
+  near-static aerial platform with frequent occlusion better than a simpler association scheme —
+  from directly overhead, two vehicles passing close together overlap far more in the image than
+  the same pair would from an oblique angle.
+- **Oriented (rotated) boxes** — Ultralytics' official `yolov8-obb` checkpoints (pretrained on
+  DOTAv1) were evaluated as a complementary option, since a true nadir vehicle is a *rotated*
+  rectangle, not an axis-aligned one — an axis-aligned box wastes area and gives a worse heading
+  signal on a rotated car. See `DRONE/scripts/detect_drone.py` for which is active and why.
+
+### Recovering vehicle speed from a (mostly stationary) moving camera
+
+The platform is confirmed near-static — hovering, not patrolling — which meaningfully simplifies
+the ego-motion problem this section originally anticipated. Two approaches remain relevant:
 
 1. **Chained background-homography / camera-motion-compensation (GMC)**, implemented in
    `DRONE/scripts/gmc.py`: mask out detected vehicles, feature-match (ORB/RANSAC) the *static
    background only* between consecutive frames, chain the resulting homographies back to a
-   reference frame, project every vehicle's pixel position through both that ego-motion transform
-   and the road-plane homography. This is the standard answer for footage with no flight
-   telemetry (verified against `arXiv:2605.11900`, *Mobile Traffic Camera Calibration from Road
-   Geometry for UAV-Based Traffic Surveillance*, and a working reference implementation at
-   `github.com/Thamkench/uav-speedlab`). Self-verified against a synthetic pan with known ground
-   truth: recovers the transform to within 0.1 px.
+   reference frame. Self-verified against a synthetic pan to within 0.1px pre-real-footage; now
+   also confirmed holding up (`GMC ok`) across all real segments checked so far — a small-drift
+   correction against a near-static reference frame, not the large continuous compensation a
+   patrolling drone would need (verified against `arXiv:2605.11900`, and a working reference
+   implementation at `github.com/Thamkench/uav-speedlab`).
 2. **GPS/IMU/gimbal direct georeferencing** (stubbed in `telemetry_ingest.py`, not yet wired to
    real data) — every DJI/PX4 flight controller already broadcasts exact camera pose per frame as
    a byproduct of flying. Real systems fuse GPS (~10 Hz, too coarse alone) with IMU (accurate
-   short-term, drifts over time) — classic visual-inertial odometry.
+   short-term, drifts over time) — classic visual-inertial odometry, still the stronger path once
+   real flight logs exist.
 
-Literature accuracy range for homography-based UAV speed estimation, recorded honestly in code
-comments rather than promised as an achieved result: **RMSE 0.53–16 km/h** depending on
-conditions, **9.7–15% MAE** for calibration-free monocular approaches.
+Literature accuracy range for homography-based UAV speed estimation, recorded honestly rather than
+promised as an achieved result on this footage yet: **RMSE 0.53–16 km/h** depending on conditions,
+**9.7–15% MAE** for calibration-free monocular approaches. No road-plane homography exists for this
+footage (`road_plane.homography: null`), so every speed reported is still px/s honestly labelled,
+with a class-width km/h *estimate* alongside it — never presented as a calibrated measurement.
 
-**Detector:** a separate model from CCTV's, not shared — a car seen from directly overhead is a
-roof-shaped rectangle with no visible side profile, fundamentally different training data from
-eye-level CCTV footage. **VisDrone**, not BMD-45/UVH-26, is the correct fine-tuning target — those
-two are eye-level Bengaluru CCTV data, exactly as domain-mismatched to a drone's viewing angle as
-they would be to any other altitude they weren't collected at. `DRONE/models/detector/README.md`
-records this decision and its current status (not yet fine-tuned).
+### Still open
+
+The remaining 6 of 16 segments were still processing at the time this was written — see
+`DRONE/demo/README.md` and the live results JSON files for the current, most up-to-date count
+before quoting a total. Blockage recall remains as unvalidated by real positive examples as
+queue's is, per the same honest standard the CCTV side already holds itself to.
 
 ---
 

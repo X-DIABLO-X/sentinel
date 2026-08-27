@@ -1,33 +1,59 @@
 """Vehicle/VRU detector for the DRONE subsystem — Ultralytics YOLO wrapper.
 
 =============================================================================
-STATUS TODAY: PLACEHOLDER. ``models/detector/visdrone_config.yaml`` has
-``weights: null`` because no drone footage and no fine-tuned checkpoint
-exist yet. This module loads a generic COCO-pretrained YOLO instead, so the
-pipeline is mechanically runnable end to end right now, and prints a loud
-multi-line banner on every run saying so. See models/detector/README.md for
-the full reasoning (aerial view removes vehicle side-profile; VisDrone is the
-correct fine-tune target, not the CCTV side's eye-level datasets).
-=============================================================================
+STATUS: REAL VISDRONE-FINE-TUNED WEIGHTS IN USE for the real-footage run.
+``config/drone_config_real_footage.yaml`` points ``detector.weights`` at
+``models/detector/visdrone_yolov8x.pt`` — genuine YOLOv8x weights fine-tuned
+on the VisDrone2019-DET aerial benchmark (github/HuggingFace
+``dronefreak/visdrone-yolov8x``, mAP50 36.8 / mAP50-95 21.5 on the VisDrone
+test set per that repo's model card), not the generic COCO placeholder this
+module used to fall back on unconditionally. It outputs the same 10-class
+VisDrone taxonomy this module already reasoned in (verified against the
+checkpoint's own ``model.names``: 0 pedestrian .. 9 motor, plus an 11th
+"others" class this project's config does not request).
 
-Two operating modes, selected automatically from ``cfg.detector.weights``:
+Why VisDrone over the alternative that was also evaluated (Ultralytics'
+official ``yolov8n/s-obb.pt``, pretrained on DOTAv1 with native rotated
+boxes — geometrically the "correct" representation for a nadir vehicle):
+tested side-by-side on real frames from this project's own footage, the
+generic DOTA OBB model detected close to nothing (0-2 boxes/frame on a busy
+roundabout with 10+ visible motorbikes) while the VisDrone-tuned model found
+essentially all of them at usable confidence. DOTA's vehicle classes are
+tuned to satellite/high-altitude imagery with a different scale and texture
+regime than this project's ~50-90m DJI footage, and VisDrone's own source
+data includes exactly this kind of dense Asian street-level aerial traffic
+(motorbikes, tricycles). Concretely, axis-aligned VisDrone won on real
+footage; DOTA OBB's theoretical geometric advantage (a rotation angle "for
+free") was worthless behind a detector that essentially wasn't seeing the
+vehicles. See DRONE/models/detector/README.md and the run report for the
+side-by-side frames this decision was made from.
 
-* **weights is None (placeholder, today)** — a small generic COCO model is
-  loaded. COCO's classes are a rough, *lossy* stand-in for the VisDrone
-  taxonomy the rest of this project reasons in (see ``COCO_TO_VISDRONE``
-  below). Detections that have no sane VisDrone counterpart (COCO has no
-  concept of "van" vs "car", no "tricycle", no "awning-tricycle") are
-  dropped rather than mapped to something misleading. Boxes are real
-  (whatever a COCO detector finds in an aerial frame — likely little, since
-  it was never trained on this viewing angle), but the class semantics and
-  any downstream count/severity number are not meaningful. That is the
+Two operating modes, selected automatically from ``cfg.detector.weights``,
+kept exactly as before so a checkout with no weights configured still runs
+end to end (self-test / no-footage case):
+
+* **weights is None (placeholder)** — a small generic COCO model is loaded.
+  COCO's classes are a rough, *lossy* stand-in for the VisDrone taxonomy the
+  rest of this project reasons in (see ``COCO_TO_VISDRONE`` below).
+  Detections with no sane VisDrone counterpart are dropped rather than
+  mapped to something misleading. Boxes are real, but the class semantics
+  and any downstream count/severity number are not meaningful. That is the
   entire point of ``is_placeholder``.
-* **weights is a path (future, once fine-tuned)** — the checkpoint already
-  outputs VisDrone class ids directly and is used as-is, no remapping.
+* **weights is a path (real, once fine-tuned — now the default for the
+  real-footage config)** — the checkpoint already outputs VisDrone class ids
+  directly and is used as-is, no remapping.
 
 Both modes return the same array shape so nothing downstream needs to know
 which one is active — it only needs to read ``DroneDetector.is_placeholder``
 and ``DroneDetector.class_names`` before trusting a class label.
+
+``track()`` (below ``detect()``) is the newer entry point used by
+``run_drone_analysis.py``: it drives the same loaded Ultralytics model's own
+``.track()`` method (native BoT-SORT, ``persist=True``) instead of only
+running single-frame detection, so identity association happens inside
+Ultralytics/BoT-SORT rather than in this project's own hand-rolled
+``track_drone.DroneTracker``. See ``track_drone.NativeTrackRegistry`` for how
+the resulting track ids get turned back into this project's ``Track`` type.
 """
 
 from __future__ import annotations
@@ -215,6 +241,90 @@ class DroneDetector:
         out[:, 4] = conf
         out[:, 5] = cls.astype(np.float64)
         return out
+
+    # -- native tracking (BoT-SORT via Ultralytics .track()) ----------------
+    def track(self, frame: np.ndarray, tracker_yaml: str | None = None) -> np.ndarray:
+        """Run detection+tracking on one BGR frame via native Ultralytics BoT-SORT.
+
+        Same underlying model as :meth:`detect`, but calls ``.track()``
+        instead of ``.predict()`` with ``persist=True`` so Ultralytics keeps
+        its BoT-SORT tracker state alive across calls on this ``DroneDetector``
+        instance — one instance must therefore be used for one clip's whole
+        frame sequence, exactly like :class:`gmc.GMCEstimator` and
+        ``track_drone.DroneTracker`` already require.
+
+        Returns an ``(N, 7)`` float64 array of
+        ``[x1, y1, x2, y2, score, cls, track_id]``. ``track_id`` is ``-1`` for
+        a row BoT-SORT has not yet confirmed as part of a track (normal on the
+        first frame or two); callers should drop those rows rather than
+        invent an id — see ``track_drone.NativeTrackRegistry``.
+        """
+        if frame is None:
+            raise ValueError("frame is None")
+        self._ensure_loaded()
+
+        device = None if (self.cfg.device or "auto") == "auto" else self.cfg.device
+        tracker_cfg = tracker_yaml or "botsort.yaml"
+
+        if self.is_placeholder:
+            predict_classes = sorted(COCO_TO_VISDRONE.keys())
+        else:
+            predict_classes = list(self.cfg.classes) if self.cfg.classes else None
+
+        track_kwargs: dict[str, Any] = dict(
+            imgsz=int(self.cfg.imgsz),
+            conf=float(self.cfg.conf),
+            iou=float(self.cfg.iou),
+            max_det=int(self.cfg.max_det),
+            device=device,
+            classes=predict_classes,
+            persist=True,
+            tracker=tracker_cfg,
+            verbose=False,
+        )
+        if self.cfg.half:
+            track_kwargs["half"] = True
+
+        results = self._model.track(frame, **track_kwargs)
+
+        if not results:
+            return np.empty((0, 7), dtype=np.float64)
+
+        r = results[0]
+        boxes = getattr(r, "boxes", None)
+        if boxes is None or boxes.xyxy is None or len(boxes) == 0:
+            return np.empty((0, 7), dtype=np.float64)
+
+        xyxy = boxes.xyxy.cpu().numpy().astype(np.float64)
+        conf = boxes.conf.cpu().numpy().astype(np.float64)
+        cls = boxes.cls.cpu().numpy().astype(int)
+        if boxes.id is not None:
+            tid = boxes.id.cpu().numpy().astype(np.int64)
+        else:
+            tid = np.full(xyxy.shape[0], -1, dtype=np.int64)
+
+        if self.is_placeholder:
+            out_rows = []
+            for (x1, y1, x2, y2), sc, c, ti in zip(xyxy, conf, cls, tid):
+                vd = COCO_TO_VISDRONE.get(int(c))
+                if vd is None:
+                    continue
+                out_rows.append([x1, y1, x2, y2, sc, float(vd), float(ti)])
+            if not out_rows:
+                return np.empty((0, 7), dtype=np.float64)
+            return np.asarray(out_rows, dtype=np.float64)
+
+        out = np.empty((xyxy.shape[0], 7), dtype=np.float64)
+        out[:, :4] = xyxy
+        out[:, 4] = conf
+        out[:, 5] = cls.astype(np.float64)
+        out[:, 6] = tid.astype(np.float64)
+        return out
+
+    def reset_tracker(self) -> None:
+        """Drop Ultralytics' internal BoT-SORT state (new clip, same instance)."""
+        if self._model is not None and hasattr(self._model, "predictor"):
+            self._model.predictor = None  # forces a fresh tracker on next .track()
 
     def status(self) -> dict[str, Any]:
         return {
