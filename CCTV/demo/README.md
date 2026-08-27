@@ -19,20 +19,33 @@ these specific clips.
 | `11_physics.mp4` | Accidents | pair (12, 4), score **0.551** |
 | `13_physics.mp4` | Accidents | pair (8, 5), score **0.588**, crossing, 52.5° |
 | `14_physics.mp4` | Accidents | pair (47, 49), score **0.602** |
-| `13009518_1920_1080_30fps_physics.mp4` | **Traffic** (not labelled as a crash clip) | pair (8, 6), score **0.738** — the highest score of the set |
+| `13009518_1920_1080_30fps_physics.mp4` | **Traffic** (not labelled as a crash clip) | pair (8, 6), score **0.738** — the highest score of the set, and a **likely false positive**, see below |
 
 Full evidence breakdown (per-vehicle yaw/aspect shock, decel, momentum drop,
 contact geometry) is in the matching `*_physics_result.json` for each clip.
 
 ## Read this before using these in the demo video
 
-**The threshold used (0.15) is permissive, and every one of the 5 clips
-cleared it — including the Traffic-category clip, which scored highest.**
-That is either a genuine event in that clip, or a false positive at this
-threshold on footage the engine has never seen before. It has not been
-manually reviewed frame-by-frame the way the original 4 ground-truth videos
-were (see `IDEAS/COMBINED/OUTPUT/2nd_inference/README.md`) — those had a
-known collision instant checked against real footage; these do not yet.
+**The Traffic clip's 0.738 score has been manually reviewed and is very
+likely a false positive, not a real event — this is now a confirmed finding,
+not an open question.** Frame inspection at its reported contact instant
+(t≈1.13s) shows dense, queued intersection traffic, not a collision. The
+tracker produced **227 distinct track IDs over only 221 frames** — severe
+identity-switch churn — and one of the two "colliding" tracks was assigned
+an instantaneous speed of **1915 px/s** (crossing the full frame width in
+about a second) while visually stationary in the queue. This is the
+rotation-gate reading tracker noise as a T-bone. It is *exactly* the
+queue-vs-collision confusion the module's own docstring warns about, and
+exactly why NETRA's wired `netra/events/collision.py` requires
+`fixed_camera_min_channels: 2` before a candidate is surfaced — rotation-gate
+alone, with no corroborating channel, has no defence against this. The score
+was not suppressed or altered after this was discovered; it is reported
+as-measured, with this explanation attached, in both this file and
+`13009518_1920_1080_30fps_physics_result.json`.
+
+The other 4 clips (Accidents-category) have **not** been reviewed to this
+same depth and should be treated as open items, not confirmed positives,
+until someone checks them the way this one was checked.
 
 **Do not present this as "5/5 validated."** Present it as: the merged
 pipeline runs end-to-end on fresh footage and produces a real, inspectable,

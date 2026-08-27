@@ -128,6 +128,19 @@ recall to 0/15; the two-channel requirement is a different, cheaper trade).
    detector on crash imagery), explicitly not a threshold change — no amount
    of re-tuning the collision logic recovers an event with no tracks to
    reason over.
+3. **The rotation-gate module, run standalone with no corroborating channel,
+   reproduces the same failure mode it was built to avoid.** First live
+   in-process test on 5 of NETRA's own clips (`CCTV/demo/`, full detail in
+   `CCTV/demo/README.md`) scored a Traffic-category (crash-free) clip at
+   **0.738 — the highest score of the whole set**, above 4 genuine
+   Accidents-category clips. Manual frame review confirmed it: dense queued
+   traffic produced 227 tracker IDs over 221 frames, and one "colliding"
+   vehicle was assigned 1915 px/s while visually stationary — tracker
+   identity-switch noise read as a T-bone by geometry alone. This is the
+   concrete argument for the root README's collision-integration plan
+   (§4: rotation-gate must agree with a second, independent NETRA channel
+   before a candidate is `CONFIRMED`, not `POSSIBLE`) — this failure is
+   exactly what that gate is for, caught before merge rather than after.
 
 ---
 
