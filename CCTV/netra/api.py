@@ -531,6 +531,13 @@ def create_app(config: dict | None = None) -> FastAPI:
 
     @app.get("/api/demo-videos/{stem}/video")
     def demo_video(stem: str):
+        # render_physics_demo.py already re-encodes its output to H.264/mp4
+        # (see its --no-ffmpeg flag, off by default) -- unlike the legacy
+        # mp4v ProblemSet clips, there is nothing here for browser_video() to
+        # fix. Calling it anyway was actively harmful: on at least one real
+        # deployment its OpenCV/VP8 encode path hung indefinitely mid-file,
+        # permanently holding video_cache_lock and deadlocking every other
+        # video route (ProblemSet included) behind it. Serve the real file.
         demo_dir = (ROOT / "demo").resolve()
         path = (demo_dir / f"{stem}.mp4").resolve()
         try:
@@ -539,10 +546,7 @@ def create_app(config: dict | None = None) -> FastAPI:
             raise HTTPException(403, "forbidden path") from exc
         if not path.is_file():
             raise HTTPException(404, "demo video not found")
-        cache = ROOT / "uploads" / "browser_cache" / f"demo_{stem}.webm"
-        served = browser_video(path, cache)
-        media = "video/webm" if served.suffix.lower() == ".webm" else "video/mp4"
-        return FileResponse(served, media_type=media, headers={
+        return FileResponse(path, media_type="video/mp4", headers={
             "Cache-Control": "public, max-age=86400, immutable"})
 
     @app.get("/api/demo-videos/{stem}/poster")

@@ -100,6 +100,14 @@ export default function StatusWorkflow({
       </ol>
 
       {/* --- transitions ------------------------------------------------ */}
+      {backend === "drone" ? (
+        <p className="text-[11.5px] leading-relaxed text-ink-3">
+          Drone findings are recomputed from results JSON on every request, not stored in a
+          database — there is no status to change here. Verify, assign and reject only exist on
+          the CCTV backend, which owns the incident record this escalation responds to.
+        </p>
+      ) : (
+      <>
       <div className="flex flex-wrap items-center gap-2">
         {incident.status === "detected" ? (
           <button
@@ -240,6 +248,8 @@ export default function StatusWorkflow({
           </button>
         </div>
       </div>
+      </>
+      )}
 
       {notice ? <div className="note text-sev-low">{notice}</div> : null}
       {error ? <div className="stub-note">Action failed: {error}</div> : null}

@@ -11,6 +11,10 @@ GET  /api/health            liveness + the honesty flags a judge would check fir
 GET  /api/status            fuller machine-readable status (mode, gmc, telemetry, thermal)
 POST /api/process           run the pipeline on one clip, return the summary
 GET  /api/results/{name}    fetch a previously written results JSON by filename
+GET  /api/results           summary row per processed clip
+GET  /api/dashboard         summary + synthetic incidents + cameras, recomputed each call
+GET  /api/incidents/{id}    single synthetic incident, same recompute-per-call basis
+GET  /api/incidents/{id}/evidence/{name}   the annotated segment for that incident
 
 Kept intentionally small: this is a hover-dispatch, single-incident system,
 not a multi-camera streaming service, so there is no job queue, no websocket
@@ -31,6 +35,7 @@ if str(_THIS_DIR) not in sys.path:
 
 from fastapi import FastAPI, HTTPException          # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware   # noqa: E402
+from fastapi.responses import FileResponse           # noqa: E402
 from pydantic import BaseModel                       # noqa: E402
 
 import config as drone_config   # noqa: E402
@@ -152,6 +157,7 @@ def _synthetic_incidents(all_results: list[dict[str, Any]]) -> list[dict[str, An
     next_id = 1
     for res in all_results:
         camera_id = Path(res.get("source_video", "unknown")).stem
+        annotated = res.get("annotated_video")
         for kind in ("queue", "blockage"):
             block = res.get(kind) or {}
             for ev in block.get("events", []):
@@ -178,9 +184,20 @@ def _synthetic_incidents(all_results: list[dict[str, Any]]) -> list[dict[str, An
                     "triggers": ev,
                     "created_at": res.get("generated_at"),
                     "source_kind": "drone",
+                    # The full annotated segment, not a trimmed clip -- there is
+                    # no per-event clip extraction on the drone side yet, so
+                    # this is the whole processed video the event was found in.
+                    "evidence": {"clip": annotated} if annotated else {},
                 })
                 next_id += 1
     return incidents
+
+
+def _find_incident(incident_id: int) -> dict[str, Any] | None:
+    for row in _synthetic_incidents(_load_all_results()):
+        if row["id"] == incident_id:
+            return row
+    return None
 
 
 @app.get("/api/results")
@@ -230,6 +247,39 @@ def dashboard() -> dict[str, Any]:
         "cameras": len(cameras),
     }
     return {"summary": summary, "incidents": incidents, "cameras": cameras}
+
+
+@app.get("/api/incidents/{incident_id}")
+def get_incident(incident_id: int) -> dict[str, Any]:
+    """Single-incident view for APP's /incidents/{id}?backend=drone route.
+
+    Recomputed from results/ on every call, same as /api/dashboard -- there is
+    no incident database on this backend, so an id is only ever stable as long
+    as the results directory's file listing doesn't change.
+    """
+    row = _find_incident(incident_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"no drone incident with id {incident_id}")
+    return row
+
+
+@app.get("/api/incidents/{incident_id}/evidence/{name}")
+def get_incident_evidence(incident_id: int, name: str) -> FileResponse:
+    """Serves the annotated segment named in that incident's own evidence.clip
+    -- never an arbitrary filename, so this can't be used to read outside
+    results/. The bare-filename convention matches CCTV's equivalent route.
+    """
+    row = _find_incident(incident_id)
+    if row is None or row.get("evidence", {}).get("clip") != name:
+        raise HTTPException(status_code=404, detail="no such evidence file for this incident")
+    path = (_CFG.processing.results_path / name).resolve()
+    root = _CFG.processing.results_path.resolve()
+    if root not in path.parents and path != root:
+        raise HTTPException(status_code=403, detail="forbidden path")
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="evidence file not found on disk")
+    return FileResponse(path, media_type="video/mp4", headers={
+        "Cache-Control": "public, max-age=86400, immutable"})
 
 
 if __name__ == "__main__":
