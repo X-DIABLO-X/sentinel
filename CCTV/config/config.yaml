@@ -102,10 +102,24 @@ collision:
   proximity_scale: 1.0
   max_speed_frac: 0.45
   min_confirm_delay_s: 0.4
+  # Rotation-gate candidate-pair threshold, and how close in time an
+  # independent channel's own finding must be to the rotation-gate's contact
+  # instant to count as agreement. Wired into the per-frame collision loop
+  # via CollisionEngine._rotation_gate_evidence/_rotation_gate_confirmed.
+  # The threshold is picked to be in the same range as this file's other
+  # corroboration gates (stationary_gate 0.42, impulse_gate below) rather
+  # than tuned against any specific clip -- see collision.py's comment next
+  # to this field for why it is deliberately NOT raised above the one
+  # confirmed false-positive score measured in CCTV/demo/README.md (0.738).
+  rotation_gate_threshold: 0.45
+  rotation_gate_agree_window_s: 3.0
+  impulse_gate: 0.55
   # Rotation-gated pair scorer ported from COMBINED's inference2 (see
   # netra/events/rotation_gate.py module docstring for the physics and the
-  # honesty caveat on the 4/4 in-sample number). Not yet wired into the
-  # per-frame collision loop above -- this section exists so
+  # honesty caveat on the 4/4 in-sample number). Wired into the per-frame
+  # collision loop as a further candidate source, gated on independent
+  # corroboration -- see CollisionEngine._rotation_gate_confirmed and
+  # README.md section 6. This sub-section exists so
   # RotationGateConfig.from_config(config["collision"]) reads real, auditable
   # values instead of silently falling back to the dataclass defaults with a
   # no-op merge. Values are the tuned COMBINED defaults, verbatim.

@@ -1,0 +1,481 @@
+{
+  "run_id": "6eacdf4b5095",
+  "camera_id": "ACCIDENTS_12",
+  "source": "D:\\SHARED\\Elcia\\Elcia\\Test\\data\\problems\\Accidents\\12.mp4",
+  "model_run": {
+    "run_id": "6eacdf4b5095",
+    "detector": "yolo26m.pt",
+    "backend": "torch",
+    "device": "cuda:0",
+    "imgsz": 1920,
+    "requested_analysis_fps": 0.0,
+    "effective_analysis_fps": 14.846047156726769,
+    "evidence_fps": 8.0,
+    "tracker": "ByteTrack (netra)",
+    "crash_classifier": {
+      "available": false,
+      "weights": null,
+      "threshold": 0.718,
+      "crops_scored": 0,
+      "operating_point": "~0.95 precision / ~0.85 recall on held-out validation"
+    },
+    "engine_version": "netra-1.0",
+    "threshold_hash": "328b631ffa9d892a"
+  },
+  "stats": {
+    "frames_read": 446,
+    "frames_analysed": 446,
+    "frames_skipped_corrupt": 0,
+    "video_seconds": 29.97,
+    "wall_seconds": 108.44,
+    "analysis_fps": 4.11,
+    "realtime_factor": 0.28,
+    "events": 2,
+    "tracks_created": 200,
+    "detector_latency": {
+      "n": 1335,
+      "mean_ms": 112.0,
+      "median_ms": 114.85,
+      "p95_ms": 135.26,
+      "max_ms": 289.73,
+      "implied_fps": 8.93
+    }
+  },
+  "events_total": 1,
+  "events_by_type": {
+    "collision_candidate": 1
+  },
+  "events_by_severity": {
+    "Medium": 1
+  },
+  "alerts_per_video_hour": 120.1,
+  "lane_model": {
+    "trajectories_used": 18,
+    "lanes": [
+      {
+        "id": "d1l0",
+        "direction": 1,
+        "heading_deg": -136.9,
+        "width_px": 53.4,
+        "support": 5,
+        "centreline": [
+          [
+            1245.1,
+            615.8
+          ],
+          [
+            1225.2,
+            617.0
+          ],
+          [
+            1213.6,
+            612.1
+          ],
+          [
+            1191.6,
+            610.4
+          ],
+          [
+            1182.2,
+            595.0
+          ],
+          [
+            1167.9,
+            584.9
+          ],
+          [
+            1157.5,
+            570.7
+          ],
+          [
+            1143.6,
+            560.1
+          ],
+          [
+            1129.6,
+            549.7
+          ],
+          [
+            1118.0,
+            536.8
+          ],
+          [
+            1105.2,
+            525.0
+          ],
+          [
+            1093.0,
+            512.7
+          ]
+        ]
+      },
+      {
+        "id": "d2l0",
+        "direction": 2,
+        "heading_deg": 163.0,
+        "width_px": 46.4,
+        "support": 4,
+        "centreline": [
+          [
+            459.4,
+            353.5
+          ],
+          [
+            434.8,
+            362.6
+          ],
+          [
+            409.0,
+            368.1
+          ],
+          [
+            384.0,
+            376.0
+          ]
+        ]
+      }
+    ],
+    "note": "Lanes are inferred from observed vehicle paths, not from painted markings. They describe where traffic does drive, not where it is permitted to."
+  },
+  "events": [
+    {
+      "id": 4,
+      "type": "collision_candidate",
+      "label": "Suspected collision-related disruption",
+      "camera_id": "ACCIDENTS_12",
+      "corridor_id": null,
+      "started_t": 27.684,
+      "detected_t": 28.021,
+      "ended_t": null,
+      "duration": 0.337,
+      "detection_delay": 0.337,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.4915,
+      "severity": 0.48,
+      "severity_label": "Medium",
+      "severity_parts": {
+        "flow_loss": 0.55,
+        "obstruction": 1.0,
+        "extent": 0.1667,
+        "duration": 0.0019,
+        "risk": 0.75,
+        "impact_subscore": 0.6117,
+        "severity": 0.48
+      },
+      "priority": 0.2359,
+      "track_ids": [
+        6,
+        128
+      ],
+      "triggers": {
+        "conflict_score": 0.0,
+        "changepoint_z": 1.263,
+        "changepoint_threshold": 1.5,
+        "changepoint_evidence": 0.421,
+        "cusum_s": 0.0,
+        "cusum_h": 2.2,
+        "detector": "path-crossing",
+        "trigger_mode": "path-crossing",
+        "channels_agreeing": 2,
+        "impulse_channel": {
+          "impulse": "no coincident momentum exchange"
+        },
+        "path_conflict_channel": {
+          "path_conflict": "paths crossed and a vehicle was deflected",
+          "track_ids": [
+            6,
+            128
+          ],
+          "crossing_angle_deg": 87.0,
+          "time_gap_s": 0.0,
+          "heading_change_deg": [
+            155.2,
+            71.0
+          ],
+          "speed_drop": [
+            0.59,
+            0.97
+          ],
+          "onset_t": 27.68,
+          "score": 0.996,
+          "gates": {
+            "predicted_paths_cross": true,
+            "post_encroachment_s": 0.0,
+            "crossing_angle_deg": 87.0,
+            "geometry": "deflection",
+            "identity_changed_at_impact": false,
+            "footprint_separation": 0.82,
+            "footprints_overlap": true,
+            "motion_disturbed": true,
+            "lateral_g": 1.63,
+            "beyond_tyre_grip": true,
+            "turn_deg": 87.0,
+            "partner_deviation_deg": 155.2,
+            "partner_speed_drop": 0.59
+          },
+          "why": "two paths intersected within 0.00s of each other at 87 degrees, and a vehicle left its heading afterwards; vehicles queueing travel along the same line and never intersect"
+        },
+        "rotation_gate_channel": {
+          "rotation_gate": "scored",
+          "best_pair": {
+            "track_ids": [
+              23,
+              162
+            ],
+            "score": 0.0079,
+            "contact": 0.4534,
+            "gap": 0.6027,
+            "contact_t": 25.195,
+            "contact_refined": true,
+            "interaction": "unknown",
+            "relative_heading_deg": null,
+            "interaction_prior": 0.6,
+            "geometric_mean_evidence": 0.029,
+            "evidence_a": {
+              "track_id": 23,
+              "rotation": 0.0876,
+              "gate": 0.2701,
+              "yaw_deg": 0.0,
+              "aspect": 0.055,
+              "decel": 0.2906,
+              "speed_drop": 0.2393,
+              "momentum_drop": 0.173,
+              "track_break": 0.0,
+              "appearance": null,
+              "kinematic": 0.1489,
+              "score": 0.0328,
+              "n_window": 29,
+              "channels_used": [
+                "decel",
+                "momentum",
+                "speed_drop",
+                "track_break"
+              ],
+              "yaw_gate_passed": false,
+              "aspect_gate_passed": true,
+              "note": "silhouette changed by 6% after a stable approach"
+            },
+            "evidence_b": {
+              "track_id": 162,
+              "rotation": 0.141,
+              "gate": 0.3128,
+              "yaw_deg": 0.0,
+              "aspect": 0.0912,
+              "decel": 0.0617,
+              "speed_drop": 0.0567,
+              "momentum_drop": 0.0398,
+              "track_break": 0.0,
+              "appearance": null,
+              "kinematic": 0.0334,
+              "score": 0.0256,
+              "n_window": 29,
+              "channels_used": [
+                "decel",
+                "momentum",
+                "speed_drop",
+                "track_break"
+              ],
+              "yaw_gate_passed": false,
+              "aspect_gate_passed": true,
+              "note": "silhouette changed by 9% after a stable approach"
+            }
+          },
+          "explain": "#23 and #162 came closest at t=25.19s (0.60 vehicle-widths apart, relative heading unmeasurable -> unknown); #23: silhouette changed by 6% after a stable approach; #162: silhouette changed by 9% after a stable approach; score 0.008",
+          "threshold": 0.45,
+          "clears_threshold": false
+        },
+        "rotation_gate_confirmed": false,
+        "rotation_gate_agreement": "none",
+        "collision_confirmation": "CONFIRMED",
+        "crash_score": 0.557,
+        "crash_score_gate": 0.42,
+        "stationary_object": {
+          "id": 369,
+          "box": [
+            0.1,
+            310.7,
+            39.9,
+            378.8
+          ],
+          "cls": 2,
+          "score": 0.113,
+          "first_seen_t": 23.78,
+          "dwell_s": 4.24,
+          "track_id": 174,
+          "persons_nearby": 0,
+          "companions": 2,
+          "debris_blobs": 2
+        },
+        "stationary_track_ids": [
+          174
+        ],
+        "post_crash_cues": {
+          "road_coverage": 0.712,
+          "road_term": 1.0,
+          "arrived_moving": true,
+          "ever_moved": true,
+          "track_seen": true,
+          "parked": false,
+          "queue_member": false,
+          "stop_decel_px_s2": 52.2,
+          "peak_speed_px_s": 139.2,
+          "aspect_shift": 0.391,
+          "rollover_term": 0.71,
+          "present_from_start": false,
+          "persons_nearby": 0,
+          "companion_stopped_vehicles": 2,
+          "debris_blobs": 2,
+          "dwell_s": 4.2,
+          "person_term": 0.0,
+          "companion_term": 1.0,
+          "debris_term": 0.667,
+          "dwell_term": 0.283
+        },
+        "candidates": [
+          {
+            "id": 174,
+            "score": 0.557,
+            "p_crashed": null,
+            "stop_t": 23.78,
+            "rollover": 0.391,
+            "off_road": false
+          },
+          {
+            "id": 183,
+            "score": 0.419,
+            "p_crashed": null,
+            "stop_t": 0.0,
+            "rollover": 0.295,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.34,
+            "p_crashed": null,
+            "stop_t": 24.05,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.34,
+            "p_crashed": null,
+            "stop_t": 26.47,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.272,
+            "p_crashed": null,
+            "stop_t": 28.02,
+            "rollover": 0.0,
+            "off_road": true
+          },
+          {
+            "id": null,
+            "score": 0.25,
+            "p_crashed": null,
+            "stop_t": 25.73,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.246,
+            "p_crashed": null,
+            "stop_t": 25.06,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": 162,
+            "score": 0.175,
+            "p_crashed": null,
+            "stop_t": 27.75,
+            "rollover": 0.028,
+            "off_road": false
+          }
+        ],
+        "participant_selection": {
+          "mode": "path-crossing pair",
+          "reason": "paths intersected at 87 degrees within 0.00s of each other, and a vehicle's heading changed by 155 degrees afterwards",
+          "crossing_angle_deg": 87.0,
+          "heading_change_deg": [
+            155.2,
+            71.0
+          ]
+        },
+        "participant_boxes": [
+          [
+            465.5,
+            241.4,
+            541.4,
+            273.0
+          ],
+          [
+            526.5,
+            242.7,
+            558.9,
+            265.9
+          ]
+        ],
+        "participant_p_crashed": [
+          null,
+          null
+        ],
+        "changepoint_detail": {
+          "flow": 0.1641,
+          "box_area": 213335.3,
+          "z_flow": 1.668,
+          "z_area": 1.263,
+          "score": 1.263,
+          "threshold": 1.5
+        },
+        "attribution": "path-crossing",
+        "attribution_note": "both vehicles identified by the crossing of their own paths; a bystander's path did not intersect anything",
+        "_db_id": 7,
+        "corroboration": {
+          "independent_geometries_at_this_moment": 2,
+          "window_s": 0.75
+        },
+        "consolidated_from": {
+          "candidates": 2,
+          "dropped_at": [
+            4.24
+          ],
+          "why": "a clip contains at most one accident; the strongest candidate is reported and the others are kept in the incident store for audit"
+        }
+      },
+      "explanation": "Conflict indicators: motion change-point z=1.26",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\ACCIDENTS_12\\6eacdf4b5095\\INC-00004",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          21.69,
+          28.02
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "ACCIDENTS_12",
+        "camera_name": "ACCIDENTS_12",
+        "zone": "Accidents",
+        "road_name": "(uncalibrated clip)",
+        "road_edge_id": null,
+        "corridor_id": null,
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Operator verification required before dispatch",
+      "operational_context": {}
+    }
+  ]
+}

@@ -1,0 +1,295 @@
+{
+  "run_id": "2a6f00e85073",
+  "camera_id": "TRAFFIC_13009546_3840_2160_30fps",
+  "source": "D:\\SHARED\\Elcia\\Elcia\\Test\\data\\problems\\Traffic\\13009546_3840_2160_30fps.mp4",
+  "model_run": {
+    "run_id": "2a6f00e85073",
+    "detector": "yolo26m.pt",
+    "backend": "torch",
+    "device": "cuda:0",
+    "imgsz": 1920,
+    "requested_analysis_fps": 0.0,
+    "effective_analysis_fps": 30.0,
+    "evidence_fps": 8.0,
+    "tracker": "ByteTrack (netra)",
+    "crash_classifier": {
+      "available": false,
+      "weights": null,
+      "threshold": 0.718,
+      "crops_scored": 0,
+      "operating_point": "~0.95 precision / ~0.85 recall on held-out validation"
+    },
+    "engine_version": "netra-1.0",
+    "threshold_hash": "9b95294e284ea247"
+  },
+  "stats": {
+    "frames_read": 498,
+    "frames_analysed": 498,
+    "frames_skipped_corrupt": 0,
+    "video_seconds": 16.57,
+    "wall_seconds": 461.94,
+    "analysis_fps": 1.08,
+    "realtime_factor": 0.04,
+    "events": 1,
+    "tracks_created": 560,
+    "detector_latency": {
+      "n": 11300,
+      "mean_ms": 127.44,
+      "median_ms": 122.22,
+      "p95_ms": 163.67,
+      "max_ms": 580.07,
+      "implied_fps": 7.85
+    }
+  },
+  "events_total": 1,
+  "events_by_type": {
+    "pedestrian_on_carriageway": 1
+  },
+  "events_by_severity": {
+    "Low": 1
+  },
+  "alerts_per_video_hour": 217.3,
+  "lane_model": {
+    "trajectories_used": 50,
+    "lanes": [
+      {
+        "id": "d1l0",
+        "direction": 1,
+        "heading_deg": -12.0,
+        "width_px": 124.9,
+        "support": 26,
+        "centreline": [
+          [
+            37.1,
+            481.8
+          ],
+          [
+            54.0,
+            473.8
+          ],
+          [
+            70.3,
+            463.2
+          ],
+          [
+            87.3,
+            455.8
+          ],
+          [
+            105.0,
+            451.8
+          ],
+          [
+            122.1,
+            445.0
+          ],
+          [
+            139.2,
+            437.9
+          ],
+          [
+            157.4,
+            436.6
+          ],
+          [
+            175.4,
+            433.8
+          ],
+          [
+            192.2,
+            428.3
+          ],
+          [
+            213.5,
+            438.5
+          ],
+          [
+            235.2,
+            453.0
+          ]
+        ]
+      },
+      {
+        "id": "d1l1",
+        "direction": 1,
+        "heading_deg": -12.0,
+        "width_px": 34.8,
+        "support": 10,
+        "centreline": [
+          [
+            711.0,
+            413.0
+          ],
+          [
+            726.3,
+            412.4
+          ],
+          [
+            742.2,
+            413.8
+          ],
+          [
+            758.3,
+            416.6
+          ],
+          [
+            774.2,
+            418.3
+          ],
+          [
+            789.6,
+            418.0
+          ],
+          [
+            805.3,
+            418.5
+          ],
+          [
+            821.6,
+            422.3
+          ],
+          [
+            837.5,
+            423.8
+          ],
+          [
+            852.9,
+            423.6
+          ],
+          [
+            868.6,
+            424.0
+          ],
+          [
+            884.1,
+            423.8
+          ]
+        ]
+      },
+      {
+        "id": "d1l2",
+        "direction": 1,
+        "heading_deg": -12.0,
+        "width_px": 75.2,
+        "support": 4,
+        "centreline": [
+          [
+            927.1,
+            414.8
+          ],
+          [
+            952.0,
+            430.9
+          ],
+          [
+            975.1,
+            438.7
+          ],
+          [
+            996.6,
+            439.0
+          ],
+          [
+            1022.7,
+            452.7
+          ],
+          [
+            1039.5,
+            438.9
+          ],
+          [
+            1061.7,
+            442.5
+          ],
+          [
+            1082.6,
+            439.7
+          ],
+          [
+            1103.7,
+            438.0
+          ],
+          [
+            1125.1,
+            437.7
+          ],
+          [
+            1146.6,
+            438.2
+          ],
+          [
+            1168.2,
+            438.6
+          ]
+        ]
+      }
+    ],
+    "note": "Lanes are inferred from observed vehicle paths, not from painted markings. They describe where traffic does drive, not where it is permitted to."
+  },
+  "events": [
+    {
+      "id": 34,
+      "type": "pedestrian_on_carriageway",
+      "label": "Pedestrian on carriageway",
+      "camera_id": "TRAFFIC_13009546_3840_2160_30fps",
+      "corridor_id": "c4",
+      "started_t": 2.0,
+      "detected_t": 12.0,
+      "ended_t": 16.567,
+      "duration": 14.567,
+      "detection_delay": 10.0,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.95,
+      "severity": 0.1539,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.0,
+        "obstruction": 0.0,
+        "extent": 0.0833,
+        "duration": 0.0556,
+        "risk": 0.85,
+        "impact_subscore": 0.0208,
+        "severity": 0.1539
+      },
+      "priority": 0.1462,
+      "track_ids": [
+        18
+      ],
+      "triggers": {
+        "dwell_s": 10.0,
+        "object_class": 0,
+        "detector_confidence": 0.812,
+        "_db_id": 37
+      },
+      "explanation": "Person track 18 inside carriageway c4 for 10.0s",
+      "needs_verification": false,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_13009546_3840_2160_30fps\\2a6f00e85073\\INC-00034",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          0.0,
+          12.0
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_13009546_3840_2160_30fps",
+        "camera_name": "TRAFFIC_13009546_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c4",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Monitor",
+      "operational_context": {}
+    }
+  ]
+}

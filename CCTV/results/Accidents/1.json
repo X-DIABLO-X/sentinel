@@ -1,0 +1,54 @@
+{
+  "run_id": "b86649baffce",
+  "camera_id": "ACCIDENTS_1",
+  "source": "D:\\SHARED\\Elcia\\Elcia\\Test\\data\\problems\\Accidents\\1.mp4",
+  "model_run": {
+    "run_id": "b86649baffce",
+    "detector": "yolo26m.pt",
+    "backend": "torch",
+    "device": "cuda:0",
+    "imgsz": 1920,
+    "requested_analysis_fps": 0.0,
+    "effective_analysis_fps": 14.64935064935065,
+    "evidence_fps": 8.0,
+    "tracker": "ByteTrack (netra)",
+    "crash_classifier": {
+      "available": false,
+      "weights": null,
+      "threshold": 0.718,
+      "crops_scored": 0,
+      "operating_point": "~0.95 precision / ~0.85 recall on held-out validation"
+    },
+    "engine_version": "netra-1.0",
+    "threshold_hash": "328b631ffa9d892a"
+  },
+  "stats": {
+    "frames_read": 141,
+    "frames_analysed": 141,
+    "frames_skipped_corrupt": 0,
+    "video_seconds": 9.56,
+    "wall_seconds": 18.17,
+    "analysis_fps": 7.76,
+    "realtime_factor": 0.53,
+    "events": 0,
+    "tracks_created": 42,
+    "detector_latency": {
+      "n": 146,
+      "mean_ms": 105.79,
+      "median_ms": 99.84,
+      "p95_ms": 127.66,
+      "max_ms": 167.8,
+      "implied_fps": 9.45
+    }
+  },
+  "events_total": 0,
+  "events_by_type": {},
+  "events_by_severity": {},
+  "alerts_per_video_hour": 0.0,
+  "lane_model": {
+    "trajectories_used": 0,
+    "lanes": [],
+    "note": "Lanes are inferred from observed vehicle paths, not from painted markings. They describe where traffic does drive, not where it is permitted to."
+  },
+  "events": []
+}

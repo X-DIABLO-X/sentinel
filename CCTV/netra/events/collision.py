@@ -34,6 +34,27 @@ that is precisely when tracking breaks. It is the safety net under detector A.
 Whichever fires, the onset is then walked backwards with sparse optical flow
 (Chen et al.) because the vehicle comes to rest seconds after the impact and
 the resting time is the wrong number to report.
+
+**The rotation-gate physics channel** (`netra/events/rotation_gate.py`, ported
+from a separate project's inference2 -- see that module's docstring for the
+full physics and its own honesty caveats) is wired in as a further,
+independent candidate source: per-pair rotation/aspect-shock evidence,
+contact geometry and interaction-angle priors, scored with
+`score_pairs()`. Its own first live test (`CCTV/demo/README.md`) produced
+both a genuine detection (0.588, a real crossing collision) and a confirmed
+false positive (0.738, caused by tracker ID-churn -- 227 IDs over 221 frames
+of queued traffic) at the same operating threshold, with nothing to tell them
+apart on score alone. So rotation-gate evidence is never sufficient by
+itself: `_rotation_gate_confirmed()` only accepts it once an independent
+NETRA channel -- background-stationary or path-crossing, and momentum-exchange
+where available -- names the *same pair*, within a few seconds of the same
+contact instant. This is deliberately the same shape as the
+`fixed_camera_min_channels` agreement rule below, applied to a signal that
+tracker noise can fool on its own. Channel A (pairwise trajectory conflict)
+is deliberately excluded as a corroborator: it is disabled by default
+(`pairwise_enabled: false`) because it does not separate collisions from
+ordinary traffic, so letting it corroborate rotation-gate would corroborate
+one unreliable signal with another.
 """
 
 from __future__ import annotations
@@ -49,6 +70,7 @@ from ..geometry import angle_between, box_ground_point, iou
 from ..signals import Cusum
 from ..attribution import Candidate, ParticipantSelector
 from ..stationary import StationaryDetector
+from .rotation_gate import RotationGateConfig, score_pairs
 from .base import COLLISION, Event, EventEngine
 
 
@@ -132,6 +154,24 @@ class CollisionEngine(EventEngine):
         # A physical bound rather than a fitted constant: both vehicles past
         # driver control authority, coincident, and cancelling in momentum.
         self.impulse_gate = float(c.get("impulse_gate", 0.55))
+
+        # Rotation-gate physics channel (see the module docstring above and
+        # ``_rotation_gate_confirmed``). The threshold picks out a *candidate*
+        # pair worth checking for corroboration; it is deliberately in the
+        # same range as this file's other corroboration gates
+        # (stationary_gate 0.42, impulse_gate 0.55) rather than tuned against
+        # any specific clip -- in particular it is NOT set above 0.738 to
+        # exclude the one confirmed false positive in CCTV/demo/README.md,
+        # because a threshold picked to suppress one known case is
+        # overfitting, not a fix. Separating that false positive from a real
+        # detection is the corroboration requirement's job, not the
+        # threshold's.
+        self.rotation_gate_cfg = RotationGateConfig.from_config(c)
+        self.rotation_gate_threshold = float(c.get("rotation_gate_threshold", 0.45))
+        # How close in time an independent channel's own finding must be to
+        # the rotation-gate's contact instant to count as agreement.
+        self.rotation_gate_agree_window_s = float(
+            c.get("rotation_gate_agree_window_s", 3.0))
         # Measured anti-correlated in-domain; see _build_candidates.
         self.use_crash_classifier = bool(c.get("use_crash_classifier", False))
         # Continuous, calibrated cameras have dense junction traffic, queues
@@ -265,6 +305,15 @@ class CollisionEngine(EventEngine):
                     "line and never intersect"),
         }
 
+        # The physics rotation-gate channel. Scored every frame like the
+        # others; whether it may raise or corroborate an event is decided
+        # separately, in ``_rotation_gate_confirmed``, below.
+        rotation_result, rotation_detail = self._rotation_gate_evidence(ctx)
+        rotation_fired = rotation_result is not None  # already >= threshold
+        rotation_confirmed, rotation_agree_channel = self._rotation_gate_confirmed(
+            rotation_result, static_fired, static_obj, path_fired, path_hit,
+            impulse_fired, impulse_pair)
+
         # A global motion change-point on its own is NOT sufficient evidence,
         # and letting it fire alone was measurably wrong: on ordinary traffic
         # footage it flagged 13 of 16 clips, while catching only 8 of 15 real
@@ -316,13 +365,14 @@ class CollisionEngine(EventEngine):
         # It remains as corroboration, and as the mechanism that finds stopped
         # vehicles for the blockage engine, where "stopped" is the finding
         # rather than a proxy for something else.
-        specific = impulse_fired or path_fired or (
+        specific = impulse_fired or path_fired or rotation_confirmed or (
             static_fired and (conflict_fired or peak_fired))
         channels_agreeing = (int(conflict_fired) + int(peak_fired)
                              + int(static_fired) + int(impulse_fired)
-                             + int(path_fired))
+                             + int(path_fired) + int(rotation_fired))
         if not self._promotion_allowed(specific, channels_agreeing,
-                                       impulse_confirmed=impulse_fired):
+                                       impulse_confirmed=impulse_fired,
+                                       rotation_confirmed=rotation_confirmed):
             # Keep collecting raw candidates for audit/training, but do not
             # promote one noisy measurement to an operator-visible collision.
             specific = False
@@ -352,6 +402,9 @@ class CollisionEngine(EventEngine):
             # Measured, not inferred: the residual spike is the moment the
             # velocities changed, which is the collision.
             onset = float(impulse_pair["onset_t"])
+        elif rotation_confirmed and rotation_result is not None:
+            # The sub-frame-refined contact instant the physics engine found.
+            onset = float(rotation_result.contact_t)
         elif static_fired and static_obj is not None:
             # the vehicle came to rest here; onset recovery walks it back further
             onset = static_obj.first_seen_t
@@ -449,6 +502,33 @@ class CollisionEngine(EventEngine):
                 [round(float(v), 1) for v in b] for b in impulse_pair["boxes"]]
             involved_detail["participant_p_crashed"] = [None, None]
             track_ids = list(impulse_pair["track_ids"])
+        elif rotation_confirmed and rotation_result is not None:
+            # The rotation-gate pair IS the finding, the same way a
+            # momentum-exchange or path-crossing pair is: the physics engine
+            # already names both vehicles, and an independent channel has
+            # already agreed on this exact pair (``rotation_agree_channel``).
+            a_id, b_id = rotation_result.track_ids
+            a_tr, b_tr = self._track_by_id(ctx, a_id), self._track_by_id(ctx, b_id)
+            boxes = [tr.box for tr in (a_tr, b_tr) if tr is not None]
+            chosen = []
+            why = {
+                "mode": "rotation-gate pair",
+                "reason": (f"physics rotation/aspect-shock evidence scored "
+                           f"{rotation_result.score:.3f} for "
+                           f"#{a_id}/#{b_id} ({rotation_result.interaction} "
+                           "interaction), corroborated by the "
+                           f"{rotation_agree_channel} channel naming the same "
+                           f"pair within {self.rotation_gate_agree_window_s:.0f}s "
+                           "of the same contact instant"),
+                "score": round(rotation_result.score, 3),
+                "interaction": rotation_result.interaction,
+                "corroborated_by": rotation_agree_channel,
+            }
+            involved_detail["participant_selection"] = why
+            involved_detail["participant_boxes"] = [
+                [round(float(v), 1) for v in b] for b in boxes]
+            involved_detail["participant_p_crashed"] = [None] * len(boxes)
+            track_ids = [a_id, b_id]
         else:
             chosen, why = self.selector.select(cands)
             involved_detail["participant_selection"] = why
@@ -468,16 +548,32 @@ class CollisionEngine(EventEngine):
             "cusum_h": self._cusum.h,
             "detector": ("path-crossing" if path_fired
                          else "momentum-exchange" if impulse_fired
+                         else "rotation-gate" if rotation_confirmed
                          else "background-stationary" if static_fired
                          else "pairwise-conflict" if conflict_fired
                          else "motion-changepoint"),
             "trigger_mode": ("path-crossing" if path_fired
                              else "impulse" if impulse_fired
+                             else "rotation-gate" if rotation_confirmed
                              else "stationary" if static_fired
                              else "confirmed-conflict" if conflict_fired else "peak"),
             "channels_agreeing": channels_agreeing,
             "impulse_channel": impulse_detail,
             "path_conflict_channel": path_detail,
+            "rotation_gate_channel": rotation_detail,
+            "rotation_gate_confirmed": rotation_confirmed,
+            "rotation_gate_agreement": rotation_agree_channel,
+            # Distinguishes the channels that measure the impact/pair directly
+            # (momentum exchange, path-crossing, or rotation-gate physics
+            # already corroborated by an independent channel) from the
+            # weaker corroboration-only case (a stationary object plus a
+            # motion change-point/pairwise-conflict, neither of which proves
+            # impact on its own). Every collision event still requires human
+            # verification regardless of this label -- see
+            # ``Event.needs_verification`` / ``ALWAYS_VERIFY`` in base.py; this
+            # is a triage label, not an auto-dispatch decision.
+            "collision_confirmation": ("CONFIRMED" if (
+                impulse_fired or path_fired or rotation_confirmed) else "POSSIBLE"),
         }
         triggers.update(detail)
         triggers.update(involved_detail)
@@ -495,6 +591,8 @@ class CollisionEngine(EventEngine):
             attribution = "path-crossing"
         elif impulse_fired and track_ids:
             attribution = "momentum-exchange"
+        elif rotation_confirmed and track_ids:
+            attribution = "rotation-gate"
         elif static_detail.get("stationary_track_ids"):
             attribution = "stationary-object-track"
         elif detail.get("track_ids"):
@@ -509,6 +607,9 @@ class CollisionEngine(EventEngine):
                               "paths; a bystander's path did not intersect anything"),
             "momentum-exchange": ("both vehicles identified by the momentum they exchanged; "
                                   "a bystander cannot take part in an exchange"),
+            "rotation-gate": ("both vehicles identified by the physics engine's rotation/"
+                              "aspect-shock evidence, accepted only because an independent "
+                              "NETRA channel named the same pair near the same contact instant"),
             "stationary-object-track": "vehicle located on the background image and matched to a live track",
             "pairwise-conflict": "both parties identified by converging trajectories",
             "unattributed": ("incident detected but no vehicle could be identified with "
@@ -525,7 +626,10 @@ class CollisionEngine(EventEngine):
                 conflict, cp_evidence, detail,
                 n_channels=int(conflict_fired) + int(peak_fired) + int(static_fired),
                 localised=impact is not None or bool(static_detail),
-                static_score=static_detail.get("crash_score", 0.0) if static_detail else 0.0),
+                static_score=static_detail.get("crash_score", 0.0) if static_detail else 0.0,
+                rotation_score=(rotation_result.score
+                                if rotation_confirmed and rotation_result is not None
+                                else 0.0)),
             corridor_id=detail.get("corridor_id"),
             track_ids=track_ids[:6],
             triggers=triggers,
@@ -535,7 +639,8 @@ class CollisionEngine(EventEngine):
         return raised
 
     def _promotion_allowed(self, specific: bool, channels_agreeing: int,
-                           impulse_confirmed: bool = False) -> bool:
+                           impulse_confirmed: bool = False,
+                           rotation_confirmed: bool = False) -> bool:
         """Whether collision evidence may become an operator-visible event."""
         if not specific:
             return False
@@ -544,9 +649,13 @@ class CollisionEngine(EventEngine):
         # Continuous fixed-camera traffic produces many path crossings, hard
         # stops and background changes. None proves impact. Require the one
         # channel that measures a coincident, cancelling two-body momentum
-        # change, plus independent corroboration. Other anomaly heads continue
-        # to report queues, wrong-way motion, abnormal stops and blockages.
-        return (impulse_confirmed and
+        # change -- OR the rotation-gate physics channel already agreeing
+        # with an independent NETRA channel on the same pair
+        # (``rotation_confirmed``, see ``_rotation_gate_confirmed``) -- plus
+        # the usual multi-channel corroboration count. Other anomaly heads
+        # continue to report queues, wrong-way motion, abnormal stops and
+        # blockages.
+        return ((impulse_confirmed or rotation_confirmed) and
                 channels_agreeing >= self.fixed_camera_min_channels)
 
     @staticmethod
@@ -747,6 +856,69 @@ class CollisionEngine(EventEngine):
                     "together produce changes that add, not cancel"),
         }
         return best["score"] >= self.impulse_gate, best, detail
+
+    def _rotation_gate_evidence(self, ctx):
+        """Best candidate pair from the physics engine, gated on score alone.
+
+        Returns ``(best_pair_or_None, detail)``. This is *not* promotion --
+        clearing ``rotation_gate_threshold`` only makes a pair a candidate.
+        ``_rotation_gate_confirmed`` decides whether it may raise or
+        corroborate an event.
+        """
+        pairs = score_pairs(ctx.tracks, self.rotation_gate_cfg, now_t=ctx.t,
+                            classes=MOTORISED_CLASSES | VULNERABLE_CLASSES)
+        if not pairs:
+            return None, {"rotation_gate": "no candidate pair within contact range"}
+        best = pairs[0]
+        detail = {
+            "rotation_gate": "scored",
+            "best_pair": best.as_dict(),
+            "explain": best.explain(),
+            "threshold": self.rotation_gate_threshold,
+            "clears_threshold": bool(best.score >= self.rotation_gate_threshold),
+        }
+        if best.score < self.rotation_gate_threshold:
+            return None, detail
+        return best, detail
+
+    def _rotation_gate_confirmed(self, rotation_result, static_fired, static_obj,
+                                 path_fired, path_hit, impulse_fired, impulse_pair):
+        """Agreement gate: a rotation-gate candidate never promotes alone.
+
+        This is the mechanism meant to catch exactly the failure documented
+        in ``CCTV/demo/README.md``: a Traffic-category (crash-free) clip
+        scored 0.738 -- the highest score of that first-look set -- traced to
+        227 tracker IDs over 221 frames of queued traffic and a spurious
+        1915 px/s reading on a visually-stationary vehicle. Rotation-gate
+        alone has no defence against tracker identity-switch noise, so it is
+        required to agree with an independent NETRA channel on the *same
+        pair*, close in time to its own contact instant. Channel A
+        (pairwise trajectory conflict) is deliberately never used as a
+        corroborator here -- it is disabled by default because it does not
+        separate collisions from ordinary traffic.
+
+        Returns ``(confirmed, agreement_channel)``.
+        """
+        if rotation_result is None:
+            return False, "none"
+        rt_ids = set(rotation_result.track_ids)
+        w = self.rotation_gate_agree_window_s
+
+        if path_fired and path_hit is not None:
+            if (rt_ids & set(path_hit.track_ids)
+                    and abs(rotation_result.contact_t - path_hit.t_cross) <= w):
+                return True, "path-crossing"
+
+        if static_fired and static_obj is not None and static_obj.track_id in rt_ids:
+            if abs(rotation_result.contact_t - static_obj.first_seen_t) <= w:
+                return True, "background-stationary"
+
+        if impulse_fired and impulse_pair is not None:
+            if (rt_ids & set(impulse_pair["track_ids"])
+                    and abs(rotation_result.contact_t - impulse_pair["onset_t"]) <= w):
+                return True, "momentum-exchange"
+
+        return False, "none"
 
     def _stationary_evidence(self, ctx):
         """Has a vehicle come to rest in a way that looks like a crash?
@@ -1142,16 +1314,20 @@ class CollisionEngine(EventEngine):
 
     def _confidence(self, conflict: float, cp: float, detail: dict,
                     n_channels: int = 1, localised: bool = False,
-                    static_score: float = 0.0) -> float:
+                    static_score: float = 0.0, rotation_score: float = 0.0) -> float:
         """Deliberately capped below 0.9.
 
         This event type always requires human verification, so presenting it as
         near-certain would be misleading regardless of how much evidence
-        accumulated. Agreement between the two independent detectors -- one
-        object-centric, one pixel-centric -- is what raises it most, because
-        they fail in uncorrelated ways.
+        accumulated. Agreement between independent detectors -- object-centric,
+        pixel-centric, and (once corroborated) physics-based -- is what raises
+        it most, because they fail in uncorrelated ways. ``rotation_score`` is
+        only ever passed non-zero once ``_rotation_gate_confirmed`` has already
+        required an independent channel to agree, so it is never rewarding the
+        rotation-gate score alone.
         """
         base = 0.26 + 0.26 * conflict + 0.14 * cp + 0.22 * static_score
+        base += 0.12 * rotation_score
         base += 0.10 * max(0, n_channels - 1)
         if localised:
             base += 0.05

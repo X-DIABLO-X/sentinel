@@ -1,0 +1,169 @@
+{
+  "run_id": "d89f0034bff8",
+  "camera_id": "TRAFFIC_13105330_3840_2160_30fps",
+  "source": "D:\\SHARED\\Elcia\\Elcia\\Test\\data\\problems\\Traffic\\13105330_3840_2160_30fps.mp4",
+  "model_run": {
+    "run_id": "d89f0034bff8",
+    "detector": "yolo26m.pt",
+    "backend": "torch",
+    "device": "cuda:0",
+    "imgsz": 1920,
+    "requested_analysis_fps": 0.0,
+    "effective_analysis_fps": 30.0,
+    "evidence_fps": 8.0,
+    "tracker": "ByteTrack (netra)",
+    "crash_classifier": {
+      "available": false,
+      "weights": null,
+      "threshold": 0.718,
+      "crops_scored": 0,
+      "operating_point": "~0.95 precision / ~0.85 recall on held-out validation"
+    },
+    "engine_version": "netra-1.0",
+    "threshold_hash": "9b95294e284ea247"
+  },
+  "stats": {
+    "frames_read": 319,
+    "frames_analysed": 319,
+    "frames_skipped_corrupt": 0,
+    "video_seconds": 10.6,
+    "wall_seconds": 356.74,
+    "analysis_fps": 0.89,
+    "realtime_factor": 0.03,
+    "events": 0,
+    "tracks_created": 421,
+    "detector_latency": {
+      "n": 13050,
+      "mean_ms": 132.64,
+      "median_ms": 123.24,
+      "p95_ms": 183.67,
+      "max_ms": 580.07,
+      "implied_fps": 7.54
+    }
+  },
+  "events_total": 0,
+  "events_by_type": {},
+  "events_by_severity": {},
+  "alerts_per_video_hour": 0.0,
+  "lane_model": {
+    "trajectories_used": 37,
+    "lanes": [
+      {
+        "id": "d0l0",
+        "direction": 0,
+        "heading_deg": 115.5,
+        "width_px": 25.8,
+        "support": 4,
+        "centreline": [
+          [
+            562.5,
+            289.2
+          ],
+          [
+            554.5,
+            296.6
+          ],
+          [
+            546.8,
+            304.1
+          ],
+          [
+            541.2,
+            312.6
+          ],
+          [
+            534.2,
+            320.4
+          ],
+          [
+            540.0,
+            334.4
+          ],
+          [
+            532.4,
+            341.9
+          ],
+          [
+            524.7,
+            349.4
+          ],
+          [
+            540.5,
+            368.1
+          ],
+          [
+            551.7,
+            384.6
+          ],
+          [
+            543.5,
+            391.8
+          ],
+          [
+            536.5,
+            399.7
+          ]
+        ]
+      },
+      {
+        "id": "d2l0",
+        "direction": 2,
+        "heading_deg": 63.8,
+        "width_px": 15.6,
+        "support": 5,
+        "centreline": [
+          [
+            798.6,
+            282.9
+          ],
+          [
+            802.8,
+            292.5
+          ],
+          [
+            809.7,
+            300.7
+          ],
+          [
+            815.7,
+            309.3
+          ],
+          [
+            822.4,
+            317.6
+          ],
+          [
+            828.6,
+            326.2
+          ],
+          [
+            833.0,
+            335.6
+          ],
+          [
+            838.7,
+            344.4
+          ],
+          [
+            843.8,
+            353.5
+          ],
+          [
+            848.9,
+            362.6
+          ],
+          [
+            853.8,
+            371.8
+          ],
+          [
+            858.2,
+            381.3
+          ]
+        ]
+      }
+    ],
+    "note": "Lanes are inferred from observed vehicle paths, not from painted markings. They describe where traffic does drive, not where it is permitted to."
+  },
+  "events": []
+}

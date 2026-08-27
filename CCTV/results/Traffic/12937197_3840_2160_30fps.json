@@ -1,0 +1,1422 @@
+{
+  "run_id": "5ee96c6ded18",
+  "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+  "source": "D:\\SHARED\\Elcia\\Elcia\\Test\\data\\problems\\Traffic\\12937197_3840_2160_30fps.mp4",
+  "model_run": {
+    "run_id": "5ee96c6ded18",
+    "detector": "yolo26m.pt",
+    "backend": "torch",
+    "device": "cuda:0",
+    "imgsz": 1920,
+    "requested_analysis_fps": 0.0,
+    "effective_analysis_fps": 30.0,
+    "evidence_fps": 8.0,
+    "tracker": "ByteTrack (netra)",
+    "crash_classifier": {
+      "available": false,
+      "weights": null,
+      "threshold": 0.718,
+      "crops_scored": 0,
+      "operating_point": "~0.95 precision / ~0.85 recall on held-out validation"
+    },
+    "engine_version": "netra-1.0",
+    "threshold_hash": "9b95294e284ea247"
+  },
+  "stats": {
+    "frames_read": 1758,
+    "frames_analysed": 1758,
+    "frames_skipped_corrupt": 0,
+    "video_seconds": 58.57,
+    "wall_seconds": 1714.61,
+    "analysis_fps": 1.03,
+    "realtime_factor": 0.03,
+    "events": 11,
+    "tracks_created": 1112,
+    "detector_latency": {
+      "n": 10387,
+      "mean_ms": 126.84,
+      "median_ms": 121.7,
+      "p95_ms": 163.03,
+      "max_ms": 564.88,
+      "implied_fps": 7.88
+    }
+  },
+  "events_total": 11,
+  "events_by_type": {
+    "wrong_way": 5,
+    "queue": 1,
+    "pedestrian_on_carriageway": 4,
+    "collision_candidate": 1
+  },
+  "events_by_severity": {
+    "Medium": 3,
+    "Low": 8
+  },
+  "alerts_per_video_hour": 676.15,
+  "lane_model": {
+    "trajectories_used": 130,
+    "lanes": [
+      {
+        "id": "d0l0",
+        "direction": 0,
+        "heading_deg": 10.8,
+        "width_px": 81.6,
+        "support": 17,
+        "centreline": [
+          [
+            33.4,
+            640.2
+          ],
+          [
+            137.8,
+            664.5
+          ],
+          [
+            244.6,
+            675.9
+          ],
+          [
+            351.2,
+            688.8
+          ],
+          [
+            458.3,
+            698.7
+          ],
+          [
+            565.6,
+            708.1
+          ],
+          [
+            674.0,
+            711.5
+          ],
+          [
+            782.7,
+            713.0
+          ],
+          [
+            891.5,
+            714.2
+          ],
+          [
+            1000.3,
+            715.5
+          ],
+          [
+            1108.9,
+            717.5
+          ],
+          [
+            1217.5,
+            719.6
+          ]
+        ]
+      },
+      {
+        "id": "d0l1",
+        "direction": 0,
+        "heading_deg": 10.8,
+        "width_px": 40.7,
+        "support": 9,
+        "centreline": [
+          [
+            14.6,
+            717.5
+          ],
+          [
+            39.9,
+            719.9
+          ],
+          [
+            65.8,
+            719.4
+          ],
+          [
+            91.5,
+            719.6
+          ],
+          [
+            117.2,
+            719.9
+          ],
+          [
+            143.0,
+            719.9
+          ],
+          [
+            168.7,
+            720.0
+          ],
+          [
+            194.5,
+            720.0
+          ],
+          [
+            220.3,
+            720.0
+          ],
+          [
+            246.1,
+            720.0
+          ],
+          [
+            271.8,
+            720.0
+          ],
+          [
+            297.6,
+            720.0
+          ]
+        ]
+      },
+      {
+        "id": "d0l2",
+        "direction": 0,
+        "heading_deg": 10.8,
+        "width_px": 40.9,
+        "support": 5,
+        "centreline": [
+          [
+            839.1,
+            460.9
+          ],
+          [
+            874.6,
+            499.7
+          ],
+          [
+            912.5,
+            525.5
+          ],
+          [
+            951.2,
+            546.7
+          ],
+          [
+            993.7,
+            548.2
+          ],
+          [
+            1032.3,
+            570.5
+          ],
+          [
+            1071.2,
+            591.1
+          ],
+          [
+            1111.6,
+            603.8
+          ],
+          [
+            1148.9,
+            632.6
+          ],
+          [
+            1188.3,
+            650.8
+          ],
+          [
+            1226.9,
+            672.5
+          ],
+          [
+            1265.1,
+            696.7
+          ]
+        ]
+      },
+      {
+        "id": "d0l3",
+        "direction": 0,
+        "heading_deg": 10.8,
+        "width_px": 32.5,
+        "support": 4,
+        "centreline": [
+          [
+            920.7,
+            584.6
+          ],
+          [
+            952.2,
+            594.0
+          ],
+          [
+            984.7,
+            598.8
+          ],
+          [
+            1017.6,
+            600.9
+          ],
+          [
+            1048.3,
+            615.4
+          ],
+          [
+            1080.0,
+            623.8
+          ],
+          [
+            1112.5,
+            628.4
+          ],
+          [
+            1143.9,
+            639.0
+          ],
+          [
+            1178.4,
+            633.1
+          ],
+          [
+            1208.5,
+            650.0
+          ],
+          [
+            1235.0,
+            685.9
+          ],
+          [
+            1264.6,
+            705.7
+          ]
+        ]
+      },
+      {
+        "id": "d1l0",
+        "direction": 1,
+        "heading_deg": -6.6,
+        "width_px": 22.3,
+        "support": 5,
+        "centreline": [
+          [
+            29.0,
+            649.4
+          ],
+          [
+            141.7,
+            653.3
+          ],
+          [
+            254.3,
+            657.4
+          ],
+          [
+            364.0,
+            636.5
+          ],
+          [
+            477.5,
+            647.8
+          ],
+          [
+            591.3,
+            662.7
+          ],
+          [
+            705.6,
+            681.2
+          ],
+          [
+            819.6,
+            696.7
+          ],
+          [
+            933.3,
+            710.6
+          ],
+          [
+            1041.0,
+            672.0
+          ],
+          [
+            1158.8,
+            671.2
+          ],
+          [
+            1261.7,
+            640.8
+          ]
+        ]
+      },
+      {
+        "id": "d2l0",
+        "direction": 2,
+        "heading_deg": 146.8,
+        "width_px": 81.6,
+        "support": 65,
+        "centreline": [
+          [
+            488.6,
+            281.4
+          ],
+          [
+            453.5,
+            301.1
+          ],
+          [
+            415.6,
+            316.6
+          ],
+          [
+            370.0,
+            320.4
+          ],
+          [
+            325.9,
+            326.3
+          ],
+          [
+            291.4,
+            347.0
+          ],
+          [
+            265.5,
+            380.9
+          ],
+          [
+            232.8,
+            404.4
+          ],
+          [
+            197.1,
+            423.3
+          ],
+          [
+            161.0,
+            441.6
+          ],
+          [
+            127.0,
+            462.9
+          ],
+          [
+            90.5,
+            480.6
+          ]
+        ]
+      }
+    ],
+    "note": "Lanes are inferred from observed vehicle paths, not from painted markings. They describe where traffic does drive, not where it is permitted to."
+  },
+  "events": [
+    {
+      "id": 22,
+      "type": "wrong_way",
+      "label": "Wrong-side movement",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c4",
+      "started_t": 2.0,
+      "detected_t": 3.5,
+      "ended_t": 58.567,
+      "duration": 56.567,
+      "detection_delay": 1.5,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.6567,
+      "severity": 0.3925,
+      "severity_label": "Medium",
+      "severity_parts": {
+        "flow_loss": 0.25,
+        "obstruction": 0.15,
+        "extent": 1.0,
+        "duration": 0.0083,
+        "risk": 0.9925,
+        "impact_subscore": 0.4025,
+        "severity": 0.3925
+      },
+      "priority": 0.2577,
+      "track_ids": [
+        4
+      ],
+      "triggers": {
+        "alignment": -0.7288,
+        "alignment_threshold": -0.6,
+        "observed_heading_deg": 221.4,
+        "legal_heading_deg": 84.6,
+        "legal_direction_reviewed": false,
+        "direction_source": "observed majority flow; legal direction unreviewed",
+        "persistence_s": 1.5,
+        "displacement_px": 115.6,
+        "speed_px_s": 38.01,
+        "cusum_s": 1.716,
+        "cusum_h": 1.2,
+        "detector_confidence": 0.898,
+        "opposing_traffic": 12,
+        "_db_id": 25
+      },
+      "explanation": "Track 4 moved against corridor c4 for 1.5s (alignment -0.73, displacement 116px)",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00022",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          0.0,
+          3.47
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c4",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Escalate to traffic control; monitor for repeat",
+      "operational_context": {}
+    },
+    {
+      "id": 23,
+      "type": "queue",
+      "label": "Queue / congestion",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c1",
+      "started_t": 4.233,
+      "detected_t": 4.433,
+      "ended_t": 58.567,
+      "duration": 54.333,
+      "detection_delay": 0.2,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.8293,
+      "severity": 0.3838,
+      "severity_label": "Medium",
+      "severity_parts": {
+        "flow_loss": 0.902,
+        "obstruction": 0.2361,
+        "extent": 0.5833,
+        "duration": 0.0011,
+        "risk": 0.2,
+        "impact_subscore": 0.5893,
+        "severity": 0.3838
+      },
+      "priority": 0.3183,
+      "track_ids": [
+        10,
+        15,
+        20,
+        23,
+        50,
+        51,
+        67,
+        35,
+        75,
+        37
+      ],
+      "triggers": {
+        "vehicles": 7,
+        "vehicles_at_onset": 8,
+        "vehicles_peak": 8,
+        "growth_veh_per_min": -1.91,
+        "median_speed_px": 2.49,
+        "baseline_speed_px": 23.63,
+        "speed_drop_pct": 89.5,
+        "stopped_fraction": 0.571,
+        "occupancy": 0.2746,
+        "persistence_s": 53.9,
+        "metric_units_available": false,
+        "length_note": "queue reported in vehicles; no homography, so no metres",
+        "cusum_s": 3.502,
+        "cusum_h": 3.0,
+        "_db_id": 26
+      },
+      "explanation": "7 vehicles in c1, median speed 2.5px/s (90% below baseline), occupancy 27%, sustained 54s",
+      "needs_verification": false,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00023",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          0.0,
+          4.4
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c1",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Verify collision evidence; if confirmed, dispatch incident response and consider diversion for the affected corridor",
+      "operational_context": {
+        "classification": "suspected_accident_related_congestion",
+        "causality": "unverified temporal co-occurrence",
+        "related_event_ids": [
+          32
+        ],
+        "operator_note": "Verify the collision candidate before attributing the queue to an accident."
+      }
+    },
+    {
+      "id": 24,
+      "type": "wrong_way",
+      "label": "Wrong-side movement",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c1",
+      "started_t": 7.967,
+      "detected_t": 9.467,
+      "ended_t": 58.567,
+      "duration": 50.6,
+      "detection_delay": 1.5,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.8093,
+      "severity": 0.2515,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.25,
+        "obstruction": 0.15,
+        "extent": 0.25,
+        "duration": 0.0083,
+        "risk": 0.8028,
+        "impact_subscore": 0.215,
+        "severity": 0.2515
+      },
+      "priority": 0.2035,
+      "track_ids": [
+        3
+      ],
+      "triggers": {
+        "alignment": -0.8073,
+        "alignment_threshold": -0.6,
+        "observed_heading_deg": 91.2,
+        "legal_heading_deg": 235.0,
+        "legal_direction_reviewed": false,
+        "direction_source": "observed majority flow; legal direction unreviewed",
+        "persistence_s": 1.5,
+        "displacement_px": 100.1,
+        "speed_px_s": 37.42,
+        "cusum_s": 7.812,
+        "cusum_h": 1.2,
+        "detector_confidence": 0.889,
+        "opposing_traffic": 3,
+        "_db_id": 27
+      },
+      "explanation": "Track 3 moved against corridor c1 for 1.5s (alignment -0.81, displacement 100px)",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00024",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          2.0,
+          9.47
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c1",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Log and monitor",
+      "operational_context": {}
+    },
+    {
+      "id": 25,
+      "type": "wrong_way",
+      "label": "Wrong-side movement",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c1",
+      "started_t": 8.833,
+      "detected_t": 10.333,
+      "ended_t": 58.567,
+      "duration": 49.733,
+      "detection_delay": 1.5,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.7603,
+      "severity": 0.2348,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.25,
+        "obstruction": 0.15,
+        "extent": 0.1667,
+        "duration": 0.0083,
+        "risk": 0.775,
+        "impact_subscore": 0.1942,
+        "severity": 0.2348
+      },
+      "priority": 0.1785,
+      "track_ids": [
+        130
+      ],
+      "triggers": {
+        "alignment": -0.748,
+        "alignment_threshold": -0.6,
+        "observed_heading_deg": 96.6,
+        "legal_heading_deg": 235.0,
+        "legal_direction_reviewed": false,
+        "direction_source": "observed majority flow; legal direction unreviewed",
+        "persistence_s": 1.5,
+        "displacement_px": 121.1,
+        "speed_px_s": 44.82,
+        "cusum_s": 2.453,
+        "cusum_h": 1.2,
+        "detector_confidence": 0.904,
+        "opposing_traffic": 2,
+        "_db_id": 28
+      },
+      "explanation": "Track 130 moved against corridor c1 for 1.5s (alignment -0.75, displacement 121px)",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00025",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          2.93,
+          10.27
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c1",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Log and monitor",
+      "operational_context": {}
+    },
+    {
+      "id": 26,
+      "type": "wrong_way",
+      "label": "Wrong-side movement",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c1",
+      "started_t": 8.933,
+      "detected_t": 10.433,
+      "ended_t": 11.1,
+      "duration": 2.167,
+      "detection_delay": 1.5,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.8115,
+      "severity": 0.253,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.25,
+        "obstruction": 0.15,
+        "extent": 0.25,
+        "duration": 0.0083,
+        "risk": 0.8125,
+        "impact_subscore": 0.215,
+        "severity": 0.253
+      },
+      "priority": 0.2053,
+      "track_ids": [
+        149
+      ],
+      "triggers": {
+        "alignment": -0.8418,
+        "alignment_threshold": -0.6,
+        "observed_heading_deg": 87.7,
+        "legal_heading_deg": 235.0,
+        "legal_direction_reviewed": false,
+        "direction_source": "observed majority flow; legal direction unreviewed",
+        "persistence_s": 1.5,
+        "displacement_px": 148.5,
+        "speed_px_s": 57.03,
+        "cusum_s": 10.253,
+        "cusum_h": 1.2,
+        "detector_confidence": 0.749,
+        "opposing_traffic": 3,
+        "_db_id": 29
+      },
+      "explanation": "Track 149 moved against corridor c1 for 1.5s (alignment -0.84, displacement 148px)",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00026",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          3.07,
+          10.4
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c1",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Log and monitor",
+      "operational_context": {}
+    },
+    {
+      "id": 27,
+      "type": "pedestrian_on_carriageway",
+      "label": "Pedestrian on carriageway",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c3",
+      "started_t": 2.0,
+      "detected_t": 12.0,
+      "ended_t": 58.567,
+      "duration": 56.567,
+      "detection_delay": 10.0,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.95,
+      "severity": 0.1539,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.0,
+        "obstruction": 0.0,
+        "extent": 0.0833,
+        "duration": 0.0556,
+        "risk": 0.85,
+        "impact_subscore": 0.0208,
+        "severity": 0.1539
+      },
+      "priority": 0.1462,
+      "track_ids": [
+        16
+      ],
+      "triggers": {
+        "dwell_s": 10.0,
+        "object_class": 0,
+        "detector_confidence": 0.778,
+        "_db_id": 30
+      },
+      "explanation": "Person track 16 inside carriageway c3 for 10.0s",
+      "needs_verification": false,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00027",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          0.0,
+          12.0
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c3",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Monitor",
+      "operational_context": {}
+    },
+    {
+      "id": 28,
+      "type": "pedestrian_on_carriageway",
+      "label": "Pedestrian on carriageway",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c1",
+      "started_t": 2.0,
+      "detected_t": 12.0,
+      "ended_t": 58.567,
+      "duration": 56.567,
+      "detection_delay": 10.0,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.95,
+      "severity": 0.1539,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.0,
+        "obstruction": 0.0,
+        "extent": 0.0833,
+        "duration": 0.0556,
+        "risk": 0.85,
+        "impact_subscore": 0.0208,
+        "severity": 0.1539
+      },
+      "priority": 0.1462,
+      "track_ids": [
+        51
+      ],
+      "triggers": {
+        "dwell_s": 10.0,
+        "object_class": 0,
+        "detector_confidence": 0.475,
+        "_db_id": 31
+      },
+      "explanation": "Person track 51 inside carriageway c1 for 10.0s",
+      "needs_verification": false,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00028",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          0.0,
+          12.0
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c1",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Monitor",
+      "operational_context": {}
+    },
+    {
+      "id": 29,
+      "type": "pedestrian_on_carriageway",
+      "label": "Pedestrian on carriageway",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c1",
+      "started_t": 2.0,
+      "detected_t": 12.0,
+      "ended_t": 58.567,
+      "duration": 56.567,
+      "detection_delay": 10.0,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.95,
+      "severity": 0.1539,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.0,
+        "obstruction": 0.0,
+        "extent": 0.0833,
+        "duration": 0.0556,
+        "risk": 0.85,
+        "impact_subscore": 0.0208,
+        "severity": 0.1539
+      },
+      "priority": 0.1462,
+      "track_ids": [
+        75
+      ],
+      "triggers": {
+        "dwell_s": 10.0,
+        "object_class": 0,
+        "detector_confidence": 0.325,
+        "_db_id": 32
+      },
+      "explanation": "Person track 75 inside carriageway c1 for 10.0s",
+      "needs_verification": false,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00029",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          0.0,
+          12.0
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c1",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Monitor",
+      "operational_context": {}
+    },
+    {
+      "id": 30,
+      "type": "wrong_way",
+      "label": "Wrong-side movement",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c4",
+      "started_t": 10.8,
+      "detected_t": 12.3,
+      "ended_t": 58.567,
+      "duration": 47.767,
+      "detection_delay": 1.5,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.8774,
+      "severity": 0.3844,
+      "severity_label": "Medium",
+      "severity_parts": {
+        "flow_loss": 0.25,
+        "obstruction": 0.15,
+        "extent": 1.0,
+        "duration": 0.0083,
+        "risk": 0.939,
+        "impact_subscore": 0.4025,
+        "severity": 0.3844
+      },
+      "priority": 0.3373,
+      "track_ids": [
+        157
+      ],
+      "triggers": {
+        "alignment": -0.9525,
+        "alignment_threshold": -0.6,
+        "observed_heading_deg": 246.9,
+        "legal_heading_deg": 84.6,
+        "legal_direction_reviewed": false,
+        "direction_source": "observed majority flow; legal direction unreviewed",
+        "persistence_s": 1.5,
+        "displacement_px": 66.6,
+        "speed_px_s": 23.73,
+        "cusum_s": 25.555,
+        "cusum_h": 1.2,
+        "detector_confidence": 0.595,
+        "opposing_traffic": 15,
+        "_db_id": 33
+      },
+      "explanation": "Track 157 moved against corridor c4 for 1.5s (alignment -0.95, displacement 67px)",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00030",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          4.93,
+          12.27
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c4",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Escalate to traffic control; monitor for repeat",
+      "operational_context": {}
+    },
+    {
+      "id": 31,
+      "type": "pedestrian_on_carriageway",
+      "label": "Pedestrian on carriageway",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": "c4",
+      "started_t": 2.0,
+      "detected_t": 12.5,
+      "ended_t": 58.567,
+      "duration": 56.567,
+      "detection_delay": 10.5,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.95,
+      "severity": 0.1546,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.0,
+        "obstruction": 0.0,
+        "extent": 0.0833,
+        "duration": 0.0583,
+        "risk": 0.85,
+        "impact_subscore": 0.0208,
+        "severity": 0.1546
+      },
+      "priority": 0.1469,
+      "track_ids": [
+        50
+      ],
+      "triggers": {
+        "dwell_s": 10.5,
+        "object_class": 0,
+        "detector_confidence": 0.674,
+        "_db_id": 34
+      },
+      "explanation": "Person track 50 inside carriageway c4 for 10.5s",
+      "needs_verification": false,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00031",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          0.0,
+          12.4
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": "c4",
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Monitor",
+      "operational_context": {}
+    },
+    {
+      "id": 32,
+      "type": "collision_candidate",
+      "label": "Suspected collision-related disruption",
+      "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+      "corridor_id": null,
+      "started_t": 48.967,
+      "detected_t": 49.467,
+      "ended_t": null,
+      "duration": 0.5,
+      "detection_delay": 0.5,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.4242,
+      "severity": 0.3489,
+      "severity_label": "Low",
+      "severity_parts": {
+        "flow_loss": 0.55,
+        "obstruction": 0.375,
+        "extent": 0.1667,
+        "duration": 0.0028,
+        "risk": 0.75,
+        "impact_subscore": 0.3929,
+        "severity": 0.3489
+      },
+      "priority": 0.148,
+      "track_ids": [
+        897,
+        922
+      ],
+      "triggers": {
+        "conflict_score": 0.0,
+        "changepoint_z": 2.03,
+        "changepoint_threshold": 1.5,
+        "changepoint_evidence": 0.677,
+        "cusum_s": 0.0,
+        "cusum_h": 2.2,
+        "detector": "path-crossing",
+        "trigger_mode": "path-crossing",
+        "channels_agreeing": 3,
+        "impulse_channel": {
+          "impulse": "no coincident momentum exchange"
+        },
+        "path_conflict_channel": {
+          "path_conflict": "paths crossed and a vehicle was deflected",
+          "track_ids": [
+            897,
+            922
+          ],
+          "crossing_angle_deg": 96.3,
+          "time_gap_s": 0.0,
+          "heading_change_deg": [
+            35.7,
+            0.0
+          ],
+          "speed_drop": [
+            0.0,
+            0.0
+          ],
+          "onset_t": 48.97,
+          "score": 0.85,
+          "gates": {
+            "predicted_paths_cross": true,
+            "post_encroachment_s": 0.0,
+            "crossing_angle_deg": 96.3,
+            "geometry": "deflection",
+            "identity_changed_at_impact": false,
+            "footprint_separation": 0.62,
+            "footprints_overlap": true,
+            "motion_disturbed": true,
+            "lateral_g": 2.39,
+            "beyond_tyre_grip": true,
+            "turn_deg": 96.3,
+            "partner_deviation_deg": 0.0,
+            "partner_speed_drop": 0.0
+          },
+          "why": "two paths intersected within 0.00s of each other at 96 degrees, and a vehicle left its heading afterwards; vehicles queueing travel along the same line and never intersect"
+        },
+        "rotation_gate_channel": {
+          "rotation_gate": "scored",
+          "best_pair": {
+            "track_ids": [
+              589,
+              897
+            ],
+            "score": 0.5793,
+            "contact": 1.0,
+            "gap": -0.7276,
+            "contact_t": 49.077,
+            "contact_refined": true,
+            "interaction": "crossing",
+            "relative_heading_deg": 155.3,
+            "interaction_prior": 1.0,
+            "geometric_mean_evidence": 0.5793,
+            "evidence_a": {
+              "track_id": 589,
+              "rotation": 0.9665,
+              "gate": 0.9732,
+              "yaw_deg": 152.778,
+              "aspect": 0.4149,
+              "decel": 0.7755,
+              "speed_drop": 0.5112,
+              "momentum_drop": 0.3712,
+              "track_break": 0.0,
+              "appearance": null,
+              "kinematic": 0.354,
+              "score": 0.6127,
+              "n_window": 42,
+              "channels_used": [
+                "decel",
+                "momentum",
+                "speed_drop",
+                "track_break"
+              ],
+              "yaw_gate_passed": true,
+              "aspect_gate_passed": true,
+              "note": "heading shock of 153 deg after a stable approach"
+            },
+            "evidence_b": {
+              "track_id": 897,
+              "rotation": 0.8367,
+              "gate": 0.8694,
+              "yaw_deg": 0.0,
+              "aspect": 1.0875,
+              "decel": 0.8442,
+              "speed_drop": 0.7544,
+              "momentum_drop": 0.5975,
+              "track_break": 0.0,
+              "appearance": null,
+              "kinematic": 0.4608,
+              "score": 0.5477,
+              "n_window": 40,
+              "channels_used": [
+                "decel",
+                "momentum",
+                "speed_drop",
+                "track_break"
+              ],
+              "yaw_gate_passed": false,
+              "aspect_gate_passed": true,
+              "note": "silhouette changed by 109% after a stable approach"
+            }
+          },
+          "explain": "#589 and #897 came closest at t=49.08s (boxes overlapping, 155 deg relative heading -> crossing); #589: heading shock of 153 deg after a stable approach; #897: silhouette changed by 109% after a stable approach; score 0.579",
+          "threshold": 0.45,
+          "clears_threshold": true
+        },
+        "rotation_gate_confirmed": true,
+        "rotation_gate_agreement": "path-crossing",
+        "collision_confirmation": "CONFIRMED",
+        "candidates": [
+          {
+            "id": 817,
+            "score": 0.43,
+            "p_crashed": null,
+            "stop_t": 47.93,
+            "rollover": 0.837,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.27,
+            "p_crashed": null,
+            "stop_t": 47.5,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.27,
+            "p_crashed": null,
+            "stop_t": 46.7,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.25,
+            "p_crashed": null,
+            "stop_t": 48.0,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.248,
+            "p_crashed": null,
+            "stop_t": 46.5,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.24,
+            "p_crashed": null,
+            "stop_t": 48.0,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": 573,
+            "score": 0.178,
+            "p_crashed": null,
+            "stop_t": 47.83,
+            "rollover": 0.054,
+            "off_road": false
+          },
+          {
+            "id": 832,
+            "score": 0.173,
+            "p_crashed": null,
+            "stop_t": 47.77,
+            "rollover": 0.046,
+            "off_road": false
+          }
+        ],
+        "participant_selection": {
+          "mode": "path-crossing pair",
+          "reason": "paths intersected at 96 degrees within 0.00s of each other, and a vehicle's heading changed by 36 degrees afterwards",
+          "crossing_angle_deg": 96.3,
+          "heading_change_deg": [
+            35.7,
+            0.0
+          ]
+        },
+        "participant_boxes": [
+          [
+            1167.5,
+            552.1,
+            1223.9,
+            615.6
+          ],
+          [
+            1132.1,
+            549.4,
+            1251.9,
+            634.7
+          ]
+        ],
+        "participant_p_crashed": [
+          null,
+          null
+        ],
+        "changepoint_detail": {
+          "flow": 0.1092,
+          "box_area": 163371.1,
+          "z_flow": 2.264,
+          "z_area": 2.03,
+          "score": 2.03,
+          "threshold": 1.5
+        },
+        "attribution": "path-crossing",
+        "attribution_note": "both vehicles identified by the crossing of their own paths; a bystander's path did not intersect anything",
+        "_db_id": 35,
+        "corroboration": {
+          "independent_geometries_at_this_moment": 3,
+          "window_s": 0.75
+        },
+        "consolidated_from": {
+          "candidates": 1,
+          "dropped_at": [],
+          "why": "a clip contains at most one accident; the strongest candidate is reported and the others are kept in the incident store for audit"
+        }
+      },
+      "explanation": "Conflict indicators: motion change-point z=2.03",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\TRAFFIC_12937197_3840_2160_30fps\\5ee96c6ded18\\INC-00032",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          43.07,
+          49.47
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "TRAFFIC_12937197_3840_2160_30fps",
+        "camera_name": "TRAFFIC_12937197_3840_2160_30fps",
+        "zone": "Traffic",
+        "road_name": "",
+        "road_edge_id": null,
+        "corridor_id": null,
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Verify collision evidence; if confirmed, dispatch incident response and consider diversion for the affected corridor",
+      "operational_context": {
+        "classification": "suspected_accident_related_congestion",
+        "causality": "unverified temporal co-occurrence",
+        "related_event_ids": [
+          23
+        ]
+      }
+    }
+  ]
+}

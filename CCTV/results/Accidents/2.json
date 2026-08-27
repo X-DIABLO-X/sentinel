@@ -1,0 +1,273 @@
+{
+  "run_id": "0c1b01fdac5f",
+  "camera_id": "ACCIDENTS_2",
+  "source": "D:\\SHARED\\Elcia\\Elcia\\Test\\data\\problems\\Accidents\\2.mp4",
+  "model_run": {
+    "run_id": "0c1b01fdac5f",
+    "detector": "yolo26m.pt",
+    "backend": "torch",
+    "device": "cuda:0",
+    "imgsz": 1920,
+    "requested_analysis_fps": 0.0,
+    "effective_analysis_fps": 30.0,
+    "evidence_fps": 8.0,
+    "tracker": "ByteTrack (netra)",
+    "crash_classifier": {
+      "available": false,
+      "weights": null,
+      "threshold": 0.718,
+      "crops_scored": 0,
+      "operating_point": "~0.95 precision / ~0.85 recall on held-out validation"
+    },
+    "engine_version": "netra-1.0",
+    "threshold_hash": "328b631ffa9d892a"
+  },
+  "stats": {
+    "frames_read": 901,
+    "frames_analysed": 901,
+    "frames_skipped_corrupt": 0,
+    "video_seconds": 30.0,
+    "wall_seconds": 152.64,
+    "analysis_fps": 5.9,
+    "realtime_factor": 0.2,
+    "events": 1,
+    "tracks_created": 92,
+    "detector_latency": {
+      "n": 4499,
+      "mean_ms": 119.06,
+      "median_ms": 116.6,
+      "p95_ms": 150.39,
+      "max_ms": 463.92,
+      "implied_fps": 8.4
+    }
+  },
+  "events_total": 1,
+  "events_by_type": {
+    "collision_candidate": 1
+  },
+  "events_by_severity": {
+    "Medium": 1
+  },
+  "alerts_per_video_hour": 120.0,
+  "lane_model": {
+    "trajectories_used": 0,
+    "lanes": [],
+    "note": "Lanes are inferred from observed vehicle paths, not from painted markings. They describe where traffic does drive, not where it is permitted to."
+  },
+  "events": [
+    {
+      "id": 10,
+      "type": "collision_candidate",
+      "label": "Suspected collision-related disruption",
+      "camera_id": "ACCIDENTS_2",
+      "corridor_id": null,
+      "started_t": 24.033,
+      "detected_t": 24.633,
+      "ended_t": null,
+      "duration": 0.6,
+      "detection_delay": 0.6,
+      "onset_method": "detection",
+      "onset_recovered_s": 0.0,
+      "confidence": 0.3555,
+      "severity": 0.4553,
+      "severity_label": "Medium",
+      "severity_parts": {
+        "flow_loss": 0.55,
+        "obstruction": 1.0,
+        "extent": 0.0,
+        "duration": 0.0033,
+        "risk": 0.75,
+        "impact_subscore": 0.57,
+        "severity": 0.4553
+      },
+      "priority": 0.1619,
+      "track_ids": [],
+      "triggers": {
+        "conflict_score": 0.0,
+        "changepoint_z": 2.047,
+        "changepoint_threshold": 1.5,
+        "changepoint_evidence": 0.682,
+        "cusum_s": 0.0,
+        "cusum_h": 2.2,
+        "detector": "path-crossing",
+        "trigger_mode": "path-crossing",
+        "channels_agreeing": 2,
+        "impulse_channel": {
+          "impulse": "no coincident momentum exchange"
+        },
+        "path_conflict_channel": {
+          "path_conflict": "paths crossed and a vehicle was deflected",
+          "track_ids": [
+            53,
+            53
+          ],
+          "crossing_angle_deg": 91.5,
+          "time_gap_s": 0.0,
+          "heading_change_deg": [
+            41.8,
+            0.0
+          ],
+          "speed_drop": [
+            0.73,
+            0.0
+          ],
+          "onset_t": 24.53,
+          "score": 0.959,
+          "gates": {
+            "geometry": "struck-object",
+            "lost_speed_px": null,
+            "speed_before_px": null,
+            "speed_after_px": null,
+            "lateral_g": 6.35,
+            "turn_deg": 91.5,
+            "no_vehicle_partner": true,
+            "aspect_ratio_change": 0.0,
+            "speed_lost": 0.73
+          },
+          "why": "two paths intersected within 0.00s of each other at 91 degrees, and a vehicle left its heading afterwards; vehicles queueing travel along the same line and never intersect"
+        },
+        "rotation_gate_channel": {
+          "rotation_gate": "no candidate pair within contact range"
+        },
+        "rotation_gate_confirmed": false,
+        "rotation_gate_agreement": "none",
+        "collision_confirmation": "CONFIRMED",
+        "candidates": [
+          {
+            "id": 47,
+            "score": 0.126,
+            "p_crashed": null,
+            "stop_t": 23.53,
+            "rollover": 0.078,
+            "off_road": false
+          },
+          {
+            "id": 38,
+            "score": 0.033,
+            "p_crashed": null,
+            "stop_t": 17.23,
+            "rollover": 0.093,
+            "off_road": true
+          },
+          {
+            "id": null,
+            "score": 0.032,
+            "p_crashed": null,
+            "stop_t": 22.43,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": 46,
+            "score": 0.031,
+            "p_crashed": null,
+            "stop_t": 14.37,
+            "rollover": 0.128,
+            "off_road": true
+          },
+          {
+            "id": 37,
+            "score": 0.03,
+            "p_crashed": null,
+            "stop_t": 20.63,
+            "rollover": 0.017,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.027,
+            "p_crashed": null,
+            "stop_t": 22.07,
+            "rollover": 0.0,
+            "off_road": false
+          },
+          {
+            "id": null,
+            "score": 0.025,
+            "p_crashed": null,
+            "stop_t": 23.07,
+            "rollover": 0.0,
+            "off_road": true
+          },
+          {
+            "id": null,
+            "score": 0.014,
+            "p_crashed": null,
+            "stop_t": 23.33,
+            "rollover": 0.0,
+            "off_road": false
+          }
+        ],
+        "participant_selection": {
+          "mode": "path-crossing pair",
+          "reason": "paths intersected at 91 degrees within 0.00s of each other, and a vehicle's heading changed by 42 degrees afterwards",
+          "crossing_angle_deg": 91.5,
+          "heading_change_deg": [
+            41.8,
+            0.0
+          ]
+        },
+        "participant_boxes": [
+          [
+            0.2,
+            410.2,
+            119.6,
+            535.9
+          ]
+        ],
+        "participant_p_crashed": [
+          null,
+          null
+        ],
+        "changepoint_detail": {
+          "flow": 0.1738,
+          "box_area": 180544.0,
+          "z_flow": 2.047,
+          "z_area": 6.156,
+          "score": 2.047,
+          "threshold": 1.5
+        },
+        "attribution": "unattributed",
+        "attribution_note": "incident detected but no vehicle could be identified with confidence; no box drawn rather than risk marking an uninvolved vehicle",
+        "_db_id": 13,
+        "corroboration": {
+          "independent_geometries_at_this_moment": 2,
+          "window_s": 0.75
+        },
+        "consolidated_from": {
+          "candidates": 1,
+          "dropped_at": [],
+          "why": "a clip contains at most one accident; the strongest candidate is reported and the others are kept in the incident store for audit"
+        }
+      },
+      "explanation": "Conflict indicators: motion change-point z=2.05",
+      "needs_verification": true,
+      "status": "detected",
+      "evidence": {
+        "dir": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\evidence\\ACCIDENTS_2\\0c1b01fdac5f\\INC-00010",
+        "annotated_frame": "annotated.jpg",
+        "original_frame": "original.jpg",
+        "clip": "clip.webm",
+        "clip_span_s": [
+          18.13,
+          24.53
+        ],
+        "record": "incident.json"
+      },
+      "location": {
+        "camera_id": "ACCIDENTS_2",
+        "camera_name": "ACCIDENTS_2",
+        "zone": "Accidents",
+        "road_name": "(uncalibrated clip)",
+        "road_edge_id": null,
+        "corridor_id": null,
+        "latitude": null,
+        "longitude": null,
+        "precision": "zone-only",
+        "note": "Position is the camera's, not the vehicle's. Per-object geolocation would require camera pose, intrinsics and a ground model."
+      },
+      "recommended_action": "Operator verification required before dispatch",
+      "operational_context": {}
+    }
+  ]
+}
