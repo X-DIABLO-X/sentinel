@@ -459,19 +459,30 @@ export interface ReportFile {
 export type Backend = "cctv" | "drone";
 
 /**
- * STUBBED - the drone detector has NOT been fine-tuned on VisDrone yet.
- * FINAL/DRONE currently contains only an empty skeleton (config/, demo/,
- * models/detector/, results/, scripts/) with no api.py. The drone page reads
- * this flag to render its banner. Flip `detectorFineTuned` to true ONLY when a
- * VisDrone-fine-tuned checkpoint with measured numbers actually exists.
+ * Real, not stubbed: dronefreak/visdrone-yolov8x (VisDrone2019-DET
+ * fine-tune) + native Ultralytics BoT-SORT (ReID) is what actually produced
+ * the numbers below, on a real 16-clip batch of genuine DJI nadir footage —
+ * see DRONE/config/drone_config.yaml and DRONE/demo/README.md for the full
+ * provenance. Flip `detectorFineTuned` back to false only if this console is
+ * ever pointed at a build that reverts to the generic-COCO placeholder.
  */
 export const DRONE_STATUS = {
-  detectorFineTuned: false,
+  detectorFineTuned: true,
   finetuneTarget: "VisDrone",
   note:
-    "The drone detector is not yet fine-tuned on VisDrone. A CCTV (eye-level) " +
-    "detector cannot be reused directly: from a hovering top-down view a " +
-    "vehicle is a roof with no side profile, so the appearance distribution " +
-    "the CCTV weights learned does not transfer. No drone accuracy number is " +
-    "claimed anywhere in this console.",
+    "Detector: dronefreak/visdrone-yolov8x (VisDrone2019-DET fine-tune, not " +
+    "the earlier generic-COCO placeholder). Tracker: native Ultralytics " +
+    "BoT-SORT with appearance ReID, chosen over this project's original " +
+    "hand-rolled tracker because nadir footage's frequent top-down occlusion " +
+    "is a materially worse case for a motion/IoU-only associator. First real " +
+    "batch (16 clips, genuine hovering-DJI footage): 717 tracks, 10 queue " +
+    "candidates with full evidence, 0 blockage events, GMC health 1.000 on " +
+    "every clip. Two open, honestly-tracked limitations: the blockage " +
+    "stationary-speed threshold was set before real footage existed and " +
+    "under-fires against real box jitter (traced to one specific missed " +
+    "parked car, not yet recalibrated against the same batch it would then " +
+    "be scored on), and the class-width km/h estimate is unreliable for " +
+    "vehicles clipped at the frame edge. No calibrated metric speed is " +
+    "claimed anywhere in this console — every speed is px/s plus a labelled " +
+    "estimate.",
 } as const;

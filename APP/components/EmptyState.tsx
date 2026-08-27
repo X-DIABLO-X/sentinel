@@ -15,8 +15,13 @@ export default function EmptyState({
 }: {
   title: string;
   detail?: ReactNode;
-  /** "stub" is reserved for capabilities that do not exist yet. */
-  tone?: "neutral" | "warn" | "stub";
+  /**
+   * "stub" is reserved for capabilities that do not exist yet.
+   * "ok" is for a capability that used to be a stub and now has real,
+   * measured output behind it — same dashed-panel honesty pattern, positive
+   * framing instead of a red "NOT IMPLEMENTED" prefix.
+   */
+  tone?: "neutral" | "warn" | "stub" | "ok";
   children?: ReactNode;
 }) {
   const toneClass =
@@ -24,10 +29,18 @@ export default function EmptyState({
       ? "border-sev-critical/40 bg-sev-critical/[0.06]"
       : tone === "warn"
         ? "border-sev-medium/40 bg-sev-medium/[0.06]"
-        : "border-line bg-panel-2/40";
+        : tone === "ok"
+          ? "border-sev-low/40 bg-sev-low/[0.06]"
+          : "border-line bg-panel-2/40";
 
   const titleClass =
-    tone === "stub" ? "text-sev-critical" : tone === "warn" ? "text-sev-medium" : "text-ink-1";
+    tone === "stub"
+      ? "text-sev-critical"
+      : tone === "warn"
+        ? "text-sev-medium"
+        : tone === "ok"
+          ? "text-sev-low"
+          : "text-ink-1";
 
   return (
     <div className={`rounded-lg border border-dashed px-5 py-6 ${toneClass}`}>

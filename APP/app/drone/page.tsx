@@ -9,12 +9,10 @@ import IncidentCard from "@/components/IncidentCard";
 
 /**
  * Same shape as the CCTV page, pointed at the DRONE backend (port 8011 by
- * default). FINAL/DRONE is currently an empty skeleton with no api.py, so
- * every panel here is expected to render its offline state at the jury demo
- * until a real drone backend answers this same route contract. The detector
- * has not been fine-tuned on VisDrone — that fact is shown up front, always,
- * regardless of whether the backend is reachable, because it is a model-
- * readiness fact, not a connectivity fact.
+ * default). A real api.py now answers this route contract — DRONE_STATUS
+ * (lib/types.ts) is shown up front, always, regardless of whether the
+ * backend happens to be reachable at page-load time, because it is a
+ * model-readiness fact, not a connectivity fact.
  */
 export default function DronePage() {
   const { data: health, error: healthError, firstLoad: healthLoading } = useApi(
@@ -38,8 +36,12 @@ export default function DronePage() {
       </div>
 
       <EmptyState
-        title={`Detector not yet fine-tuned on ${DRONE_STATUS.finetuneTarget}`}
-        tone="stub"
+        title={
+          DRONE_STATUS.detectorFineTuned
+            ? `Detector fine-tuned on ${DRONE_STATUS.finetuneTarget} — real batch results below`
+            : `Detector not yet fine-tuned on ${DRONE_STATUS.finetuneTarget}`
+        }
+        tone={DRONE_STATUS.detectorFineTuned ? "ok" : "stub"}
         detail={DRONE_STATUS.note}
       />
 

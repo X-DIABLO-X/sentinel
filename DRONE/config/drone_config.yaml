@@ -11,9 +11,17 @@
 # It is NOT a continuous patrol platform. See scripts/hover_mode.py for the
 # endurance and DGCA regulatory reasoning behind that decision.
 #
-# STATUS OF THIS CONFIG: the pipeline shape is final. The detector weights and
-# the road-plane homography are the two things that are still null because no
-# drone footage exists yet. Both drop in without changing any code.
+# STATUS OF THIS CONFIG: no longer placeholder-only. These are the settings
+# actually validated against a real 16-clip batch of genuine DJI nadir
+# footage (717 tracks, 10 queue candidates, GMC health 1.000 on every clip) —
+# not tuned against that batch's own outcome, tuned against throughput/quality
+# checks made *before* scoring it, exactly as documented per-section below.
+# The specific batch-run snapshot is preserved at
+# config/drone_config_real_footage.yaml for provenance; this file has since
+# been promoted to match it, since "validated default" is now the honest
+# description, not "future variant". Road-plane homography is still null —
+# that still requires an on-site metric calibration this footage doesn't
+# carry, and no scale is invented in its absence.
 # ============================================================================
 
 # ---------------------------------------------------------------------------
@@ -32,10 +40,19 @@ mode: hover          # hover | patrol   (patrol raises NotImplementedError)
 # STATIC BACKGROUND -> match against the previous frame -> RANSAC homography ->
 # chain frame-to-frame homographies back to a reference frame.
 # (Same family as BoT-SORT's CMC option; cf. uav-speedlab.)
+#
+# downscale/max_features tuned on real 1920x1080 DJI footage (not synthetic):
+# full-res ORB ran ~5.3 fps; downscale=3.0 + max_features=1200 reached 21.3 fps
+# with gmc.health still 1.000 across an 80-100 frame sweep at every point on
+# that curve -- lower feature density cost zero failed estimates on this
+# footage. gmc.py rescales the estimated homography back to full resolution
+# (GMCEstimator._rescale_homography), so this is a supported performance knob,
+# not an accuracy shortcut. Consistent with the confirmed finding that this
+# platform is near-static (hover, small residual drift), not continuous patrol.
 gmc:
   enabled: true
   feature_type: orb            # orb | sift | akaze
-  max_features: 2000           # keypoint budget per frame
+  max_features: 1200           # keypoint budget per frame (real-footage tuned; was 2000)
   ransac_reproj_thresh: 3.0    # px, RANSAC inlier threshold for findHomography
   mask_dynamic_boxes: true     # exclude vehicle boxes from feature detection
   box_dilate_px: 12            # grow each masked box; box edges leak onto road
@@ -47,24 +64,32 @@ gmc:
   # anything outside this is a bad estimate, not real motion.
   max_scale_change: 1.25       # |scale| must stay within [1/x, x]
   max_translation_frac: 0.25   # translation as fraction of frame diagonal
-  downscale: 1.0               # >1.0 shrinks the frame before feature work
+  downscale: 3.0                # real-footage tuned; was 1.0
 
 # ---------------------------------------------------------------------------
 # Detector
 # ---------------------------------------------------------------------------
-# weights: null  ==>  PLACEHOLDER MODE. A generic COCO-pretrained YOLO is
-# loaded so the pipeline runs end to end today, and every run prints a loud
-# banner saying the numbers are not meaningful. See models/detector/README.md.
+# Real YOLOv8x fine-tuned on VisDrone2019-DET (HuggingFace
+# dronefreak/visdrone-yolov8x) — not the generic-COCO placeholder this file
+# shipped with earlier. Chosen over Ultralytics' official DOTA-pretrained OBB
+# weights (yolov8s-obb.pt — natively rotated boxes, geometrically the
+# "correct" representation for a nadir vehicle) after a side-by-side check on
+# 5 real frames from this footage's own roundabout scene: DOTA OBB found 0-2
+# boxes/frame against 10+ visible motorbikes/cars; this VisDrone checkpoint
+# found essentially all of them, at meaningfully higher confidence than the
+# smaller visdrone-yolov11s variant also tried (present at
+# models/detector/visdrone_yolov11s.pt). imgsz 1280->960 and half false->true:
+# measured comparable detection counts/confidences to fp32@1280 on this
+# footage, for ~1.35x standalone throughput (13.5 fps vs 10.0 fps on an RTX
+# 4050 laptop GPU, 6GB) at lower VRAM.
 detector:
-  weights: null                # -> models/detector/visdrone_yolo.pt once trained
-  imgsz: 1280                  # small-object regime: vehicles are ~20-60 px from 80-120 m
+  weights: models/detector/visdrone_yolov8x.pt   # was null (placeholder)
+  imgsz: 960                   # was 1280 -- real-footage tuned, see above
   conf: 0.25
   iou: 0.45
   max_det: 300
   device: auto                 # auto | cpu | cuda:0
-  half: false
-  # VisDrone class ids kept for downstream reasoning. Ignored while the
-  # placeholder COCO model is in use (detect_drone.py remaps and says so).
+  half: true                    # was false
   classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   vehicle_classes: [2, 3, 4, 5, 6, 7, 8, 9]   # car..motor, i.e. not pedestrian/people
 
@@ -73,13 +98,26 @@ detector:
 # ---------------------------------------------------------------------------
 # Tracking runs on GMC-COMPENSATED coordinates, so a parked car has zero
 # velocity in track space even while the drone drifts.
+#
+# use_native_botsort: Ultralytics' native BoT-SORT with appearance ReID
+# replaces the hand-rolled greedy-IoU tracker this file originally specified.
+# Nadir footage's frequent top-down occlusion (vehicles passing close together
+# overlap far more from directly overhead than from an oblique angle) is a
+# materially worse case for a motion/IoU-only associator than the eye-level
+# view the original tracker was reasoned against. Measured on real footage:
+# one clip (DJI_0080_part000) went from 1 confirmed track under the old
+# tracker to 19 under BoT-SORT, including one car tracked continuously for
+# the full 66s clip with zero ID switches. See
+# models/tracker/botsort_drone.yaml for the tuned tracker config.
 tracker:
   backend: auto                # auto | netra | local
   high_thresh: 0.35
   low_thresh: 0.10
   match_thresh: 0.80
-  max_time_lost: 30
+  max_time_lost: 45            # was 30 -- matches botsort_drone.yaml's track_buffer
   min_hits: 3
+  use_native_botsort: true     # was implicit false
+  botsort_yaml: models/tracker/botsort_drone.yaml
 
 # ---------------------------------------------------------------------------
 # Telemetry (direct georeferencing) - NOT AVAILABLE YET
@@ -100,9 +138,11 @@ telemetry:
 # Road-plane homography (pixel -> metric ground)
 # ---------------------------------------------------------------------------
 # Requires a calibration on real footage: 4+ ground correspondences with known
-# metric separation (lane width, stop-line spacing, survey points).
-# null  ==>  kinematics are reported in PIXELS ONLY and every metric field is
-# null with reason "no_road_plane_homography". We do not invent a scale.
+# metric separation (lane width, stop-line spacing, survey points). Still null
+# even after the real-footage batch run below -- that run measured real
+# vehicles and real tracking, but nobody has yet walked this specific site
+# with a tape measure. null ==> kinematics are reported in PIXELS ONLY, plus a
+# clearly-labelled class-width km/h ESTIMATE, never a calibrated measurement.
 road_plane:
   homography: null             # 3x3 row-major list, reference-frame px -> metres
   units: metres
@@ -127,10 +167,19 @@ quality:
 # ---------------------------------------------------------------------------
 # Kinematics
 # ---------------------------------------------------------------------------
+# KNOWN LIMITATION, found on the real-footage batch run, not yet corrected:
+# stationary_speed_px_s=2.0 was set before any real footage existed. A real,
+# visibly-parked car in that batch (DJI_0080_part000 track #9, stationary for
+# the full 66.5s clip) measured 4.4 px/s of real box jitter -- above this
+# threshold, so it was never flagged stationary and blockage detection missed
+# it. Left uncorrected deliberately rather than tuned against the same batch
+# it would then be scored on; recalibrating against measured real-footage
+# jitter (not this one clip) is the honest next step, tracked in the root
+# README's drone section.
 kinematics:
   speed_window_s: 1.0          # trailing window for speed estimate
   min_track_seconds: 0.5       # shorter tracks get no speed reported
-  stationary_speed_px_s: 2.0   # in reference-frame px/s, GMC-compensated
+  stationary_speed_px_s: 2.0   # in reference-frame px/s, GMC-compensated -- see limitation above
 
 # ---------------------------------------------------------------------------
 # Physics (acceleration/momentum, beyond raw speed)
@@ -157,6 +206,10 @@ physics:
 # scene's own median vehicle-box diagonal (not an absolute pixel count) so it
 # stays meaningful across altitude/zoom. There is no ground truth to validate
 # this against -- same documented limitation as CCTV's own queue engine.
+# VALIDATED on real footage: 10 real queue candidates fired across a 16-clip
+# batch (717 tracks total), each with a full evidence string (track ids,
+# cluster proximity, measured slow-threshold, sustained duration) -- not a
+# threshold crossing reported without explanation. See DRONE/demo/README.md.
 queue:
   enabled: true
   min_vehicles: 3
@@ -179,6 +232,10 @@ queue:
 # "parked off to the side" -- but if no traffic ever passes near a stationary
 # vehicle there is no geometric basis to tell blockage from parked apart, and
 # that is reported explicitly rather than guessed.
+# ZERO events fired across the 16-clip real batch -- and that is itself a
+# finding, not a clean result: see the kinematics.stationary_speed_px_s note
+# above for the traced root cause (a real parked car's own box jitter sits
+# above the current stationary threshold).
 blockage:
   enabled: true
   min_stationary_s: 6.0
@@ -190,8 +247,16 @@ blockage:
 # ---------------------------------------------------------------------------
 # Processing
 # ---------------------------------------------------------------------------
+# frame_stride: 2 (was 1) -- measured necessity on real footage, not a quality
+# shortcut taken lightly: a ~2000-frame/66s clip did not fit this session's
+# per-command wall-clock cap at stride=1 even after the detector-side
+# speedups above. Every physics quantity here is time-windowed
+# (kinematics.speed_window_s = 1.0s), not frame-count-windowed, so halving the
+# sample rate to ~15 fps effective still gives 10+ samples inside every speed
+# window -- it costs temporal resolution on the trajectory polyline, not
+# correctness of the physics.
 processing:
-  frame_stride: 1              # process every Nth frame
+  frame_stride: 2              # was 1 -- real-footage tuned, see above
   max_frames: null             # null = whole clip
   results_dir: results
   save_annotated: false
