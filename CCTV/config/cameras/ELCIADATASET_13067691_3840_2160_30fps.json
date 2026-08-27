@@ -1,0 +1,158 @@
+{
+  "camera_id": "TRAFFIC_13067691_3840_2160_30fps",
+  "name": "TRAFFIC_13067691_3840_2160_30fps",
+  "source": "results\\ElciaDataSet\\13067691_3840_2160_30fps.mp4",
+  "zone": "Traffic",
+  "road_name": "",
+  "road_edge_id": null,
+  "latitude": null,
+  "longitude": null,
+  "frame_size": [
+    1280,
+    720
+  ],
+  "analysis_fps": 8.0,
+  "corridors": [
+    {
+      "id": "c1",
+      "name": "stream 1 (9 tracks)",
+      "polygon": [
+        [
+          699.0,
+          331.0
+        ],
+        [
+          803.0,
+          674.0
+        ],
+        [
+          783.0,
+          713.0
+        ],
+        [
+          931.0,
+          719.0
+        ],
+        [
+          1005.0,
+          689.0
+        ],
+        [
+          949.0,
+          663.0
+        ],
+        [
+          939.0,
+          609.0
+        ],
+        [
+          850.0,
+          484.0
+        ],
+        [
+          805.0,
+          446.0
+        ],
+        [
+          736.0,
+          310.0
+        ]
+      ],
+      "direction": [
+        0.552,
+        0.8338
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    },
+    {
+      "id": "c2",
+      "name": "stream 2 (9 tracks)",
+      "polygon": [
+        [
+          636.0,
+          313.0
+        ],
+        [
+          596.0,
+          343.0
+        ],
+        [
+          566.0,
+          454.0
+        ],
+        [
+          494.0,
+          627.0
+        ],
+        [
+          560.0,
+          657.0
+        ],
+        [
+          633.0,
+          519.0
+        ],
+        [
+          690.0,
+          333.0
+        ]
+      ],
+      "direction": [
+        0.3307,
+        -0.9437
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    },
+    {
+      "id": "c3",
+      "name": "stream 3 (3 tracks)",
+      "polygon": [
+        [
+          692.0,
+          336.0
+        ],
+        [
+          683.0,
+          380.0
+        ],
+        [
+          717.0,
+          511.0
+        ],
+        [
+          741.0,
+          681.0
+        ],
+        [
+          758.0,
+          718.0
+        ],
+        [
+          780.0,
+          712.0
+        ],
+        [
+          801.0,
+          671.0
+        ],
+        [
+          715.0,
+          361.0
+        ]
+      ],
+      "direction": [
+        0.2781,
+        0.9606
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    }
+  ],
+  "zones": [],
+  "notes": "DRAFT auto-calibration from observed traffic. Directions are the OBSERVED majority flow, not verified legal directions. Junction exclusion zones and solid/dashed lane boundaries still require human confirmation in the calibration screen."
+}

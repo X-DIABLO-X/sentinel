@@ -1,0 +1,10 @@
+# Auto-downloaded generic placeholder weights (Ultralytics saves to cwd by
+# default). Never commit these; they are not the fine-tuned VisDrone model.
+*.pt
+
+# Pipeline output — regenerated per run.
+results/*.json
+!results/.gitkeep
+
+__pycache__/
+*.pyc

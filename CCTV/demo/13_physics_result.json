@@ -1,0 +1,356 @@
+{
+  "video": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\demo\\13.mp4",
+  "resolution": [
+    1584,
+    1080
+  ],
+  "native_fps": 29.734,
+  "frame_count": 893,
+  "duration_s": 30.033,
+  "processing": {
+    "detector_weights": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\models\\yolo26m.pt",
+    "detector_backend": "torch",
+    "device": "cuda:0",
+    "tracker": {
+      "high_thresh": 0.35,
+      "low_thresh": 0.1,
+      "match_thresh": 0.8,
+      "second_match_thresh": 0.5,
+      "max_time_lost": 30,
+      "min_hits": 3
+    },
+    "frames_processed": 893,
+    "detect_track_seconds": 40.48,
+    "fps_processed": 22.06,
+    "detector_latency_ms": {
+      "n": 893,
+      "mean_ms": 26.77,
+      "median_ms": 25.93,
+      "p95_ms": 33.71,
+      "max_ms": 149.52,
+      "implied_fps": 37.36
+    },
+    "rotation_gate_score_calls": 894,
+    "rotation_gate_pairs_ever_considered": 1405,
+    "speed_units_note": "px/s is the honest reported speed -- these cameras have no image-to-ground calibration (checked config/cameras/*.json). km/h figures are a class-width monocular ESTIMATE (same method rotation_gate uses internally), not a calibrated measurement."
+  },
+  "tracks": {
+    "1": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 0.0,
+      "last_t": 3.969,
+      "duration_s": 3.969,
+      "n_frames_confirmed": 116,
+      "max_speed_px_s": 104.56,
+      "best_rotation_gate_score": 0.0333
+    },
+    "2": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 0.0,
+      "last_t": 1.379,
+      "duration_s": 1.379,
+      "n_frames_confirmed": 40,
+      "max_speed_px_s": 65.37,
+      "best_rotation_gate_score": 0.0
+    },
+    "5": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 2.186,
+      "last_t": 5.953,
+      "duration_s": 3.767,
+      "n_frames_confirmed": 111,
+      "max_speed_px_s": 255.0,
+      "best_rotation_gate_score": 0.5879
+    },
+    "6": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 2.186,
+      "last_t": 16.345,
+      "duration_s": 14.159,
+      "n_frames_confirmed": 367,
+      "max_speed_px_s": 43.26,
+      "best_rotation_gate_score": 0.0
+    },
+    "7": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 2.22,
+      "last_t": 30.0,
+      "duration_s": 27.78,
+      "n_frames_confirmed": 782,
+      "max_speed_px_s": 227.35,
+      "best_rotation_gate_score": 0.03
+    },
+    "8": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 2.691,
+      "last_t": 30.0,
+      "duration_s": 27.309,
+      "n_frames_confirmed": 805,
+      "max_speed_px_s": 431.59,
+      "best_rotation_gate_score": 0.5879
+    },
+    "14": {
+      "cls": 7,
+      "cls_name": "truck",
+      "first_t": 3.7,
+      "last_t": 4.809,
+      "duration_s": 1.11,
+      "n_frames_confirmed": 31,
+      "max_speed_px_s": 340.46,
+      "best_rotation_gate_score": 0.0762
+    },
+    "19": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 5.415,
+      "last_t": 30.0,
+      "duration_s": 24.585,
+      "n_frames_confirmed": 724,
+      "max_speed_px_s": 520.6,
+      "best_rotation_gate_score": 0.1055
+    },
+    "21": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 5.785,
+      "last_t": 7.399,
+      "duration_s": 1.614,
+      "n_frames_confirmed": 47,
+      "max_speed_px_s": 567.75,
+      "best_rotation_gate_score": 0.16
+    },
+    "23": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 6.188,
+      "last_t": 30.0,
+      "duration_s": 23.811,
+      "n_frames_confirmed": 707,
+      "max_speed_px_s": 306.85,
+      "best_rotation_gate_score": 0.16
+    },
+    "24": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 6.424,
+      "last_t": 8.341,
+      "duration_s": 1.917,
+      "n_frames_confirmed": 56,
+      "max_speed_px_s": 752.29,
+      "best_rotation_gate_score": 0.5481
+    },
+    "25": {
+      "cls": 7,
+      "cls_name": "truck",
+      "first_t": 6.558,
+      "last_t": 30.0,
+      "duration_s": 23.441,
+      "n_frames_confirmed": 696,
+      "max_speed_px_s": 239.81,
+      "best_rotation_gate_score": 0.5481
+    },
+    "31": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 7.466,
+      "last_t": 30.0,
+      "duration_s": 22.533,
+      "n_frames_confirmed": 669,
+      "max_speed_px_s": 261.11,
+      "best_rotation_gate_score": 0.0
+    },
+    "32": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 7.5,
+      "last_t": 15.437,
+      "duration_s": 7.937,
+      "n_frames_confirmed": 213,
+      "max_speed_px_s": 96.2,
+      "best_rotation_gate_score": 0.03
+    },
+    "37": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 11.166,
+      "last_t": 30.0,
+      "duration_s": 18.834,
+      "n_frames_confirmed": 512,
+      "max_speed_px_s": 53.5,
+      "best_rotation_gate_score": 0.0
+    },
+    "38": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 12.309,
+      "last_t": 30.0,
+      "duration_s": 17.69,
+      "n_frames_confirmed": 489,
+      "max_speed_px_s": 58.14,
+      "best_rotation_gate_score": 0.0
+    },
+    "44": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 14.798,
+      "last_t": 29.865,
+      "duration_s": 15.067,
+      "n_frames_confirmed": 431,
+      "max_speed_px_s": 129.18,
+      "best_rotation_gate_score": 0.0
+    },
+    "46": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 17.253,
+      "last_t": 30.0,
+      "duration_s": 12.747,
+      "n_frames_confirmed": 378,
+      "max_speed_px_s": 103.54,
+      "best_rotation_gate_score": 0.0137
+    },
+    "47": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 18.8,
+      "last_t": 30.0,
+      "duration_s": 11.199,
+      "n_frames_confirmed": 332,
+      "max_speed_px_s": 58.17,
+      "best_rotation_gate_score": 0.0
+    },
+    "57": {
+      "cls": 0,
+      "cls_name": "person",
+      "first_t": 22.163,
+      "last_t": 26.838,
+      "duration_s": 4.675,
+      "n_frames_confirmed": 138,
+      "max_speed_px_s": 48.72,
+      "best_rotation_gate_score": 0.0
+    },
+    "59": {
+      "cls": 0,
+      "cls_name": "person",
+      "first_t": 22.567,
+      "last_t": 22.802,
+      "duration_s": 0.235,
+      "n_frames_confirmed": 6,
+      "max_speed_px_s": 110.09,
+      "best_rotation_gate_score": 0.0
+    },
+    "70": {
+      "cls": 0,
+      "cls_name": "person",
+      "first_t": 26.468,
+      "last_t": 26.805,
+      "duration_s": 0.336,
+      "n_frames_confirmed": 9,
+      "max_speed_px_s": 287.33,
+      "best_rotation_gate_score": 0.0137
+    },
+    "72": {
+      "cls": 7,
+      "cls_name": "truck",
+      "first_t": 27.948,
+      "last_t": 30.0,
+      "duration_s": 2.052,
+      "n_frames_confirmed": 60,
+      "max_speed_px_s": 9.17,
+      "best_rotation_gate_score": 0.0
+    },
+    "73": {
+      "cls": 0,
+      "cls_name": "person",
+      "first_t": 28.385,
+      "last_t": 29.865,
+      "duration_s": 1.48,
+      "n_frames_confirmed": 39,
+      "max_speed_px_s": 190.57,
+      "best_rotation_gate_score": 0.0
+    },
+    "75": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 29.428,
+      "last_t": 30.0,
+      "duration_s": 0.572,
+      "n_frames_confirmed": 16,
+      "max_speed_px_s": 9.34,
+      "best_rotation_gate_score": 0.0
+    }
+  },
+  "collision": {
+    "confident": true,
+    "threshold": 0.15,
+    "track_ids": [
+      8,
+      5
+    ],
+    "score": 0.5879,
+    "contact": 1.0,
+    "gap": -0.5539,
+    "contact_t": 5.953,
+    "contact_refined": false,
+    "interaction": "crossing",
+    "relative_heading_deg": 52.5,
+    "interaction_prior": 1.0,
+    "geometric_mean_evidence": 0.5879,
+    "evidence_a": {
+      "track_id": 8,
+      "rotation": 0.9627,
+      "gate": 0.9701,
+      "yaw_deg": 147.9463,
+      "aspect": 0.4604,
+      "decel": 0.8819,
+      "speed_drop": 0.7469,
+      "momentum_drop": 0.9938,
+      "track_break": 0.0,
+      "appearance": null,
+      "kinematic": 0.5288,
+      "score": 0.7024,
+      "n_window": 56,
+      "channels_used": [
+        "decel",
+        "momentum",
+        "speed_drop",
+        "track_break"
+      ],
+      "yaw_gate_passed": true,
+      "aspect_gate_passed": true,
+      "note": "heading shock of 148 deg after a stable approach"
+    },
+    "evidence_b": {
+      "track_id": 5,
+      "rotation": 0.7114,
+      "gate": 0.7691,
+      "yaw_deg": 55.9277,
+      "aspect": 0.3471,
+      "decel": 0.3363,
+      "speed_drop": 0.3458,
+      "momentum_drop": 0.2552,
+      "track_break": 1.0,
+      "appearance": null,
+      "kinematic": 0.5813,
+      "score": 0.4921,
+      "n_window": 30,
+      "channels_used": [
+        "decel",
+        "momentum",
+        "speed_drop",
+        "track_break"
+      ],
+      "yaw_gate_passed": true,
+      "aspect_gate_passed": true,
+      "note": "heading shock of 56 deg after a stable approach"
+    },
+    "explain": "#8 and #5 came closest at t=5.95s (boxes overlapping, 53 deg relative heading -> crossing); #8: heading shock of 148 deg after a stable approach; #5: heading shock of 56 deg after a stable approach; score 0.588"
+  },
+  "rotation_gate_config_source": "COMBINED/config.yaml :: inference2"
+}

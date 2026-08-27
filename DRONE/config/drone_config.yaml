@@ -1,0 +1,149 @@
+# DRONE subsystem configuration
+# ============================================================================
+# ELCIA Smart City Drone-AI Challenge 2026
+#
+# Role of the drone in this architecture: HOVER-BASED ESCALATION / VERIFICATION.
+# The CCTV subsystem is the persistent backbone. The drone is dispatched to an
+# already-confirmed incident, hovers over it, and provides the overhead view
+# that a pole-mounted camera cannot give (queue tail length, blockage extent,
+# lane occupancy, secondary-collision risk).
+#
+# It is NOT a continuous patrol platform. See scripts/hover_mode.py for the
+# endurance and DGCA regulatory reasoning behind that decision.
+#
+# STATUS OF THIS CONFIG: the pipeline shape is final. The detector weights and
+# the road-plane homography are the two things that are still null because no
+# drone footage exists yet. Both drop in without changing any code.
+# ============================================================================
+
+# ---------------------------------------------------------------------------
+# Operating mode
+# ---------------------------------------------------------------------------
+mode: hover          # hover | patrol   (patrol raises NotImplementedError)
+
+# ---------------------------------------------------------------------------
+# Global Motion Compensation (ego-motion removal)
+# ---------------------------------------------------------------------------
+# Even a "stationary" hovering drone drifts: wind, GPS hold error, gimbal
+# micro-corrections. Uncompensated, that drift is indistinguishable from
+# vehicle motion and destroys every speed/queue/stationarity measurement.
+#
+# Method: mask out detected-vehicle boxes -> detect features on the REMAINING
+# STATIC BACKGROUND -> match against the previous frame -> RANSAC homography ->
+# chain frame-to-frame homographies back to a reference frame.
+# (Same family as BoT-SORT's CMC option; cf. uav-speedlab.)
+gmc:
+  enabled: true
+  feature_type: orb            # orb | sift | akaze
+  max_features: 2000           # keypoint budget per frame
+  ransac_reproj_thresh: 3.0    # px, RANSAC inlier threshold for findHomography
+  mask_dynamic_boxes: true     # exclude vehicle boxes from feature detection
+  box_dilate_px: 12            # grow each masked box; box edges leak onto road
+  min_matches: 12              # below this -> identity + ok=False, never guess
+  min_inliers: 8               # below this -> reject the estimate
+  ratio_test: 0.75             # Lowe ratio for knn match filtering
+  # Sanity envelope on a single frame-to-frame homography. A hovering drone
+  # cannot produce a large scale change or translation between adjacent frames;
+  # anything outside this is a bad estimate, not real motion.
+  max_scale_change: 1.25       # |scale| must stay within [1/x, x]
+  max_translation_frac: 0.25   # translation as fraction of frame diagonal
+  downscale: 1.0               # >1.0 shrinks the frame before feature work
+
+# ---------------------------------------------------------------------------
+# Detector
+# ---------------------------------------------------------------------------
+# weights: null  ==>  PLACEHOLDER MODE. A generic COCO-pretrained YOLO is
+# loaded so the pipeline runs end to end today, and every run prints a loud
+# banner saying the numbers are not meaningful. See models/detector/README.md.
+detector:
+  weights: null                # -> models/detector/visdrone_yolo.pt once trained
+  imgsz: 1280                  # small-object regime: vehicles are ~20-60 px from 80-120 m
+  conf: 0.25
+  iou: 0.45
+  max_det: 300
+  device: auto                 # auto | cpu | cuda:0
+  half: false
+  # VisDrone class ids kept for downstream reasoning. Ignored while the
+  # placeholder COCO model is in use (detect_drone.py remaps and says so).
+  classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  vehicle_classes: [2, 3, 4, 5, 6, 7, 8, 9]   # car..motor, i.e. not pedestrian/people
+
+# ---------------------------------------------------------------------------
+# Tracker
+# ---------------------------------------------------------------------------
+# Tracking runs on GMC-COMPENSATED coordinates, so a parked car has zero
+# velocity in track space even while the drone drifts.
+tracker:
+  backend: auto                # auto | netra | local
+  high_thresh: 0.35
+  low_thresh: 0.10
+  match_thresh: 0.80
+  max_time_lost: 30
+  min_hits: 3
+
+# ---------------------------------------------------------------------------
+# Telemetry (direct georeferencing) - NOT AVAILABLE YET
+# ---------------------------------------------------------------------------
+# When drone GPS / IMU / gimbal pose per frame is available this is the
+# stronger path than pure vision: positions georeference directly instead of
+# accumulating homography chain drift. GPS alone (~10 Hz) is too coarse to
+# interpolate per frame and IMU alone drifts; real systems fuse both.
+# enabled: false today. load_telemetry() returns None. Signature is frozen.
+telemetry:
+  enabled: false
+  path: null                   # e.g. data/flight_001.csv
+  format: auto                 # auto | csv | json | srt
+  gps_hz: 10.0
+  imu_hz: 200.0
+
+# ---------------------------------------------------------------------------
+# Road-plane homography (pixel -> metric ground)
+# ---------------------------------------------------------------------------
+# Requires a calibration on real footage: 4+ ground correspondences with known
+# metric separation (lane width, stop-line spacing, survey points).
+# null  ==>  kinematics are reported in PIXELS ONLY and every metric field is
+# null with reason "no_road_plane_homography". We do not invent a scale.
+road_plane:
+  homography: null             # 3x3 row-major list, reference-frame px -> metres
+  units: metres
+  # Fallback GSD path, also null. altitude_m / focal_px would give metres-per-
+  # pixel for a nadir view, but that needs telemetry we do not have.
+  altitude_m: null
+  focal_px: null
+
+# ---------------------------------------------------------------------------
+# Frame quality gate
+# ---------------------------------------------------------------------------
+# Rejected frames are skipped for measurement but still counted, so the report
+# says how much of the clip was actually usable rather than silently averaging
+# over garbage.
+quality:
+  enabled: true
+  min_blur_var: 25.0           # variance of Laplacian; below -> motion blur / defocus
+  min_brightness: 20.0         # mean luma
+  max_brightness: 240.0
+  max_gmc_failure_streak: 15   # consecutive GMC failures -> reset the chain
+
+# ---------------------------------------------------------------------------
+# Kinematics
+# ---------------------------------------------------------------------------
+kinematics:
+  speed_window_s: 1.0          # trailing window for speed estimate
+  min_track_seconds: 0.5       # shorter tracks get no speed reported
+  stationary_speed_px_s: 2.0   # in reference-frame px/s, GMC-compensated
+
+# ---------------------------------------------------------------------------
+# Processing
+# ---------------------------------------------------------------------------
+processing:
+  frame_stride: 1              # process every Nth frame
+  max_frames: null             # null = whole clip
+  results_dir: results
+  save_annotated: false
+
+# ---------------------------------------------------------------------------
+# API - separate process, separate port from CCTV (CCTV owns 8000)
+# ---------------------------------------------------------------------------
+api:
+  host: 127.0.0.1
+  port: 8011

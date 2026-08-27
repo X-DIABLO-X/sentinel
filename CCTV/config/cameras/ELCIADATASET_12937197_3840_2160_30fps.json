@@ -1,0 +1,243 @@
+{
+  "camera_id": "ELCIADATASET_12937197_3840_2160_30fps",
+  "name": "ELCIADATASET_12937197_3840_2160_30fps",
+  "source": "results\\ElciaDataSet\\12937197_3840_2160_30fps.mp4",
+  "zone": "ElciaDataSet",
+  "road_name": "",
+  "road_edge_id": null,
+  "latitude": null,
+  "longitude": null,
+  "frame_size": [
+    1280,
+    720
+  ],
+  "analysis_fps": 8.0,
+  "corridors": [
+    {
+      "id": "c1",
+      "name": "stream 1 (17 tracks)",
+      "polygon": [
+        [
+          472.0,
+          228.0
+        ],
+        [
+          392.0,
+          272.0
+        ],
+        [
+          392.0,
+          352.0
+        ],
+        [
+          314.0,
+          322.0
+        ],
+        [
+          251.0,
+          389.0
+        ],
+        [
+          187.0,
+          381.0
+        ],
+        [
+          114.0,
+          427.0
+        ],
+        [
+          229.0,
+          591.0
+        ],
+        [
+          305.0,
+          541.0
+        ],
+        [
+          314.0,
+          474.0
+        ],
+        [
+          371.0,
+          477.0
+        ],
+        [
+          531.0,
+          313.0
+        ]
+      ],
+      "direction": [
+        -0.8111,
+        0.585
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    },
+    {
+      "id": "c2",
+      "name": "stream 2 (6 tracks)",
+      "polygon": [
+        [
+          709.0,
+          252.0
+        ],
+        [
+          689.0,
+          284.0
+        ],
+        [
+          741.0,
+          400.0
+        ],
+        [
+          716.0,
+          415.0
+        ],
+        [
+          706.0,
+          437.0
+        ],
+        [
+          758.0,
+          435.0
+        ],
+        [
+          772.0,
+          456.0
+        ],
+        [
+          823.0,
+          424.0
+        ],
+        [
+          815.0,
+          404.0
+        ],
+        [
+          761.0,
+          405.0
+        ],
+        [
+          784.0,
+          362.0
+        ],
+        [
+          725.0,
+          255.0
+        ]
+      ],
+      "direction": [
+        0.4832,
+        0.8755
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    },
+    {
+      "id": "c3",
+      "name": "stream 3 (3 tracks)",
+      "polygon": [
+        [
+          598.0,
+          211.0
+        ],
+        [
+          586.0,
+          253.0
+        ],
+        [
+          605.0,
+          320.0
+        ],
+        [
+          592.0,
+          410.0
+        ],
+        [
+          717.0,
+          414.0
+        ],
+        [
+          737.0,
+          403.0
+        ],
+        [
+          737.0,
+          386.0
+        ],
+        [
+          718.0,
+          362.0
+        ],
+        [
+          710.0,
+          322.0
+        ],
+        [
+          687.0,
+          282.0
+        ],
+        [
+          709.0,
+          251.0
+        ],
+        [
+          725.0,
+          253.0
+        ],
+        [
+          741.0,
+          236.0
+        ],
+        [
+          680.0,
+          213.0
+        ]
+      ],
+      "direction": [
+        -0.0312,
+        0.9995
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    },
+    {
+      "id": "c4",
+      "name": "stream 4 (3 tracks)",
+      "polygon": [
+        [
+          189.0,
+          617.0
+        ],
+        [
+          185.0,
+          719.0
+        ],
+        [
+          1189.0,
+          710.0
+        ],
+        [
+          1190.0,
+          687.0
+        ],
+        [
+          416.0,
+          606.0
+        ]
+      ],
+      "direction": [
+        0.9995,
+        0.0319
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    }
+  ],
+  "zones": [],
+  "notes": "DRAFT auto-calibration from observed traffic. Directions are the OBSERVED majority flow, not verified legal directions. Junction exclusion zones and solid/dashed lane boundaries still require human confirmation in the calibration screen."
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NETRA — Road Incident Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>NETRA</h1>
+      <span class="sub">Traffic incident intelligence</span>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <nav>
+      <button class="upload-trigger" id="upload-trigger" type="button">Analyse video</button>
+      <input id="video-input" type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska" hidden>
+      <a href="/ui/calibrate.html">Cameras</a>
+      <span class="clock" id="clock"></span>
+    </nav>
+  </header>
+
+  <div class="main">
+    <section class="col">
+      <div class="col-head">
+        <h2>Active incidents</h2>
+        <span class="pill status" id="count">0</span>
+      </div>
+      <div class="event-tabs" id="event-tabs" role="tablist" aria-label="Incident type">
+        <button class="event-tab on" data-type="traffic">Traffic</button>
+        <button class="event-tab accident" data-type="problem_set">Accidents <b id="tab-accidents">0</b></button>
+        <button class="event-tab" data-type="queue">Queues</button>
+        <button class="event-tab" data-type="wrong_way">Wrong-side</button>
+        <button class="event-tab" data-type="blockage">Blockage</button>
+        <button class="event-tab" data-type="upload">Uploads</button>
+      </div>
+      <div class="filters">
+        <select id="f-camera"><option value="">All cameras</option></select>
+        <select id="f-status">
+          <option value="">All statuses</option>
+          <option value="detected" selected>Active detections</option>
+          <option value="verified">Verified</option>
+          <option value="assigned">Assigned</option>
+          <option value="responding">Responding</option>
+          <option value="resolved">Resolved</option>
+          <option value="closed">Closed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="col-body" id="list"></div>
+    </section>
+
+    <section class="detail" id="detail">
+      <div class="empty">
+        <p>Select an incident to see the evidence that produced it.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<aside class="job-tray" id="job-tray" hidden aria-live="polite">
+  <div class="job-head">
+    <div><b id="job-title">Video analysis</b><span id="job-percent">0%</span></div>
+    <button id="job-close" type="button" aria-label="Hide analysis status">×</button>
+  </div>
+  <div class="job-progress"><span id="job-progress-bar"></span></div>
+  <p id="job-message">Preparing upload…</p>
+</aside>
+
+<script src="/ui/app.js"></script>
+</body>
+</html>

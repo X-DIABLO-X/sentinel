@@ -1,0 +1,120 @@
+{
+  "_about": {
+    "purpose": "Facility registry used ONLY by netra/response.py to compute a SIMULATED responder access route (nearest facility -> incident) on an offline-cached OpenStreetMap drive graph. Nothing in NETRA contacts, notifies or dispatches any facility listed here.",
+    "STATUS": "MOST ENTRIES BELOW ARE ILLUSTRATIVE PLACEHOLDER COORDINATES FOR DEMONSTRATION ONLY. They are NOT a verified emergency-services registry. Read the per-entry 'coordinate_source' field before believing any coordinate in this file.",
+    "coordinate_source_values": {
+      "illustrative_placeholder": "Invented for the demo. The point lies in the right general area so the routing computation has somewhere realistic to start from, but it does NOT correspond to a surveyed facility at that position. Every such entry also carries '(placeholder)' in its name so it cannot be misread on a map pin. Replace with a real registry before any operational use.",
+      "openstreetmap_amenity_tag": "Taken from OpenStreetMap's amenity tag. This means someone tagged a building as a hospital/police station/fire station. It is NOT a verified claim of trauma capability, emergency capability, bed availability, staffing or current operating status. Present as 'nearest tagged facility', never as 'verified trauma centre'."
+    },
+    "how_to_replace": "Swap the 'facilities' array for a real municipal or state registry with the same keys (name, kind, latitude, longitude, city, coordinate_source). netra/response.py reads only those keys and ignores everything else.",
+    "kinds": ["hospital", "police", "fire"],
+    "why_these_places": "NETRA's demo cameras are not all in one city. config/cameras/ currently geolocates CUTTACK_LINK_01 (20.4625, 85.8830) and GANGTOK_6MILE_01 (27.3170, 88.6060); the Electronics City, Bengaluru cluster is retained because the sibling system's corpus sits there. Cameras with no latitude/longitude get an explicit 'no coordinates' degradation from response.py rather than a route.",
+    "consumer_contract": "Every consumer of this file must carry an explicit simulated=true marker. netra/response.py sets ResponsePlan.access_simulated=True on the data itself before any route is attempted."
+  },
+  "facilities": [
+    {
+      "name": "Cuttack District Hospital (placeholder)",
+      "kind": "hospital",
+      "latitude": 20.4712,
+      "longitude": 85.8791,
+      "city": "Cuttack, Odisha",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Cuttack Link Road Police Station (placeholder)",
+      "kind": "police",
+      "latitude": 20.4658,
+      "longitude": 85.8896,
+      "city": "Cuttack, Odisha",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Cuttack Fire Station (placeholder)",
+      "kind": "fire",
+      "latitude": 20.4571,
+      "longitude": 85.8748,
+      "city": "Cuttack, Odisha",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Cuttack Trauma Care Centre (placeholder)",
+      "kind": "hospital",
+      "latitude": 20.4549,
+      "longitude": 85.8912,
+      "city": "Cuttack, Odisha",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Gangtok District Hospital (placeholder)",
+      "kind": "hospital",
+      "latitude": 27.3241,
+      "longitude": 88.6012,
+      "city": "Gangtok, Sikkim",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Gangtok 6th Mile Police Outpost (placeholder)",
+      "kind": "police",
+      "latitude": 27.3138,
+      "longitude": 88.6094,
+      "city": "Gangtok, Sikkim",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Gangtok Fire Station (placeholder)",
+      "kind": "fire",
+      "latitude": 27.3296,
+      "longitude": 88.6131,
+      "city": "Gangtok, Sikkim",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Best E City Hospital",
+      "kind": "hospital",
+      "latitude": 12.850377,
+      "longitude": 77.656706,
+      "city": "Electronics City, Bengaluru",
+      "coordinate_source": "openstreetmap_amenity_tag"
+    },
+    {
+      "name": "Kauvery Hospital",
+      "kind": "hospital",
+      "latitude": 12.855088,
+      "longitude": 77.66316,
+      "city": "Electronics City, Bengaluru",
+      "coordinate_source": "openstreetmap_amenity_tag"
+    },
+    {
+      "name": "Ramakrishna Hospital",
+      "kind": "hospital",
+      "latitude": 12.850065,
+      "longitude": 77.662471,
+      "city": "Electronics City, Bengaluru",
+      "coordinate_source": "openstreetmap_amenity_tag"
+    },
+    {
+      "name": "Sri Laxmi Hospital",
+      "kind": "hospital",
+      "latitude": 12.850472,
+      "longitude": 77.655306,
+      "city": "Electronics City, Bengaluru",
+      "coordinate_source": "openstreetmap_amenity_tag"
+    },
+    {
+      "name": "Electronics City Police Station (placeholder)",
+      "kind": "police",
+      "latitude": 12.8452,
+      "longitude": 77.6631,
+      "city": "Electronics City, Bengaluru",
+      "coordinate_source": "illustrative_placeholder"
+    },
+    {
+      "name": "Electronics City Fire Station (placeholder)",
+      "kind": "fire",
+      "latitude": 12.8397,
+      "longitude": 77.6704,
+      "city": "Electronics City, Bengaluru",
+      "coordinate_source": "illustrative_placeholder"
+    }
+  ]
+}

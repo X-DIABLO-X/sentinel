@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.env.local
+
+# NETRA live database (regenerated at runtime, not source)
+CCTV/results/*.db
+CCTV/results/*.db-shm
+CCTV/results/*.db-wal
+CCTV/netra.db
+CCTV/netra.db-shm
+CCTV/netra.db-wal
+
+# Ultralytics local runtime cache — contains this machine's absolute paths,
+# regenerates automatically on first run for anyone.
+CCTV/.runtime/
+
+# OSM road-graph cache — regenerated on first response.py call, large binary,
+# not source.
+CCTV/results/cache/
+
+# Raw source video copies used transiently for rendering — only the
+# physics-annotated OUTPUT videos are committed, never the raw inputs.
+# (See README §10 — DEMO/CCTV physics_reference dirs hold the real assets.)
+CCTV/demo/*_3840_2160_30fps.mp4
+CCTV/demo/*_1920_1080_30fps.mp4
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logs
+*.log

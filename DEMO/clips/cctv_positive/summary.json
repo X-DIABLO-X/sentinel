@@ -1,0 +1,242 @@
+{
+ "note": "2nd inference: full-fps contact search with gap interpolation and sub-frame refinement; rotation-gated impact evidence (braking does not rotate you, being struck does); interaction geometry (crossing/following/oncoming); appearance-anchored pairing. See src/inference2.py.",
+ "top1_correct": 4,
+ "gt_in_top3": 4,
+ "n_labelled": 4,
+ "videos": [
+  {
+   "video": "1",
+   "top_pair": [
+    1,
+    2
+   ],
+   "top_score": 0.02577,
+   "top_interaction": "crossing",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 5,
+   "fps": 14.64935064935065,
+   "frames": 141
+  },
+  {
+   "video": "2",
+   "top_pair": [
+    266,
+    378
+   ],
+   "top_score": 0.23338,
+   "top_interaction": "crossing",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 8,
+   "fps": 30.0,
+   "frames": 901
+  },
+  {
+   "video": "3",
+   "top_pair": [
+    2,
+    8
+   ],
+   "top_score": 0.38136,
+   "top_interaction": "crossing",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 2,
+   "fps": 21.133603238866396,
+   "frames": 522
+  },
+  {
+   "video": "4",
+   "top_pair": [
+    2239,
+    2254
+   ],
+   "top_score": 0.67961,
+   "top_interaction": "crossing",
+   "ground_truth": [
+    2239,
+    2254
+   ],
+   "gt_pair_rank": 1,
+   "correct": true,
+   "n_tracks_scored": 2,
+   "fps": 24.078485616947155,
+   "frames": 94
+  },
+  {
+   "video": "5",
+   "top_pair": [
+    52,
+    58
+   ],
+   "top_score": 0.10466,
+   "top_interaction": "unknown",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 14,
+   "fps": 15.060080106809078,
+   "frames": 376
+  },
+  {
+   "video": "6",
+   "top_pair": [
+    15,
+    284
+   ],
+   "top_score": 0.15492,
+   "top_interaction": "unknown",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 16,
+   "fps": 24.37291897891232,
+   "frames": 732
+  },
+  {
+   "video": "7",
+   "top_pair": [
+    312,
+    395
+   ],
+   "top_score": 0.06351,
+   "top_interaction": "unknown",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 6,
+   "fps": 22.938347718865597,
+   "frames": 689
+  },
+  {
+   "video": "8",
+   "top_pair": [
+    16,
+    57
+   ],
+   "top_score": 0.27327,
+   "top_interaction": "crossing",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 17,
+   "fps": 30.0,
+   "frames": 900
+  },
+  {
+   "video": "9",
+   "top_pair": [
+    66,
+    159
+   ],
+   "top_score": 0.26469,
+   "top_interaction": "unknown",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 13,
+   "fps": 14.937759336099585,
+   "frames": 450
+  },
+  {
+   "video": "10",
+   "top_pair": null,
+   "top_score": null,
+   "top_interaction": null,
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 0,
+   "fps": 8.033333333333333,
+   "frames": 241
+  },
+  {
+   "video": "11",
+   "top_pair": [
+    22,
+    94
+   ],
+   "top_score": 0.40098,
+   "top_interaction": "crossing",
+   "ground_truth": [
+    22,
+    94
+   ],
+   "gt_pair_rank": 1,
+   "correct": true,
+   "n_tracks_scored": 53,
+   "fps": 14.966666666666667,
+   "frames": 449
+  },
+  {
+   "video": "12",
+   "top_pair": [
+    1,
+    106
+   ],
+   "top_score": 0.21234,
+   "top_interaction": "crossing",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 23,
+   "fps": 14.846047156726769,
+   "frames": 446
+  },
+  {
+   "video": "13",
+   "top_pair": [
+    1287,
+    1303
+   ],
+   "top_score": 0.39151,
+   "top_interaction": "crossing",
+   "ground_truth": [
+    1287,
+    1303
+   ],
+   "gt_pair_rank": 1,
+   "correct": true,
+   "n_tracks_scored": 14,
+   "fps": 29.733629300776915,
+   "frames": 893
+  },
+  {
+   "video": "14",
+   "top_pair": [
+    1896,
+    1902
+   ],
+   "top_score": 0.17419,
+   "top_interaction": "crossing",
+   "ground_truth": [
+    1896,
+    1902
+   ],
+   "gt_pair_rank": 1,
+   "correct": true,
+   "n_tracks_scored": 10,
+   "fps": 29.866962305986696,
+   "frames": 898
+  },
+  {
+   "video": "15",
+   "top_pair": [
+    2,
+    6
+   ],
+   "top_score": 0.16382,
+   "top_interaction": "crossing",
+   "ground_truth": null,
+   "gt_pair_rank": null,
+   "correct": false,
+   "n_tracks_scored": 3,
+   "fps": 12.819277108433734,
+   "frames": 399
+  }
+ ]
+}

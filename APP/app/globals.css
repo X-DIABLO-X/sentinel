@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Leaflet's stylesheet, imported from the npm package so the console has no
+   external CDN dependency and works fully offline at the jury demo. */
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  @apply bg-panel-0 text-ink-1;
+  min-height: 100%;
+}
+
+body {
+  font-feature-settings: "tnum" 1;
+}
+
+/* Leaflet renders a white canvas by default, which is jarring in a dark
+   console. Dim the tiles instead of shipping a second tile provider. */
+.leaflet-container {
+  background: #0b0e13;
+}
+
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.86) contrast(0.92) saturate(0.6);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #171c25;
+  color: #c9d2dc;
+  border: 1px solid #232b38;
+}
+
+.leaflet-control-attribution {
+  background: rgba(11, 14, 19, 0.8) !important;
+  color: #5d6775 !important;
+}
+
+.leaflet-control-attribution a {
+  color: #8b95a5 !important;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-lg border border-line bg-panel-1;
+  }
+
+  .panel-head {
+    @apply flex items-center justify-between gap-3 border-b border-line px-4 py-3;
+  }
+
+  .panel-title {
+    @apply text-[13px] font-semibold uppercase tracking-wider text-ink-2;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-panel-2
+           px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wide text-ink-2;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line
+           bg-panel-2 px-3 py-1.5 text-[13px] font-medium text-ink-1
+           transition-colors hover:border-accent hover:text-ink-0
+           disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line;
+  }
+
+  .btn-primary {
+    @apply border-accent/60 bg-accent/15 text-accent hover:bg-accent/25;
+  }
+
+  .btn-danger {
+    @apply border-sev-critical/50 bg-sev-critical/10 text-sev-critical hover:bg-sev-critical/20;
+  }
+
+  .field {
+    @apply w-full rounded-md border border-line bg-panel-2 px-2.5 py-1.5 text-[13px]
+           text-ink-1 outline-none focus:border-accent;
+  }
+
+  .kv-table {
+    @apply w-full border-collapse text-[13px];
+  }
+
+  .kv-table th {
+    @apply w-[45%] border-b border-line/60 py-1.5 pr-3 text-left align-top
+           font-normal text-ink-2;
+  }
+
+  .kv-table td {
+    @apply border-b border-line/60 py-1.5 text-left align-top font-mono text-ink-0;
+  }
+
+  .note {
+    @apply rounded-md border border-line bg-panel-2/60 px-3 py-2 text-[12px] leading-relaxed text-ink-2;
+  }
+
+  .warn-note {
+    @apply rounded-md border border-sev-medium/40 bg-sev-medium/10 px-3 py-2
+           text-[12px] leading-relaxed text-sev-medium;
+  }
+
+  .stub-note {
+    @apply rounded-md border border-sev-critical/50 bg-sev-critical/10 px-3 py-2
+           text-[12px] leading-relaxed text-sev-critical;
+  }
+}

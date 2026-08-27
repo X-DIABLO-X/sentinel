@@ -1,0 +1,60 @@
+{
+ "video": "4",
+ "n_tracks_total": 36,
+ "n_tracks_scored": 2,
+ "fps": 24.078485616947155,
+ "frames": 94,
+ "top_pair": [
+  2239,
+  2254
+ ],
+ "top_score": 0.67961,
+ "top_interaction": "crossing",
+ "ground_truth": [
+  2239,
+  2254
+ ],
+ "gt_pair_rank": 1,
+ "correct": true,
+ "n_anchored": 1,
+ "pairs": [
+  {
+   "a": 2239,
+   "b": 2254,
+   "score": 0.67961,
+   "contact_t": 1.199,
+   "contact_frame": 28.88,
+   "gap": -0.424,
+   "contact": 1.0,
+   "rel_heading_deg": 122.2,
+   "interaction": "crossing",
+   "prior": 1.0,
+   "anchored": true,
+   "anchor_conf": 0.74,
+   "a_evidence": {
+    "rotation": 0.9341,
+    "yaw_deg": 122.387,
+    "aspect": 0.3708,
+    "decel": 0.4035,
+    "speed_drop": 0.2442,
+    "momentum_drop": 0.1785,
+    "track_break": 0.0,
+    "appearance": 0.74,
+    "kinematic": 0.374,
+    "score": 0.593
+   },
+   "b_evidence": {
+    "rotation": 0.8554,
+    "yaw_deg": 87.0288,
+    "aspect": 0.706,
+    "decel": 0.442,
+    "speed_drop": 0.3874,
+    "momentum_drop": 0.2864,
+    "track_break": 0.0,
+    "appearance": 0.74,
+    "kinematic": 0.412,
+    "score": 0.5408
+   }
+  }
+ ]
+}

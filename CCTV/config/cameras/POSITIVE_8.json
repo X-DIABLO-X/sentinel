@@ -1,0 +1,18 @@
+{
+  "camera_id": "POSITIVE_8",
+  "name": "POSITIVE_8",
+  "source": "ProblemSet\\DiffAcccidentSet\\POSITIVE\\8.mp4",
+  "zone": "POSITIVE",
+  "road_name": "(uncalibrated clip)",
+  "road_edge_id": null,
+  "latitude": null,
+  "longitude": null,
+  "frame_size": [
+    1280,
+    720
+  ],
+  "analysis_fps": 8.0,
+  "corridors": [],
+  "zones": [],
+  "notes": "Uncalibrated clip: no corridor geometry available, so wrong-way, queue, lane-crossing and blockage reasoning are disabled. Active detectors are pairwise trajectory conflict and global motion change-point, neither of which requires a road map."
+}

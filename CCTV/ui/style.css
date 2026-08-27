@@ -1,0 +1,430 @@
+/* NETRA operations surface -- a government traffic management console.
+ *
+ * The audience is a duty officer in a state traffic management centre, and the
+ * register is deliberately institutional rather than fashionable: a masthead
+ * that names the issuing office, a serif wordmark, restrained type, and a
+ * printable, records-like layout. Nothing glows. Colour is reserved for
+ * severity, because in a control room an unexplained colour is an unanswered
+ * question.
+ *
+ * The reference points are the documents these officers already work with --
+ * incident registers, signal schedules, survey sheets -- not consumer
+ * dashboards.
+ *
+ * Original notes follow.
+ */
+
+/* NETRA operations surface.
+ *
+ * Design brief: this is a traffic-control instrument, so it borrows from the
+ * things a traffic engineer already reads -- signal schedules, survey sheets,
+ * wayfinding signage. Hence a light, high-contrast ground with strong
+ * horizontal rules rather than a field of floating cards, condensed signage
+ * type for labels, and tabular monospace for every number so columns of
+ * figures line up and can be compared down the page.
+ *
+ * Colour is treated as signal, not decoration. The page is achromatic apart
+ * from severity, which uses the three-state vocabulary a control room already
+ * reads without thinking. Nothing else is allowed to be coloured, so anything
+ * coloured means something.
+ *
+ * Committed to a single light appearance rather than following the system
+ * theme: an operations surface should look the same on every screen in the
+ * room, and severity colours are calibrated against this ground.
+ */
+
+:root{
+  --paper:#FAF9F7;
+  --card:#FFFFFF;
+  --ink:#15171A;
+  --ink-2:#5C646D;
+  --ink-3:#8A929B;
+  --rule:#E2DFDA;
+  --rule-strong:#15171A;
+  --wash:#F1EEE9;
+
+  --low:#2F6F4F;
+  --med:#A86B12;
+  --high:#B3372C;
+  --high-wash:#FBEDEB;
+
+  --gov:#1B3A5C;              /* the one institutional colour, used for the masthead */
+  --gov-ink:#F4F6F8;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sign:"Source Sans 3",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+a:hover{border-bottom-color:var(--ink)}
+button{font-family:inherit;font-size:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh;overflow:hidden}
+
+/* Masthead: which office is issuing these findings. A civic system should say
+   who is accountable for what it reports, before it reports anything. */
+.govbar{
+  display:flex;align-items:center;gap:9px;
+  background:var(--gov);color:var(--gov-ink);
+  padding:7px 22px;font-family:var(--sign);font-size:12.5px;
+  letter-spacing:.02em;
+}
+.govbar .emblem{
+  width:15px;height:15px;border:1.5px solid currentColor;border-radius:50%;
+  position:relative;flex:none;opacity:.9;
+}
+.govbar .emblem::after{
+  content:"";position:absolute;inset:3px;border:1.5px solid currentColor;
+  border-radius:50%;
+}
+.govbar-org{font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.govbar-sep{opacity:.45}
+.govbar-unit{opacity:.85}
+.govbar-right{
+  margin-left:auto;font-family:var(--mono);font-size:11.5px;opacity:.85;
+  font-variant-numeric:tabular-nums;
+}
+
+header.top{
+  display:flex;align-items:center;gap:24px;
+  min-height:58px;padding:10px 20px;background:var(--card);
+  border-bottom:1px solid var(--rule);
+}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand h1{
+  margin:0;font-family:var(--serif);font-size:26px;font-weight:700;
+  letter-spacing:.02em;color:var(--gov);
+}
+.brand .sub{
+  color:var(--ink-2);font-size:13px;font-family:var(--sans);letter-spacing:.01em;
+}
+
+/* One sentence of state, not a wall of counters. The six-chip row it replaced
+   made the operator read numbers before reading incidents. */
+#kpis{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);
+      letter-spacing:.01em;display:flex;gap:0;flex-wrap:wrap}
+#kpis .seg{padding:0 12px;border-left:1px solid var(--rule)}
+#kpis .seg:first-child{padding-left:0;border-left:0}
+#kpis b{color:var(--ink);font-weight:600}
+#kpis .hot b{color:var(--high)}
+#kpis .accident b{color:var(--high)}
+
+.top nav{display:flex;gap:16px;margin-left:auto}
+.top nav a{
+  font-family:var(--sign);font-size:12.5px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid transparent;
+}
+.top nav a:hover{color:var(--ink);border-bottom-color:var(--ink)}
+.top nav .clock{font:11px var(--mono);color:var(--ink-3);white-space:nowrap}
+.upload-trigger{
+  border:0;background:var(--gov);color:var(--gov-ink);padding:7px 12px;
+  border-radius:2px;cursor:pointer;font:600 11px var(--sign);
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.upload-trigger:hover{background:#14293f}
+
+.system-status{
+  display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+  padding:7px 22px;background:var(--wash);border-bottom:1px solid var(--rule);
+  color:var(--ink-2);font-family:var(--mono);font-size:11.5px;
+}
+.system-status .ok{color:var(--low)}
+.system-status .warn{color:var(--med)}
+.system-status .bad{color:var(--high)}
+.system-status a{margin-left:auto;font-family:var(--sign);letter-spacing:.08em;text-transform:uppercase}
+
+.main{display:grid;grid-template-columns:minmax(360px,440px) 1fr;overflow:hidden}
+
+/* ---------- incident feed ---------- */
+.col{
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--card);border-right:1px solid var(--rule);
+}
+.col-head{
+  display:flex;align-items:baseline;gap:10px;
+  padding:14px 18px 9px;
+}
+.col-head h2{
+  margin:0;font-family:var(--sign);font-size:13px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;
+}
+.col-head .pill.status{
+  font-family:var(--mono);font-size:11px;color:var(--ink-2);
+  background:none;border:0;padding:0;
+}
+
+.filters{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.7fr);
+  gap:12px;padding:9px 18px 11px;
+  border-bottom:1px solid var(--rule);
+}
+.filters select{
+  appearance:none;background:none;border:0;border-bottom:1px solid var(--rule);
+  color:var(--ink);font-family:var(--sign);font-size:13px;
+  letter-spacing:.04em;padding:3px 18px 3px 0;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),
+                   linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:right 6px center,right 2px center;
+  background-size:4px 4px,4px 4px;background-repeat:no-repeat;
+}
+.filters select:hover{border-bottom-color:var(--ink)}
+
+.event-tabs{
+  display:flex;align-items:center;gap:5px;overflow-x:auto;overflow-y:hidden;
+  min-height:42px;padding:6px 18px 8px;
+  scrollbar-width:none;border-bottom:1px solid var(--rule);
+}
+.event-tabs::-webkit-scrollbar{display:none}
+.event-tab{
+  flex:none;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);
+  border-radius:999px;padding:5px 10px;font:600 11px/1.2 var(--sign);cursor:pointer;
+  letter-spacing:.02em;
+}
+.event-tab:hover{border-color:var(--ink-3);color:var(--ink)}
+.event-tab.on{background:var(--gov);border-color:var(--gov);color:var(--gov-ink)}
+.event-tab.accident:not(.on){color:var(--high);border-color:#E5C3BF}
+.event-tab b{font:500 10px var(--mono);margin-left:3px}
+
+.col-body{overflow-y:auto}
+
+/* Rows, not cards. A stack of bordered cards is what made this feel cluttered;
+   a ruled list reads as one continuous document and lets the eye run down it. */
+.inc{
+  padding:13px 20px 13px 17px;border-bottom:1px solid var(--rule);
+  border-left:3px solid transparent;cursor:pointer;
+}
+.inc:hover{background:var(--wash)}
+.inc.sel{background:#EDF1F5;border-left-color:var(--gov)}
+.inc.sev-High{border-left-color:var(--high)}
+.inc.sev-Medium{border-left-color:var(--med)}
+.inc.sev-Low{border-left-color:var(--low)}
+.inc.sev-High.sel{background:var(--high-wash)}
+
+.inc .r1{display:flex;align-items:baseline;gap:10px}
+.inc .ttl{
+  font-family:var(--sign);font-size:16px;font-weight:600;letter-spacing:.01em;
+}
+.inc .meta{
+  font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  margin-top:3px;letter-spacing:0;
+}
+.inc .why{font-size:13.5px;color:var(--ink-2);margin-top:5px}
+
+/* Severity as a word set in signage type, not a coloured lozenge. */
+.pill{
+  font-family:var(--sign);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:600;
+}
+.pill.High{color:var(--high)}
+.pill.Medium{color:var(--med)}
+.pill.Low{color:var(--low)}
+.pill.status{
+  color:var(--ink-3);background:var(--wash);border:1px solid var(--rule);
+  border-radius:2px;padding:1px 6px;font-size:10px;
+}
+.pill.verify{color:var(--high);background:var(--high-wash);border-color:#F0D6D2}
+
+/* ---------- detail ---------- */
+.detail{overflow-y:auto;padding:20px 26px 50px;background:var(--paper);scroll-behavior:smooth}
+.detail h2{
+  margin:0 0 2px;font-family:var(--sign);font-size:26px;font-weight:600;
+  letter-spacing:.01em;
+}
+.detail .sub{
+  font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-bottom:20px;
+}
+.detail h3{
+  margin:26px 0 10px;font-family:var(--sign);font-size:12px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);
+  padding-bottom:6px;border-bottom:1px solid var(--rule);
+}
+.detail .empty{
+  display:flex;height:100%;align-items:center;justify-content:center;
+  color:var(--ink-3);font-family:var(--sign);letter-spacing:.06em;
+}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 18px;font-size:14px}
+.kv dt{
+  font-family:var(--sign);font-size:12px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--ink-3);
+}
+.kv dd{margin:0;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--rule)}
+th{
+  font-family:var(--sign);font-size:11px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:600;
+}
+td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+.note{color:var(--ink-3);font-size:13px}
+.assurance{
+  border-left:3px solid var(--med);background:#FFF8EC;padding:10px 12px;
+  color:var(--ink-2);font-size:13px;margin-top:12px;
+}
+.assurance strong{color:var(--ink)}
+.shot{max-width:100%;border:1px solid var(--rule);display:block;margin-top:8px}
+.json{
+  font-family:var(--mono);font-size:11.5px;background:var(--card);
+  border:1px solid var(--rule);padding:12px;overflow-x:auto;
+  white-space:pre;color:var(--ink-2);max-height:320px;
+}
+
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+  background:var(--ink);color:var(--paper);padding:9px 18px;
+  font-family:var(--sign);font-size:13px;letter-spacing:.06em;
+  border-radius:2px;z-index:9;
+}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--paper)}
+::-webkit-scrollbar-thumb{background:#D8D4CE;border:3px solid var(--paper)}
+::-webkit-scrollbar-thumb:hover{background:#BEB9B1}
+
+@media (max-width:900px){
+  .main{grid-template-columns:1fr;grid-template-rows:minmax(0,44%) 1fr}
+  .col{border-right:0;border-bottom:1px solid var(--rule)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- camera and lane review ---------- */
+.calibration-page{min-height:100%;overflow:auto}
+.calibration-page .govbar a{color:var(--gov-ink);border-bottom-color:rgba(255,255,255,.35)}
+.cal-shell{padding:24px;max-width:1600px;margin:0 auto}
+.cal-head{display:flex;justify-content:space-between;align-items:end;gap:24px;border-bottom:2px solid var(--gov);padding-bottom:14px}
+.cal-head h1{margin:0;font:700 28px var(--serif);color:var(--gov)}
+.cal-head p{margin:4px 0 0;color:var(--ink-2)}
+.cal-head label{font:600 11px var(--sign);letter-spacing:.12em;text-transform:uppercase}
+.cal-head select{display:block;min-width:320px;margin-top:5px;padding:7px;border:1px solid var(--rule);background:var(--card);font:12px var(--mono)}
+.cal-shell>.system-status{margin-bottom:20px}
+.cal-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(340px,.8fr);gap:28px}
+.cal-grid h2{margin:0 0 14px;font:600 13px var(--sign);letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.camera-canvas{position:relative;background:#24282d;line-height:0;min-height:240px}
+.camera-canvas img{display:block;width:100%;height:auto;position:relative;z-index:1}
+.camera-canvas svg{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.camera-canvas .stream{fill:rgba(255,255,255,.08);stroke:#ffcc33;stroke-width:3;vector-effect:non-scaling-stroke}
+.camera-canvas .stream-1{stroke:#55d6be}.camera-canvas .stream-2{stroke:#ff8c69}.camera-canvas .stream-3{stroke:#78a9ff}
+.camera-canvas .flow-arrow{stroke:#fff;stroke-width:4;vector-effect:non-scaling-stroke;marker-end:url(#arrow)}
+.camera-canvas marker path{fill:#fff}
+.camera-canvas .stream-label{fill:#fff;stroke:#111;stroke-width:3;paint-order:stroke;font:600 18px var(--mono)}
+.corridor-table{margin-top:18px}
+@media (max-width:900px){
+  .cal-grid{grid-template-columns:1fr}
+  .cal-head{align-items:stretch;flex-direction:column}
+  .cal-head select{min-width:0;width:100%}
+}
+
+.job-tray{
+  position:fixed;right:18px;bottom:18px;width:min(390px,calc(100vw - 36px));
+  background:var(--card);border:1px solid var(--rule-strong);
+  box-shadow:0 12px 40px rgba(18,31,43,.18);padding:14px 16px;z-index:12;
+}
+.job-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.job-head b{font:600 13px var(--sign)}
+.job-head span{margin-left:10px;font:11px var(--mono);color:var(--ink-3)}
+.job-head button{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--ink-3)}
+.job-progress{height:5px;background:var(--wash);margin:11px 0 8px;overflow:hidden}
+.job-progress span{display:block;height:100%;width:0;background:var(--gov);transition:width .2s linear}
+.job-tray.failed .job-progress span{background:var(--high)}
+.job-tray.complete .job-progress span{background:var(--low)}
+.job-tray p{margin:0;color:var(--ink-2);font-size:12.5px}
+
+/* ---------- detail pane internals ----------
+ * Same rules: signage type for labels, monospace for every value, colour only
+ * where it carries meaning. Fields sit in a plain grid rather than in nested
+ * cards -- the previous version boxed each one, which is what made a page of
+ * eight facts look like a page of eight components. */
+
+.d-head{padding-bottom:16px;border-bottom:2px solid var(--rule-strong);margin-bottom:4px}
+.d-head h2{margin:0 0 3px}
+
+.chips{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;align-items:center}
+
+.section{padding-top:4px}
+
+.disclosure{border-top:1px solid var(--rule);margin-top:18px;padding-top:4px}
+.disclosure summary{
+  cursor:pointer;list-style:none;padding:10px 0;color:var(--ink-2);
+  font:600 12px var(--sign);letter-spacing:.11em;text-transform:uppercase;
+}
+.disclosure summary::-webkit-details-marker{display:none}
+.disclosure summary::after{content:"+";float:right;font:16px var(--mono);color:var(--ink-3)}
+.disclosure[open] summary::after{content:"−"}
+
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:14px 22px;margin-top:4px;
+}
+.f .k{
+  font-family:var(--sign);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);
+}
+.f .v{
+  font-family:var(--mono);font-size:14px;margin-top:2px;
+  font-variant-numeric:tabular-nums;
+}
+
+/* severity contributions: a small ruled chart, read as a column of figures */
+.bars{display:grid;gap:9px;margin-top:6px}
+.bar{
+  display:grid;grid-template-columns:132px 1fr 52px;align-items:center;gap:12px;
+  height:auto;background:none;margin:0;
+}
+.bar .lbl{
+  font-family:var(--sign);font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-2);
+}
+.bar .track{height:6px;background:var(--wash);border:1px solid var(--rule);display:block}
+.bar .fill{display:block;height:100%;background:var(--gov)}
+.bar .num{
+  font-family:var(--mono);font-size:12.5px;text-align:right;
+  font-variant-numeric:tabular-nums;color:var(--ink-2);
+}
+
+.media{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.media img{max-width:100%;border:1px solid var(--rule);display:block}
+
+/* workflow: a route, drawn as one, so the current step is obvious */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin-top:4px}
+.step{
+  font-family:var(--sign);font-size:11.5px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--ink-3);
+  padding:5px 13px;border:1px solid var(--rule);border-right:0;background:var(--card);
+}
+.step:last-child{border-right:1px solid var(--rule)}
+.step.done{color:var(--ink-2);background:var(--wash)}
+.step.now{color:var(--gov-ink);background:var(--gov);border-color:var(--gov)}
+
+.btn{
+  background:var(--card);border:1px solid var(--rule);color:var(--ink);
+  font-family:var(--sign);font-size:12px;letter-spacing:.10em;
+  text-transform:uppercase;padding:7px 14px;cursor:pointer;border-radius:2px;
+}
+.btn:hover{border-color:var(--ink);background:var(--wash)}
+.btn.primary{background:var(--gov);color:var(--gov-ink);border-color:var(--gov)}
+.btn.primary:hover{background:#14293F}
+.btn.danger{color:var(--high);border-color:#EAD2CE}
+.btn.danger:hover{background:var(--high-wash);border-color:var(--high)}
+.btn.on{background:var(--wash);border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;background:var(--wash)}
+
+@media (max-width:1120px){
+  .brand .sub{display:none}
+  header.top{gap:12px}
+}

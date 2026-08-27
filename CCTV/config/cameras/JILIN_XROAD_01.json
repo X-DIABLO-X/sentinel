@@ -1,0 +1,112 @@
+{
+  "camera_id": "JILIN_XROAD_01",
+  "name": "Rear-end collision camera",
+  "source": "data/raw/collision_rearend_jilin.webm",
+  "zone": "Tonghua",
+  "road_name": "Urban arterial",
+  "road_edge_id": "E_ARTERIAL",
+  "latitude": null,
+  "longitude": null,
+  "frame_size": [
+    1280,
+    720
+  ],
+  "analysis_fps": 8.0,
+  "corridors": [
+    {
+      "id": "c1",
+      "name": "stream 1 (5 tracks)",
+      "polygon": [
+        [
+          1017.0,
+          210.9
+        ],
+        [
+          934.8,
+          276.9
+        ],
+        [
+          843.7,
+          324.5
+        ],
+        [
+          753.5,
+          373.8
+        ],
+        [
+          572.5,
+          236.6
+        ],
+        [
+          590.0,
+          507.3
+        ],
+        [
+          472.4,
+          500.6
+        ],
+        [
+          290.8,
+          362.1
+        ],
+        [
+          335.7,
+          689.2
+        ],
+        [
+          241.9,
+          719.0
+        ],
+        [
+          195.2,
+          635.2
+        ],
+        [
+          251.6,
+          516.3
+        ],
+        [
+          261.1,
+          301.0
+        ],
+        [
+          338.1,
+          224.5
+        ],
+        [
+          499.8,
+          322.0
+        ],
+        [
+          542.7,
+          175.5
+        ],
+        [
+          650.4,
+          162.0
+        ],
+        [
+          758.6,
+          149.6
+        ],
+        [
+          878.2,
+          160.5
+        ],
+        [
+          967.9,
+          110.2
+        ]
+      ],
+      "direction": [
+        -0.8992,
+        0.4376
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    }
+  ],
+  "zones": [],
+  "notes": "DRAFT auto-calibration from observed traffic. Directions are the OBSERVED majority flow, not verified legal directions. Junction exclusion zones and solid/dashed lane boundaries still require human confirmation in the calibration screen."
+}

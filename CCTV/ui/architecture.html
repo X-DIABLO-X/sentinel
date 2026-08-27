@@ -1,0 +1,512 @@
+<title>NETRA Architecture</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* Single-theme by design: this document describes a 24/7 control-room system
+   and is styled as one. Every colour is painted explicitly so it holds on any
+   host background. */
+:root{
+  --bg:#0C1013;
+  --panel:#141A1E;
+  --panel2:#1A2227;
+  --sunk:#101819;
+  --line:#243037;
+  --line-soft:#1C252A;
+  --ink:#E6EDF0;
+  --ink2:#9FB0B8;
+  --ink3:#6B7F89;
+  --acc:#4FB6CF;
+  --acc-dim:#11313A;
+  --amber:#D99A2B;
+  --amber-dim:#2B2110;
+  --red:#DC5450;
+  --red-dim:#2B1413;
+  --green:#5AA86E;
+  --green-dim:#132318;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --sans:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --disp:"Barlow Semi Condensed","Barlow",Arial Narrow,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px 100px}
+a{color:var(--acc);text-decoration:none;border-bottom:1px solid rgba(79,182,207,.35)}
+a:hover{border-bottom-color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+
+h1,h2,h3,h4{font-family:var(--disp);margin:0;line-height:1.12;text-wrap:balance}
+h1{font-size:clamp(2.4rem,6vw,3.9rem);font-weight:700;letter-spacing:.01em}
+h2{font-size:clamp(1.7rem,3vw,2.3rem);font-weight:700}
+h3{font-size:1.25rem;font-weight:600;letter-spacing:.01em}
+h4{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--ink3)}
+
+header.top{padding:62px 0 0}
+.rule{height:2px;background:var(--ink);opacity:.85}
+.rule-dash{height:0;border-top:1.5px dashed var(--line);margin-top:5px}
+.lede{font-size:1.18rem;color:var(--ink2);max-width:62ch;margin-top:20px;line-height:1.55}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.tag{font-family:var(--mono);font-size:.72rem;padding:5px 11px;border:1px solid var(--line);
+  border-radius:2px;color:var(--ink2);background:var(--panel)}
+.tag.a{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
+.tag.w{border-color:var(--amber);color:var(--amber);background:var(--amber-dim)}
+
+section{margin-top:76px;scroll-margin-top:20px}
+.shead{margin-bottom:26px}
+.shead h2{margin-top:12px}
+.shead .sub{color:var(--ink3);margin-top:10px;max-width:64ch;font-size:.96rem}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px 24px}
+.sunk{background:var(--sunk);border:1px solid var(--line-soft);border-radius:3px;padding:16px 18px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+/* pipeline diagram */
+.pipe{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  padding:14px 18px;position:relative}
+.stage .n{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase}
+.stage h4{margin:5px 0 6px}
+.stage p{color:var(--ink2);font-size:.9rem}
+.stage .src{font-family:var(--mono);font-size:.7rem;color:var(--acc);margin-top:8px}
+.stage.ml{border-left:3px solid var(--red)}
+.stage.det{border-left:3px solid var(--acc)}
+.stage.geo{border-left:3px solid var(--amber)}
+.stage.out{border-left:3px solid var(--green)}
+.arrow{height:22px;display:flex;align-items:center;justify-content:center;color:var(--ink3);
+  font-family:var(--mono);font-size:.85rem}
+.branch{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:520px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+th{text-align:left;padding:10px 14px;background:var(--panel2);color:var(--ink3);
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;
+  font-weight:500;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td strong{font-weight:600}
+
+.chip{display:inline-block;font-family:var(--mono);font-size:.66rem;font-weight:600;
+  padding:3px 8px;border-radius:2px;letter-spacing:.07em;text-transform:uppercase}
+.chip.ok{background:var(--green-dim);color:var(--green);border:1px solid var(--green)}
+.chip.warn{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber)}
+.chip.bad{background:var(--red-dim);color:var(--red);border:1px solid var(--red)}
+.chip.info{background:var(--acc-dim);color:var(--acc);border:1px solid var(--acc)}
+
+ul.clean{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+ul.clean li{position:relative;padding-left:20px;color:var(--ink2)}
+ul.clean li::before{content:"";position:absolute;left:0;top:.65em;width:8px;height:2px;
+  background:var(--acc)}
+ul.clean li strong{color:var(--ink);font-weight:600}
+ul.warn li::before{background:var(--amber)}
+ul.stop li::before{background:var(--red)}
+ul.ok li::before{background:var(--green)}
+
+pre{font-family:var(--mono);font-size:.79rem;line-height:1.62;background:var(--sunk);
+  border:1px solid var(--line-soft);border-radius:3px;padding:15px 17px;overflow-x:auto;
+  margin:0;color:var(--ink2)}
+pre b{color:var(--ink);font-weight:600}
+code{font-family:var(--mono);font-size:.86em;background:var(--sunk);
+  border:1px solid var(--line-soft);border-radius:2px;padding:1px 5px;color:var(--ink)}
+
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:12px 15px}
+.kpi b{display:block;font-family:var(--mono);font-size:1.5rem;font-variant-numeric:tabular-nums;
+  line-height:1.15}
+.kpi span{font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.09em}
+.kpi.good b{color:var(--green)} .kpi.bad b{color:var(--red)} .kpi.mid b{color:var(--amber)}
+
+.callout{border:1px solid var(--amber);background:var(--amber-dim);border-radius:4px;
+  padding:17px 19px}
+.callout .eyebrow{color:var(--amber)}
+.callout p{color:var(--ink2);margin-top:8px}
+.callout.stop{border-color:var(--red);background:var(--red-dim)}
+.callout.stop .eyebrow{color:var(--red)}
+.callout.ok{border-color:var(--green);background:var(--green-dim)}
+.callout.ok .eyebrow{color:var(--green)}
+
+footer{margin-top:84px;padding-top:24px;border-top:2px solid var(--ink);
+  color:var(--ink3);font-size:.86rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="rule"></div><div class="rule-dash"></div>
+  <p class="eyebrow" style="margin-top:22px">System architecture &middot; ELCIA Smart City Drone-AI Challenge 2026 &middot; Track 1</p>
+  <h1>NETRA</h1>
+  <p class="lede">Road incident intelligence for fixed traffic cameras. One neural network does perception; geometry, temporal statistics and deterministic state machines do everything else &mdash; which is what makes every alert explainable, cheap enough for commodity CPUs, and honest about what it cannot know.</p>
+  <div class="tags">
+    <span class="tag a">the model recognises objects &middot; the system recognises incidents</span>
+    <span class="tag">Network for Event Tracking, Response &amp; Analysis</span>
+    <span class="tag">24 August 2026</span>
+    <span class="tag w">measured on 31 real clips, not asserted</span>
+  </div>
+</header>
+
+<!-- ================= THESIS ================= -->
+<section id="thesis">
+  <div class="shead">
+    <div class="rule"></div><div class="rule-dash"></div>
+    <p class="eyebrow" style="margin-top:18px">One</p>
+    <h2>The design thesis</h2>
+    <p class="sub">Every architectural decision below follows from one claim, and the claim is falsifiable.</p>
+  </div>
+
+  <div class="card">
+    <p style="font-size:1.06rem"><strong>A traffic incident is not a thing you can see in a frame. It is a relationship between objects, road geometry and time.</strong></p>
+    <p style="margin-top:14px;color:var(--ink2)">A photograph of a car cannot tell you the car is driving illegally &mdash; you need to know which way that lane is supposed to flow, which is a fact about the world, not about the pixels. A photograph of stopped traffic cannot tell you whether it is a red light or a blockage &mdash; you need to know how long it has been stopped and whether flow recovered. So the deep model is asked only to answer the question it is actually good at: <em>what road users are present, and where</em>. Everything after that is arithmetic a human can audit.</p>
+    <div class="grid3" style="margin-top:20px">
+      <div class="sunk"><span class="eyebrow" style="color:var(--red)">Neural</span>
+        <p style="margin-top:8px;font-size:.9rem">Detection only. One continuously-running model, plus one rare second pass on the background image.</p></div>
+      <div class="sunk"><span class="eyebrow" style="color:var(--amber)">Deterministic</span>
+        <p style="margin-top:8px;font-size:.9rem">Tracking, corridor geometry, direction vectors, occupancy, dwell, CUSUM accumulation, state machines.</p></div>
+      <div class="sunk"><span class="eyebrow" style="color:var(--green)">Human</span>
+        <p style="margin-top:8px;font-size:.9rem">Calibration once per camera. Verification of anything that could dispatch an ambulance.</p></div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:18px">
+    <p class="eyebrow">Why this is not just a preference</p>
+    <p>The alternative &mdash; put a large video or vision-language model at the centre &mdash; was measured by the 2026 ACCIDENT benchmark. The best published system there scores <strong>0.571</strong> on the unified metric against a human inter-annotator ceiling of ~<strong>0.96</strong>, and needs roughly <strong>13 GPU-hours</strong> on an RTX PRO 6000 for 2,027 clips. A frozen 7B VLM scores <strong>0.115</strong> on collision type &mdash; below the majority-class floor of 0.335. The frontier is real but it is bought with compute we do not have and does not reach reliability we could act on.</p>
+  </div>
+</section>
+
+<!-- ================= PIPELINE ================= -->
+<section id="pipeline">
+  <div class="shead">
+    <div class="rule"></div><div class="rule-dash"></div>
+    <p class="eyebrow" style="margin-top:18px">Two</p>
+    <h2>The pipeline</h2>
+    <p class="sub">Video in, incidents out. Colour marks what kind of computation each stage is: red = neural, blue = detection support, amber = geometry and temporal logic, green = output.</p>
+  </div>
+
+  <div class="pipe">
+    <div class="stage det">
+      <span class="n">Stage 0 &middot; ingest</span>
+      <h4>Decode &amp; quality gate</h4>
+      <p>FFmpeg/OpenCV decode. Corrupt and blank frames dropped by frame-mean test. Global camera shift measured by phase correlation &mdash; if the camera has moved, the hand-drawn corridors describe the wrong road, so geometric events are <em>suspended</em> rather than emitted wrongly.</p>
+      <p class="src">Doshi &amp; Yilmaz, CVPRW 2021 &mdash; corrupted-frame filtering</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage ml">
+      <span class="n">Stage 1 &middot; perception &mdash; the only always-on network</span>
+      <h4>Detector</h4>
+      <p>YOLO26m at 1920px on GPU; YOLO26n via OpenVINO INT8 is the CPU deployment target. For Bengaluru cameras the IISc <strong>UVH-26</strong> checkpoint replaces it &mdash; fine-tuned on ~2,800 Safe City CCTV cameras with 14 India-specific classes.</p>
+      <p class="src">Ultralytics YOLO26 (arXiv:2606.03748) &middot; UVH-26 (arXiv:2511.02563)</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage det">
+      <span class="n">Stage 2 &middot; identity</span>
+      <h4>ByteTrack &mdash; implemented in-repo</h4>
+      <p>Two-stage association: high-score detections first, then a second pass that recovers <em>low-score</em> boxes for tracks that failed to match. A partially occluded vehicle emits a weak box, and discarding it is what breaks a trajectory &mdash; which corrupts every event downstream. No ReID network: on a fixed camera the motion cue suffices and appearance embedding would roughly double per-frame cost.</p>
+      <p class="src">Zhang et al., ECCV 2022 (arXiv:2110.06864)</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage geo">
+      <span class="n">Stage 3 &middot; scene model &mdash; configured once, used forever</span>
+      <h4>Corridors, directions, zones, road mask</h4>
+      <p>Directional travel polygons each carrying the unit vector traffic may legally move along; junction exclusion zones where direction logic is suspended; no-stop zones; optional homography. Auto-bootstrapped from observed traffic, then confirmed by a human. A <strong>road mask</strong> is learned online from the ground points of vehicles that were <em>moving</em> &mdash; a car park never generates fast trajectories, so nothing parked there can raise an incident.</p>
+      <p class="src">Zhao et al., CVPRW 2021 &mdash; trajectory-based road mask to filter side roads and car parks</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage geo">
+      <span class="n">Stage 4 &middot; cheap always-on signals</span>
+      <h4>Background, change-point, CUSUM</h4>
+      <div class="branch" style="margin-top:12px">
+        <div class="sunk"><strong style="font-size:.88rem">Dual-window background</strong>
+          <p style="font-size:.84rem;margin-top:6px;color:var(--ink2)">Median of a random sample of recent frames at two timescales. A signal queue dissolves in a 5-minute median; a stalled vehicle does not.</p></div>
+        <div class="sunk"><strong style="font-size:.88rem">Motion change-point</strong>
+          <p style="font-size:.84rem;margin-top:6px;color:var(--ink2)">Mean dense-flow magnitude and summed box area, z-scored and smoothed. Fires without needing both vehicles tracked through impact.</p></div>
+        <div class="sunk"><strong style="font-size:.88rem">CUSUM</strong>
+          <p style="font-size:.84rem;margin-top:6px;color:var(--ink2)">s&#8348; = max(0, s&#8348;&#8331;&#8321; + e&#8348; &minus; &beta;), alarm at h. One dial trading precision against delay, instead of ad-hoc frame counters.</p></div>
+      </div>
+      <p class="src">Aboah et al. (background) &middot; ACCIDENT OF+OSD baselines (change-point) &middot; Doshi &amp; Yilmaz (CUSUM)</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage ml">
+      <span class="n">Stage 5 &middot; the winners' method &mdash; rare second inference</span>
+      <h4>Background-image detection of stopped vehicles</h4>
+      <p>Every winning AI City anomaly entry detects crashed and stalled vehicles <em>on the background image</em>, not on live frames. A crashed vehicle stops, so it melts into the background while moving traffic melts out &mdash; leaving it crisp, isolated and unoccluded. Corroborated by three post-crash signatures a camera can genuinely see: <strong>occupants getting out</strong>, a <strong>second vehicle stopping alongside at the same moment</strong>, and <strong>debris</strong> as new small static blobs.</p>
+      <p class="src">Li et al. CVPRW 2020 (1st, S4 0.9695) &middot; Zhao et al. CVPRW 2021 (1st, S4 0.9355) &middot; Chen et al. &middot; Doshi &amp; Yilmaz</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage geo">
+      <span class="n">Stage 5b &middot; where we depart from the winners</span>
+      <h4>Momentum exchange &mdash; measuring the impact, not its aftermath</h4>
+      <p>The AI City pipeline above rests on one assumption: <em>a stopped vehicle is anomalous</em>. That holds on the American highway cameras it was built for. It does not hold in Bengaluru, where stopping is the most common thing a vehicle does &mdash; and it is why every state-based cue we built fired on queues, parked cars and secondary stoppers.</p>
+      <p>Worse, geometry cannot rescue it. A rear-end collision and a queue are the <strong>same shape</strong>: vehicles nose to tail with touching ground footprints. Shape cannot separate them.</p>
+      <p>Physics can. Each track carries a constant-velocity Kalman filter on its <em>ground contact point</em>, and velocity change is measured across a 0.30&nbsp;s window, at a 0.40&nbsp;s lag &mdash; whether two vehicles exchanged momentum is only answerable once the far side of the exchange has been observed. In a queue both vehicles decelerate, so their momentum changes point the same way and <strong>add</strong>. In a collision momentum transfers, so the changes oppose and <strong>cancel</strong>.</p>
+      <div class="tw" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Scenario</th><th>Momentum exchange</th></tr></thead>
+          <tbody>
+            <tr><td>Rear-end into a slower car</td><td class="n">1.00</td></tr>
+            <tr><td>T-bone at a junction</td><td class="n">1.00</td></tr>
+            <tr><td>Car into truck, 6:1 mass</td><td class="n">1.00</td></tr>
+            <tr><td>Two-wheeler into bus, 80:1 mass</td><td class="n">1.00</td></tr>
+            <tr><td>Both braking for a signal</td><td class="n">0.00</td></tr>
+            <tr><td>One brakes, the other holds</td><td class="n">0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:12px">Dimensionless, so it needs no calibration; mass enters only as a ratio, so rough per-class values suffice; and scale comes from the detection box itself, since a car is about 1.8&nbsp;m wide. On sixteen confirmed crash-free clips the measured median is <strong>0.049</strong>. Both gates sit at the 99.9th percentile of that clean footage &mdash; set before any accident clip was examined.</p>
+      <p>When this channel fires, attribution is free and stronger than any classifier: <em>a bystander cannot take part in a momentum exchange</em>. Onset is measured rather than inferred, because the residual spike is the impact.</p>
+      <p class="src">Newton's third law &middot; gates calibrated on 642,536 residuals and 140,937 adjacent pairs from crash-free footage</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage geo">
+      <span class="n">Stage 6 &middot; event engines &mdash; deterministic state machines</span>
+      <h4>Four engines, fourteen anomaly types, zero extra models</h4>
+      <div class="branch" style="margin-top:12px">
+        <div class="sunk"><strong style="font-size:.88rem">Wrong-side &amp; lane crossing</strong>
+          <p style="font-size:.84rem;margin-top:6px;color:var(--ink2)">cos(d<sub>track</sub>, d<sub>corridor</sub>) &lt; &minus;&tau;, sustained. Solid-boundary transitions are violations; dashed are lane changes.</p></div>
+        <div class="sunk"><strong style="font-size:.88rem">Queue</strong>
+          <p style="font-size:.84rem;margin-top:6px;color:var(--ink2)">count &and; median speed &and; stopped ratio &and; rasterised occupancy, all persisted. Growth rate tracked, not just existence.</p></div>
+        <div class="sunk"><strong style="font-size:.88rem">Blockage</strong>
+          <p style="font-size:.84rem;margin-top:6px;color:var(--ink2)">Stationary in corridor <em>plus</em> measurable flow impairment <em>plus</em> presence in the long background.</p></div>
+        <div class="sunk"><strong style="font-size:.88rem">Collision candidate</strong>
+          <p style="font-size:.84rem;margin-top:6px;color:var(--ink2)">Proximity &and; approach angle &and; mutual deceleration, or a stationary object with crash cues. Never a bare motion spike.</p></div>
+      </div>
+      <p class="src">Ghahremannezhad et al., IEEE IST 2022 &mdash; trajectory-conflict formulation</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage geo">
+      <span class="n">Stage 7 &middot; triggered, once per incident</span>
+      <h4>Onset recovery</h4>
+      <p>Backward sparse Lucas&ndash;Kanade from the resting vehicle, kNN outlier rejection, departure from a 2&middot;(MAE + 2.5&sigma;) band, confirmed by a PSNR/SSIM/Euclidean vote. The moment you detect is not the moment that matters: a crashed vehicle keeps moving for seconds after impact.</p>
+      <p class="src">Chen et al., CVPRW 2021 &mdash; best timing error on the AI City leaderboard, 3.40 s</p>
+    </div>
+    <div class="arrow">&darr;</div>
+
+    <div class="stage out">
+      <span class="n">Stage 8 &middot; decision &amp; output</span>
+      <h4>Severity &rarr; evidence &rarr; location &rarr; workflow</h4>
+      <p>Traffic-impact severity from observable variables only, with confidence reported <em>separately</em>. Evidence packet: annotated frame, pre/post clip spanning the recovered onset, trajectory overlay, trigger values. Camera-associated location (never per-vehicle GPS). Incident-aware routing on a bundled road graph. Detected &rarr; Verified &rarr; Assigned &rarr; Responding &rarr; Resolved &rarr; Closed.</p>
+      <p class="src">FHWA incident-management factors: duration, closures, traffic impact</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SEVERITY ================= -->
+<section id="severity">
+  <div class="shead">
+    <div class="rule"></div><div class="rule-dash"></div>
+    <p class="eyebrow" style="margin-top:18px">Three</p>
+    <h2>Severity, and what it deliberately is not</h2>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-bottom:12px">The model</h3>
+      <pre>F  flow loss    (v_base &minus; v_event)/v_base
+O  obstruction  affected corridors / configured
+E  extent       affected vehicles / reference
+D  duration     event duration / reference
+R  risk         event-specific exposure
+
+<b>I = 0.40F + 0.35O + 0.25E</b>
+<b>S = 0.60I + 0.25D + 0.15R</b>
+
+S &lt; 0.35 Low   &lt; 0.65 Medium   &ge; 0.65 High</pre>
+      <p style="margin-top:14px;font-size:.9rem;color:var(--ink2)">Weights are <strong>our engineering model</strong>, calibrated on public footage. Not an ELCIA or FHWA standard. What <em>is</em> grounded is the choice of variables &mdash; duration, lane closure and traffic impact are the factors FHWA incident-management guidance actually uses.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:12px">Two numbers, never merged</h3>
+      <ul class="clean" style="margin-bottom:16px">
+        <li><strong>Confidence</strong> &mdash; how sure the algorithm is that the event is real.</li>
+        <li><strong>Severity</strong> &mdash; how disruptive it would be <em>if</em> real.</li>
+      </ul>
+      <p style="color:var(--ink2);font-size:.92rem">A blocked carriageway we are only 60% sure about is still a high-severity event. Folding uncertainty into severity would rank it below a certain-but-trivial one, and send an operator to the wrong place. They are shown side by side and multiplied only to order the queue.</p>
+      <div class="callout stop" style="margin-top:16px">
+        <p class="eyebrow">Not injury severity</p>
+        <p style="font-size:.9rem">Nothing in RGB video supports a claim about whether anyone was hurt, who was at fault, or what medical response is needed. NETRA never estimates it and says so on the dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results">
+  <div class="shead">
+    <div class="rule"></div><div class="rule-dash"></div>
+    <p class="eyebrow" style="margin-top:18px">Four</p>
+    <h2>Measured, on labelled data</h2>
+    <p class="sub">31 clips supplied as a labelled set: every clip in <code>Accidents/</code> contains a collision, no clip in <code>Traffic/</code> does. That makes a real confusion matrix possible &mdash; worth more than any headline accuracy figure.</p>
+  </div>
+
+  <div class="grid3" style="margin-bottom:18px">
+    <div class="kpi mid"><b>11 / 15</b><span>collision clips detected</span></div>
+    <div class="kpi bad"><b>155.8 / h</b><span>false collision alarms, crash-free footage</span></div>
+    <div class="kpi mid"><b>295 ms</b><span>detector p95, RTX 4050 @1920</span></div>
+    <div class="kpi"><b>14</b><span>anomaly types, one detector</span></div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Trigger channel</th><th>Collision clips</th><th>False alarms</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>Background-stationary + crash cues</td><td class="n">11</td><td class="n">21 (155.8/h)</td><td><span class="chip bad">fires alone, and should not</span></td></tr>
+        <tr><td>Momentum exchange</td><td class="n">0</td><td class="n">0</td><td><span class="chip bad">does not separate on this data</span></td></tr>
+        <tr><td>Pairwise trajectory conflict</td><td class="n">0</td><td class="n">0</td><td><span class="chip">corroborator only</span></td></tr>
+        <tr><td>Motion change-point alone</td><td class="n">0</td><td class="n">0</td><td><span class="chip">demoted to corroborator</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout" style="margin-top:18px">
+    <p class="eyebrow">The honest headline</p>
+    <p><strong>No threshold fixes the false-alarm rate.</strong> The trigger score is <em>higher</em> on crash-free clips than on collision clips &mdash; median 0.529 against 0.488, maximum 0.992 against 0.548. Raising the gate to 0.55 removes every one of the fifteen collision clips while still leaving ten false alarms. The cue is not mis-tuned; on this footage it carries no information.</p>
+    <p style="margin-top:10px">The momentum test does not rescue it. Its physics is exact in isolation &mdash; every momentum-conserving impact returns 1.00, every co-braking pair 0.00 &mdash; but as an estimator over tracked boxes it fails by <strong>multiple comparisons</strong>: crash-free clips carry 60&ndash;70 simultaneous tracks against 2&ndash;27 in the collision clips, so about 100,000 pairs are evaluated per clip and the maximum of a noisy estimator reaches 0.99 by chance. Best pair score was 0.577&ndash;0.673 on collision clips and 0.695&ndash;0.736 on crash-free ones. A test valid for one pair is not valid for the maximum over 100,000.</p>
+    <p style="margin-top:10px">Six of the fifteen collision clips also run at 8&ndash;15&nbsp;fps, below the rate at which an impact spans more than a single frame.</p>
+  </div>
+
+  <div class="callout ok" style="margin-top:18px">
+    <p class="eyebrow">What this means for the product</p>
+    <p>Collisions are surfaced as <code>collision_candidate</code> requiring operator verification, never as confirmed accidents, and the verify/reject workflow exists because this channel cannot be trusted unattended. Attribution is separate from detection: a vehicle is boxed only when the evidence points at it &mdash; <strong>8 of 15</strong> here &mdash; and otherwise the overlay reads <code>VEHICLES NOT IDENTIFIED &mdash; no box drawn</code>.</p>
+    <p style="margin-top:10px">The incident types built on <em>sustained</em> conditions rather than one instantaneous event &mdash; queue, wrong-side movement, blockage, pedestrian on carriageway &mdash; do not share this weakness, because they persist for seconds and can be confirmed over time. They are what Track&nbsp;1 names first, and they are where this system is strongest.</p>
+    <p style="margin-top:10px">For context, the ACCIDENT benchmark (2026) reports best automatic temporal localisation of <strong>0.343</strong> against <strong>0.979</strong> for humans, and a best unified score of 0.412 against a content-agnostic baseline of 0.245. The task is unsolved in the literature. That is context for these numbers, not an excuse for them.</p>
+  </div>
+</section>
+
+<!-- ================= ENGINEERING LOG ================= -->
+<section id="log">
+  <div class="shead">
+    <div class="rule"></div><div class="rule-dash"></div>
+    <p class="eyebrow" style="margin-top:18px">Five</p>
+    <h2>What went wrong, and what fixed it</h2>
+    <p class="sub">Kept deliberately, because the failures are more instructive than the architecture and each fix traces to a specific measurement.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Failure</th><th>Measured symptom</th><th>Root cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Alert storm</strong></td>
+          <td class="n">3,780 alerts / video-hour</td>
+          <td>Events re-fired every frame; no incident lifecycle</td>
+          <td>Dedupe keys + cooldown + open-incident updating in the engine base class</td>
+        </tr>
+        <tr>
+          <td><strong>Phantom wrong-way</strong></td>
+          <td class="n">49 events in 60 s</td>
+          <td>Overlapping corridors &mdash; a vehicle in one stream sat inside the opposing polygon</td>
+          <td>Corridors forced disjoint via distance transform; ties resolved by depth inside polygon</td>
+        </tr>
+        <tr>
+          <td><strong>Instant triggers</strong></td>
+          <td class="n">0.1 s "persistence"</td>
+          <td>CUSUM alone can trip in two frames</td>
+          <td>Explicit wall-clock persistence floor alongside the accumulator</td>
+        </tr>
+        <tr>
+          <td><strong>Boxed an innocent car</strong></td>
+          <td class="n">conf 0.08 / 0.05</td>
+          <td>Detector never saw the colliding vehicles; attribution fell through to whatever <em>was</em> tracked</td>
+          <td>YOLO26m @1920 (0.448 on the same region) + background-image detection + attribution gate</td>
+        </tr>
+        <tr>
+          <td><strong>22 false crashes</strong></td>
+          <td class="n">car park in frame</td>
+          <td>Parked cars corroborated each other as "companion stopped vehicles"</td>
+          <td>Road mask learned from moving trajectories; companions must stop at the <em>same time</em>, capped at 2</td>
+        </tr>
+        <tr>
+          <td><strong>Fired on clean traffic</strong></td>
+          <td class="n">13/16 clean clips flagged</td>
+          <td>Global motion change-point allowed to fire alone &mdash; trips on pans and close passes</td>
+          <td>Demoted to corroborator: needs a specific object finding, or two channels agreeing</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout" style="margin-top:18px">
+    <p class="eyebrow">The remaining failure mode, stated plainly</p>
+    <p>Five crash clips are still missed. They separate cleanly on one variable: <strong>tracks created</strong> &mdash; median 17 on missed clips versus 106 on detected ones, with two producing only 5&ndash;6 tracks across the entire video. Neither channel can fire without tracked vehicles. This is a <em>detection recall</em> problem, not a reasoning one, and the honest remedy is fine-tuning the detector on crash imagery &mdash; a training job, not a threshold change.</p>
+  </div>
+</section>
+
+<!-- ================= LIMITS ================= -->
+<section id="limits">
+  <div class="shead">
+    <div class="rule"></div><div class="rule-dash"></div>
+    <p class="eyebrow" style="margin-top:18px">Six</p>
+    <h2>What this system may not claim</h2>
+    <p class="sub">The brief asks for a statement of limitations. Each line below has a citation behind it, which turns the weakest section of a submission into its most credible one.</p>
+  </div>
+  <div class="grid2">
+    <div class="card"><ul class="clean stop">
+      <li><strong>Not "we detect accidents."</strong> Best published ACCIDENT result is 0.571 against 0.923&ndash;0.995 human agreement. We raise <em>suspected collision-related disruption</em> and route it to a human.</li>
+      <li><strong>Not collision type.</strong> A frozen 7B VLM scores 0.115 &mdash; below the 0.335 majority-class floor.</li>
+      <li><strong>Not km/h or metres without calibration.</strong> Every metric speed in this literature passes through a homography first.</li>
+      <li><strong>Not per-vehicle GPS.</strong> Camera position is not object position; that needs full pose, intrinsics and a ground model.</li>
+    </ul></div>
+    <div class="card"><ul class="clean stop">
+      <li><strong>Not injury, fault or casualty severity.</strong> Not observable in RGB.</li>
+      <li><strong>Not "real-time" as an unqualified claim.</strong> At 1920px and native frame rate we run below real time on this laptop; the CPU deployment path trades resolution for throughput and is measured, not assumed.</li>
+      <li><strong>Not validated on the deployment domain.</strong> No ELCIA footage exists, so every threshold is fitted on public corpora. The calibration screen is the mitigation, not a fix.</li>
+      <li><strong>Not congestion causality.</strong> We can observe a queue forming after a disruption; we cannot show from video alone that the crash caused it rather than a signal.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ================= RUN ================= -->
+<section id="run">
+  <div class="shead">
+    <div class="rule"></div><div class="rule-dash"></div>
+    <p class="eyebrow" style="margin-top:18px">Seven</p>
+    <h2>Running it</h2>
+  </div>
+  <pre><b># one camera, end to end</b>
+python run.py calibrate --video clip.mp4 --camera-id CAM_01 --zone "Electronics City"
+python run.py process   --camera CAM_01                 <span style="color:var(--ink3)"># add --cpu --openvino for the deployment path</span>
+python run.py serve                                     <span style="color:var(--ink3)"># dashboard on :8000</span>
+
+<b># the labelled problem set</b>
+python scripts/run_problems.py --device cuda:0          <span style="color:var(--ink3)"># native frame rate, no cap</span>
+python scripts/evaluate.py                              <span style="color:var(--ink3)"># confusion matrix vs folder labels</span>
+python scripts/make_results_index.py                    <span style="color:var(--ink3)"># results/index.html</span>
+
+<b># measured operating-point sweep</b>
+python scripts/sweep_detector.py --video clip.mp4       <span style="color:var(--ink3)"># resolution beats model size</span></pre>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="sunk">
+      <span class="eyebrow">Repository layout</span>
+      <pre style="margin-top:10px;background:transparent;border:0;padding:0">netra/     detect track scene signals stationary
+           roadmask onset events/ severity evidence
+           location db pipeline render api
+scripts/   autocalibrate run_problems evaluate
+           sweep_detector make_results_index
+ui/        dashboard + calibration screen
+config/    config.yaml + cameras/*.json
+results/   annotated videos, per-clip JSON, index.html</pre>
+    </div>
+    <div class="sunk">
+      <span class="eyebrow">Every threshold lives in one file</span>
+      <p style="margin-top:10px;font-size:.9rem;color:var(--ink2)"><code>config/config.yaml</code> is hashed into every model-run row, so any number in any report traces back to the exact settings, checkpoint and commit that produced it. Behaviour scattered across hard-coded constants cannot be reproduced or audited, and reproducibility is a judged criterion.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rule"></div>
+  <p style="margin-top:18px">NETRA &mdash; built for the ELCIA Smart City Drone-AI Challenge 2026, Track 1: Smart Mobility &amp; Road Incident Intelligence. Figures on this page are measured on the supplied labelled clip set at native frame rate; figures attributed to a paper are that paper's own reported numbers on its own data.</p>
+</footer>
+
+</div>

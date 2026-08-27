@@ -1,0 +1,190 @@
+{
+  "camera_id": "TRAFFIC_13105330_3840_2160_30fps",
+  "name": "TRAFFIC_13105330_3840_2160_30fps",
+  "source": "results\\ElciaDataSet\\13105330_3840_2160_30fps.mp4",
+  "zone": "Traffic",
+  "road_name": "",
+  "road_edge_id": null,
+  "latitude": null,
+  "longitude": null,
+  "frame_size": [
+    1280,
+    720
+  ],
+  "analysis_fps": 8.0,
+  "corridors": [
+    {
+      "id": "c1",
+      "name": "stream 1 (12 tracks)",
+      "polygon": [
+        [
+          634.0,
+          253.0
+        ],
+        [
+          588.0,
+          221.0
+        ],
+        [
+          297.0,
+          541.0
+        ],
+        [
+          263.0,
+          670.0
+        ],
+        [
+          370.0,
+          719.0
+        ],
+        [
+          427.0,
+          719.0
+        ],
+        [
+          516.0,
+          553.0
+        ],
+        [
+          587.0,
+          587.0
+        ],
+        [
+          638.0,
+          564.0
+        ],
+        [
+          614.0,
+          479.0
+        ],
+        [
+          576.0,
+          443.0
+        ],
+        [
+          647.0,
+          330.0
+        ]
+      ],
+      "direction": [
+        -0.6109,
+        0.7917
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    },
+    {
+      "id": "c2",
+      "name": "stream 2 (8 tracks)",
+      "polygon": [
+        [
+          675.0,
+          230.0
+        ],
+        [
+          639.0,
+          260.0
+        ],
+        [
+          649.0,
+          328.0
+        ],
+        [
+          615.0,
+          473.0
+        ],
+        [
+          639.0,
+          564.0
+        ],
+        [
+          589.0,
+          589.0
+        ],
+        [
+          584.0,
+          635.0
+        ],
+        [
+          600.0,
+          690.0
+        ],
+        [
+          724.0,
+          715.0
+        ],
+        [
+          737.0,
+          661.0
+        ],
+        [
+          724.0,
+          623.0
+        ],
+        [
+          757.0,
+          615.0
+        ],
+        [
+          751.0,
+          349.0
+        ],
+        [
+          729.0,
+          294.0
+        ],
+        [
+          742.0,
+          243.0
+        ]
+      ],
+      "direction": [
+        -0.2029,
+        0.9792
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    },
+    {
+      "id": "c3",
+      "name": "stream 3 (3 tracks)",
+      "polygon": [
+        [
+          811.0,
+          249.0
+        ],
+        [
+          734.0,
+          285.0
+        ],
+        [
+          801.0,
+          413.0
+        ],
+        [
+          871.0,
+          637.0
+        ],
+        [
+          962.0,
+          592.0
+        ],
+        [
+          907.0,
+          419.0
+        ]
+      ],
+      "direction": [
+        0.3918,
+        0.92
+      ],
+      "lanes": 1,
+      "solid_boundary_with": [],
+      "baseline_speed_px": null
+    }
+  ],
+  "zones": [],
+  "notes": "DRAFT auto-calibration from observed traffic. Directions are the OBSERVED majority flow, not verified legal directions. Junction exclusion zones and solid/dashed lane boundaries still require human confirmation in the calibration screen."
+}

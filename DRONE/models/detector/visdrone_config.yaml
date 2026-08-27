@@ -1,0 +1,91 @@
+# VisDrone detector configuration for the DRONE subsystem
+# ============================================================================
+# STATUS: NOT YET FINE-TUNED.  `weights: null` below is deliberate and true.
+# No drone footage and no trained checkpoint exists at the time of writing.
+# Nothing in this file may be read as a claim of measured performance.
+# ============================================================================
+#
+# Why VisDrone and not the eye-level datasets used on the CCTV side:
+# a nadir/oblique aerial view removes the side profile entirely. From 80-120 m
+# a car is a roof rectangle with no windscreen, no wheels, no bumper. The
+# features an eye-level detector keys on simply are not in the image. Full
+# reasoning in README.md next to this file.
+
+# --- dataset identity ------------------------------------------------------
+dataset: VisDrone2019-DET
+task: detect
+nc: 10
+
+# VisDrone official class order (ids 0..9). "ignored regions" (id 0 in the raw
+# annotation files) and "others" (id 11) are dropped during conversion, which
+# is why this list starts at pedestrian.
+names:
+  0: pedestrian        # a person on foot, walking or standing
+  1: people            # a person in any other pose (sitting, lying, riding pillion)
+  2: bicycle
+  3: car
+  4: van
+  5: truck
+  6: tricycle
+  7: awning-tricycle   # very common in Indian urban traffic; a real reason to prefer VisDrone
+  8: bus
+  9: motor             # motorcycle / scooter
+
+# Classes that count as vehicles for queue / blockage / congestion reasoning.
+vehicle_class_ids: [2, 3, 4, 5, 6, 7, 8, 9]
+# Classes that count as vulnerable road users (reported, never used for speed).
+vru_class_ids: [0, 1]
+
+# --- inference settings ----------------------------------------------------
+# imgsz 1280, not 640. This is the single most important knob for aerial work.
+# At 100 m AGL with a typical 24 mm-equivalent sensor a car is roughly 25-50 px
+# on the long side in a 4K frame. Downscaling to 640 pushes that under the
+# stride-32 detection head's effective floor and small vehicles disappear
+# entirely. The cost is real (1280 is ~4x the pixels of 640) but the drone is
+# hovering over a single confirmed incident, not streaming 82 cameras, so the
+# throughput budget is there.
+imgsz: 1280
+conf: 0.25
+iou: 0.45
+max_det: 300
+
+# --- weights ---------------------------------------------------------------
+# TODO(footage): set this to the fine-tuned checkpoint once VisDrone training
+# has actually been run and validated on real drone footage from the target
+# site. Until then it stays null and scripts/detect_drone.py falls back to a
+# generic COCO-pretrained model while printing a PLACEHOLDER banner.
+#
+# TODO(footage): after the site footage arrives, do a second fine-tune stage on
+# a hand-labelled slice of it. VisDrone is Chinese urban traffic; Indian traffic
+# has a different vehicle mix (autorickshaws, high two-wheeler density, heavy
+# lane-sharing) and the awning-tricycle / tricycle / motor classes will need
+# the most correction.
+weights: null
+
+# --- planned fine-tune recipe (NOT YET EXECUTED) ---------------------------
+# Recorded here so the plan is auditable, not because it has been run.
+finetune_plan:
+  executed: false
+  base_model: yolo11m.pt        # medium: small-object recall matters more than latency here
+  epochs: 100
+  batch: 8                      # 1280 imgsz is memory-hungry
+  optimizer: auto
+  patience: 25
+  # Aerial-appropriate augmentation. Rotation matters far more than for a fixed
+  # CCTV camera because the drone's yaw is arbitrary relative to the road.
+  augment:
+    degrees: 180.0              # full rotation: no canonical "up" in a nadir view
+    scale: 0.5                  # altitude varies 60-120 m
+    fliplr: 0.5
+    flipud: 0.5                 # valid overhead, meaningless at eye level
+    mosaic: 1.0
+    close_mosaic: 10
+    hsv_v: 0.4                  # illumination varies with sun angle and haze
+  val_split: VisDrone2019-DET-val
+  # Metrics to report once trained. LEAVE BLANK UNTIL MEASURED.
+  measured_metrics:
+    map50: null
+    map50_95: null
+    map50_small: null           # the number that actually matters for aerial
+    measured_on: null
+    measured_date: null

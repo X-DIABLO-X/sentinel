@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NETRA — Camera &amp; Lane Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/ui/style.css">
+</head>
+<body class="calibration-page">
+  <div class="govbar">
+    <span class="emblem" aria-hidden="true"></span>
+    <span class="govbar-org">Traffic Management Centre</span>
+    <span class="govbar-sep">·</span>
+    <span class="govbar-unit">Camera geometry review</span>
+    <a class="govbar-right" href="/ui/">Return to incident console</a>
+  </div>
+  <main class="cal-shell">
+    <header class="cal-head">
+      <div>
+        <h1>Camera &amp; lane geometry</h1>
+        <p>Observed motion streams support tracking. Legal direction remains draft until a human reviews the road geometry.</p>
+      </div>
+      <label>Camera
+        <select id="camera-select"><option>Loading…</option></select>
+      </label>
+    </header>
+    <div id="camera-state" class="system-status"><span>Loading camera configuration…</span></div>
+    <section class="cal-grid">
+      <div>
+        <div class="camera-canvas" id="camera-canvas"></div>
+        <p class="note">Polygon outlines are learned traffic streams, not pixel-perfect painted lanes. Arrows show observed majority flow.</p>
+      </div>
+      <aside>
+        <h2>Geometry register</h2>
+        <div id="camera-meta"></div>
+        <table class="corridor-table">
+          <thead><tr><th>Stream</th><th>Observed direction</th><th>Support</th><th>Status</th></tr></thead>
+          <tbody id="corridors"></tbody>
+        </table>
+        <div class="assurance">
+          <strong>Wrong-way assurance.</strong> NETRA can flag movement opposite to a stream only after its direction is reviewed as the legal direction. Draft auto-calibration alone is not legal evidence.
+        </div>
+      </aside>
+    </section>
+  </main>
+  <script src="/ui/calibrate.js"></script>
+</body>
+</html>
