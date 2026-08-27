@@ -135,33 +135,38 @@ staged: the code is complete, its recall is genuinely unmeasured because no
 positive example exists to measure it against, and that is a different claim
 from "done."
 
-### The operator console — real screenshots, backend actually running
+### Operator console
 
-Every screenshot in this section was captured against **live, running backends** (`run.py serve`
-on :8000, `DRONE/scripts/api.py` on :8011) — not a static mockup. The green `CCTV UP` / `DRONE UP`
-indicators in the top-right of every screenshot are a real, polled health check.
+These current-console captures show the operational UI as it is today. The `CCTV UP` and `DRONE DOWN`
+badges are real, independently polled health checks: the CCTV API was reachable during the capture and the
+drone API was intentionally not running. The map's Electronic City routing layer is a labelled local
+demonstration model, not a live navigation or dispatch feed.
 
 <table>
 <tr>
 <td width="33%">
 
-**Map — diversion + access routing**
-<img src="docs/assets/app_map.jpg" alt="Live Leaflet map, road-graph routing, honest unavailable state for the access route" width="100%">
-The UI honestly states *"NOT AVAILABLE — no access-route endpoint exists in the backend"* — degradation is visible, not hidden.
+**Map — Electronic City Phase 1 response routing**
+<img src="docs/assets/app_map.jpg" alt="Electronic City Phase 1 map with synthetic CCTV sites, a congested approach, and a rerouted reference-hospital path" width="100%">
+Shows the presentation model end to end: synthetic CCTV signal, a congested approach excluded from the
+local road graph, and the resulting 1,350 m / ~3.7 min reference route to Best E City Hospital. It is
+explicitly labelled illustrative; hospital availability and emergency dispatch are never inferred.
 
 </td>
 <td width="33%">
 
 **Incidents feed**
-<img src="docs/assets/app_incidents.jpg" alt="Incident feed, filters by type/status/camera, empty because this server instance has processed no footage yet" width="100%">
-Genuinely empty — this server instance hasn't had footage run through it yet. See §2's video renders for actual detections instead of a faked feed.
+<img src="docs/assets/app_incidents.jpg" alt="Current incident feed with event-type tabs, status and camera filters, and review-state cards" width="100%">
+The current feed exposes event-type tabs, status and camera filters, severity, detector confidence,
+duration, camera/source context, and the operator-verification state for each incident.
 
 </td>
 <td width="33%">
 
-**Drone page — honest not-ready state**
-<img src="docs/assets/app_drone.jpg" alt="Drone console stating NOT IMPLEMENTED with the exact appearance-mismatch reasoning" width="100%">
-States **NOT IMPLEMENTED** and explains *why* (top-down vs eye-level appearance mismatch) inline, in the product itself — not just in this README.
+**Drone console**
+<img src="docs/assets/app_drone.jpg" alt="Drone console with VisDrone detector context, hover-based escalation rationale, and independently polled unavailable backend status" width="100%">
+Separates the available detector/tracker and hover-escalation context from service health: the capture
+truthfully shows that the drone backend is down instead of presenting stale or invented live results.
 
 </td>
 </tr>
@@ -170,10 +175,9 @@ States **NOT IMPLEMENTED** and explains *why* (top-down vs eye-level appearance 
 <details>
 <summary><b>Overview and CCTV console pages</b></summary>
 
-<img src="docs/assets/app_overview.jpg" alt="Overview KPI dashboard" width="49%"> <img src="docs/assets/app_cctv.jpg" alt="CCTV camera picker and pipeline console" width="49%">
+<img src="docs/assets/app_overview.jpg" alt="Overview dashboard with incident KPIs, review workload, event-type counts, and current health badges" width="49%"> <img src="docs/assets/app_cctv.jpg" alt="CCTV console with 66-camera picker, calibration state, and per-camera event feed" width="49%">
 
 </details>
-
 ---
 
 ## 3. Architecture at a glance
