@@ -1,6 +1,6 @@
-<title>CivicFlow / NETRA — ELCIA Smart City Drone-AI Challenge</title>
+<title>Sentinel — ELCIA Smart City Drone-AI Challenge</title>
 
-# CivicFlow — Road Incident Intelligence
+# Sentinel — Road Incident Intelligence
 
 **ELCIA Smart City Drone-AI Challenge 2026 — Problem Statement 1: Smart Mobility & Road Incident Intelligence.**
 Detect queues, blockage, wrong-side movement, and accident-related congestion from traffic video; classify
@@ -10,6 +10,23 @@ workflows.
 This README explains *why* the system is built the way it is — every architectural decision below was
 reached by building something else first, measuring it honestly, and rejecting it for a stated reason.
 That trail is the actual engineering story, and it is deliberately kept visible rather than cleaned away.
+Every screenshot and clip below is a real, unedited output of this repo's own code — none are mockups.
+
+## Contents
+
+1. [What this repo is](#1-what-this-repo-is)
+2. [Live demo](#2-live-demo) — screenshots, GIF, operator console
+3. [Architecture at a glance](#3-architecture-at-a-glance)
+4. [Why CCTV-first, not drone-first](#4-why-cctv-first-not-drone-first)
+5. [Sensor selection — what we rejected, and why](#5-sensor-selection--what-we-rejected-and-why)
+6. [CCTV architecture — two systems merged](#6-cctv-architecture--two-systems-merged-and-why-this-direction)
+7. [Drone — built ahead of footage](#7-drone--built-ahead-of-footage-honestly-labelled-as-such)
+8. [What we rejected in the wider evaluation](#8-what-we-tried-and-rejected-in-the-wider-evaluation)
+9. [Validation ideas tried, kept honest](#9-validation-ideas-tried-kept-honest)
+10. [CPU-first — where we are against that goal](#10-cpu-first--where-we-are-against-that-goal)
+11. [Future scope](#11-future-scope)
+12. [Run it yourself](#12-run-it-yourself)
+13. [Repo map](#13-repo-map-in-one-table)
 
 ---
 
@@ -23,14 +40,131 @@ FINAL/
 └── DEMO/    5-minute video script, jury walkthrough, honest results summary, curated clips
 ```
 
-`CCTV` is a merge of two independently-built systems (§4). `DRONE` has no footage yet and is
+`CCTV` is a merge of two independently-built systems (§6). `DRONE` has no footage yet and is
 built to run mechanically today with a placeholder detector, ready to receive real weights and
-clips without changing its shape (§5). `APP` is a from-scratch React rebuild of two working
-vanilla-JS dashboards, talking to `CCTV` and `DRONE` as two separate backend processes (§6).
+clips without changing its shape (§7). `APP` is a from-scratch React rebuild of two working
+vanilla-JS dashboards, talking to `CCTV` and `DRONE` as two separate backend processes.
 
 ---
 
-## 2. Why CCTV-first, not drone-first
+## 2. Live demo
+
+### Physics evidence, not a bounding-box demo
+
+Every collision claim below carries its full evidence trail on screen — per-vehicle speed,
+trajectory, rotation/aspect shock, contact geometry, interaction type — because a red box with no
+numbers behind it is not a claim a jury (or an operator) should trust.
+
+<table>
+<tr>
+<td width="50%">
+
+**Our 4/4 ground-truth-confirmed result** (`IDEAS/COMBINED`, videos 4/11/13/14 — the original
+physics engine before this repo's merge, `DEMO/clips/cctv_positive/`)
+
+<img src="docs/assets/physics_13.jpg" alt="Physics HUD: crossing collision, contact marker, gap and relative heading" width="100%">
+
+`TOP #1287↔#1303 · 0.392 · crossing · rel=53.0° · gap=−0.48 · << CONTACT`
+
+</td>
+<td width="50%">
+
+**Same physics engine, running live inside the merged pipeline** for the first time, on a clip
+neither system had seen before (`CCTV/demo/`, full write-up in `CCTV/demo/README.md`)
+
+<img src="docs/assets/netra_first_look_13.jpg" alt="Live in-process detection: red box, per-vehicle evidence scores, speed in px/s and km/h estimate" width="100%">
+
+Per-vehicle evidence score, speed in **px/s and a labelled km/h estimate**, trajectory trail, all
+computed in-process against NETRA's own live tracker output — no offline files, no pre-computed
+JSON.
+
+</td>
+</tr>
+</table>
+
+**The engine live, frame by frame** (2.5 s clip from the render above — this is the actual output
+video, not a staged capture):
+
+<img src="docs/assets/physics_demo_live.gif" alt="Live physics HUD tracking a collision, speed and rotation evidence updating per frame" width="600">
+
+Full-resolution renders for all 5 first-look clips (including one **confirmed false positive**,
+documented rather than hidden) are in [`CCTV/demo/`](CCTV/demo/README.md); our 4 original
+ground-truth clips are in [`DEMO/clips/cctv_positive/`](DEMO/clips/cctv_positive/).
+
+### The operator console — real screenshots, backend actually running
+
+Every screenshot in this section was captured against **live, running backends** (`run.py serve`
+on :8000, `DRONE/scripts/api.py` on :8011) — not a static mockup. The green `CCTV UP` / `DRONE UP`
+indicators in the top-right of every screenshot are a real, polled health check.
+
+<table>
+<tr>
+<td width="33%">
+
+**Map — diversion + access routing**
+<img src="docs/assets/app_map.jpg" alt="Live Leaflet map, road-graph routing, honest unavailable state for the access route" width="100%">
+The UI honestly states *"NOT AVAILABLE — no access-route endpoint exists in the backend"* — degradation is visible, not hidden.
+
+</td>
+<td width="33%">
+
+**Incidents feed**
+<img src="docs/assets/app_incidents.jpg" alt="Incident feed, filters by type/status/camera, empty because this server instance has processed no footage yet" width="100%">
+Genuinely empty — this server instance hasn't had footage run through it yet. See §2's video renders for actual detections instead of a faked feed.
+
+</td>
+<td width="33%">
+
+**Drone page — honest not-ready state**
+<img src="docs/assets/app_drone.jpg" alt="Drone console stating NOT IMPLEMENTED with the exact appearance-mismatch reasoning" width="100%">
+States **NOT IMPLEMENTED** and explains *why* (top-down vs eye-level appearance mismatch) inline, in the product itself — not just in this README.
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>Overview and CCTV console pages</b></summary>
+
+<img src="docs/assets/app_overview.jpg" alt="Overview KPI dashboard" width="49%"> <img src="docs/assets/app_cctv.jpg" alt="CCTV camera picker and pipeline console" width="49%">
+
+</details>
+
+---
+
+## 3. Architecture at a glance
+
+```mermaid
+flowchart LR
+    subgraph CCTV["CCTV — persistent backbone"]
+        direction TB
+        C_DET["Detector\nYOLO26 + optional UVH-26"] --> C_TRK["ByteTrack + Kalman\n(hand-implemented)"]
+        C_TRK --> C_EVT["4 event engines\nqueue · blockage · wrong-way · collision"]
+        C_EVT --> C_ROT["rotation_gate.py\nphysics collision evidence"]
+        C_EVT --> C_SEV["severity.py\nbounded factor model"]
+        C_SEV --> C_RESP["response.py\nOSMnx diversion + access route"]
+        C_RESP --> C_API["FastAPI + SQLite\napi.py / db.py"]
+    end
+
+    subgraph DRONE["DRONE — hover escalation, no footage yet"]
+        direction TB
+        D_GMC["gmc.py\nbackground homography / GMC"] --> D_DET["Placeholder detector\n(VisDrone target, not fine-tuned)"]
+        D_DET --> D_HOVER["hover_mode.py\nPATROL raises NotImplementedError"]
+        D_HOVER --> D_API["FastAPI :8011"]
+    end
+
+    C_API -->|"dispatch on\nCONFIRMED incident"| D_API
+    C_API --> APP["APP — Next.js console\nincidents · map · calibrate · upload"]
+    D_API --> APP
+```
+
+The dispatch arrow (CCTV → DRONE) is the architectural claim, not a wired integration yet —
+`CCTV/netra/response.py` and `netra/events/rotation_gate.py` are built and tested standalone but
+not yet called from `api.py`/`collision.py`. Stated exactly this way in §6 and §13, not glossed over.
+
+---
+
+## 4. Why CCTV-first, not drone-first
 
 The competition is named the *Drone-AI Challenge*. We built a fixed-camera system anyway, and the
 reasoning is load-bearing enough to state plainly before anything else:
@@ -57,11 +191,11 @@ consistent with how the standard research benchmark for this task actually opera
 `Drone-Anomaly` dataset is explicitly documented as "mainly captured by hovering UAVs," not
 patrol footage). This is encoded as an enum in the code, not left as a design note —
 `DRONE/scripts/hover_mode.py` implements `HOVER` and makes `PATROL` raise `NotImplementedError`
-with this exact reasoning in its docstring.
+with this exact reasoning in its docstring — visible live in the drone screenshot in §2.
 
 ---
 
-## 3. Sensor selection — what we rejected, and why
+## 5. Sensor selection — what we rejected, and why
 
 Before writing any detection code we worked out, from first-principles physics, what a drone at
 **100 m altitude with a 24 mm-equivalent lens (73.7° HFOV)** can actually resolve. At that
@@ -77,7 +211,7 @@ every sensor below is measured against.
 | **SWIR** | Same 19-px pixel deficit as thermal (same small, expensive detector arrays). Its fog advantage is a long-slant-path effect that mostly evaporates over a 100 m straight-down path; against real fog (droplet size 1–20 µm) it scatters almost as badly as visible light (Mie, not Rayleigh, regime). | **19 px/car**; ₹8–20L indicative cost, unverified exact figure |
 | **NIR illumination** | Inverse-square law: lighting a doorway at 1 m with 10 W needs **100 kW** at 100 m — a 100 Wh drone battery can't do it. Removing the IR-cut filter also desaturates daytime colour, destroying exactly the cue that tells a yellow auto-rickshaw from a white hatchback. | **10,000×** more power needed at range |
 | **Event cameras (DVS)** | Efficient only when the *background* is static — the entire point of the sensor. On a moving drone the whole frame "moves," so every textured pixel fires and the sparsity advantage inverts into a flood. Also: no brightness output at all, so no vehicle classification, no evidence image (a submission requirement). Its real strength — microsecond timing — answers a question traffic never asks (our slowest requirement is a 30–120 s queue, needing ~0.02 Hz; DVS offers ~1 MHz, five to six orders of magnitude more than needed). | Saturates a 1.6 Gbps interface under platform motion |
-| **Hyperspectral** | Most airborne hyperspectral sensors are pushbroom — they need forward flight to build an image line by line. A hovering drone (our own operating mode, §2) produces **zero image**. Splitting light into 200 bands also starves each one of photons; the only fix is a longer exposure, which turns a moving car into a 476-pixel motion streak. No physical mechanism connects a traffic incident to a spectral signature — the incident is *where things are and how fast*, not *what they're made of*. | Photon loss **66.7×** vs RGB → forced exposure smears a 60 km/h car into a **476 px** streak |
+| **Hyperspectral** | Most airborne hyperspectral sensors are pushbroom — they need forward flight to build an image line by line. A hovering drone (our own operating mode, §4) produces **zero image**. Splitting light into 200 bands also starves each one of photons; the only fix is a longer exposure, which turns a moving car into a 476-pixel motion streak. No physical mechanism connects a traffic incident to a spectral signature — the incident is *where things are and how fast*, not *what they're made of*. | Photon loss **66.7×** vs RGB → forced exposure smears a 60 km/h car into a **476 px** streak |
 
 **What survives: RGB optical, for both platforms.** Thermal keeps one narrow, explicitly-scoped
 role — `DRONE/scripts/thermal_presence.py` is a stub for total-darkness *vehicle-presence*
@@ -86,7 +220,7 @@ India's street-lighting coverage is inconsistent outside city cores.
 
 ---
 
-## 4. CCTV architecture — two systems merged, and why this direction
+## 6. CCTV architecture — two systems merged, and why this direction
 
 Two collision-detection systems were built independently before this repo existed, and both were
 measured honestly before either was chosen.
@@ -95,7 +229,7 @@ measured honestly before either was chosen.
 
 Built in `IDEAS/COMBINED` (not in this repo — the winning algorithm was ported in, see below).
 Started from a documented failure: 1 correct pair out of 4 ground-truth-labelled videos. Three
-measured fixes took it to **4/4 top-1 correct**:
+measured fixes took it to **4/4 top-1 correct** (see §2 for the actual rendered output):
 
 1. **Rotation as a multiplicative gate, not an additive term.** The physical insight: *braking
    decelerates you along your own axis; being struck rotates you.* A vehicle with no rotation
@@ -144,27 +278,33 @@ codebase would have meant redoing work that already existed and was already meas
 
 `netra/events/rotation_gate.py` is the ported, adapted algorithm — rewritten to consume NETRA's
 live `Track` objects in-process (`score_pairs(tracks, cfg) -> list[PairResult]`), eliminating
-System A's offline-file dependency entirely rather than just relocating it. `netra/response.py`
-carries over System A's OSMnx-based diversion routing (provably avoids the incident by removing
-its own graph node before computing shortest path) plus a clearly-labelled *simulated* responder
-access route, since NETRA had no working routing for its own clips at all.
+System A's offline-file dependency entirely rather than just relocating it — this is the exact
+code producing the §2 first-look screenshots. `netra/response.py` carries over System A's
+OSMnx-based diversion routing (provably avoids the incident by removing its own graph node before
+computing shortest path) plus a clearly-labelled *simulated* responder access route, since NETRA
+had no working routing for its own clips at all — visible live in the §2 map screenshot.
 
-**The false-alarm problem is not yet declared solved** — the plan is to require rotation-gate
-agreement with at least one of NETRA's two independent geometric channels before a collision is
-`CONFIRMED` rather than `POSSIBLE`, mirroring System A's own spatio-temporal agreement-bonus idea.
-This must be re-measured on the combined clip set before any number is quoted as this submission's
-number — pre-merge numbers from either source system are reported above as history, not as claims
-about the shipped system. See `DEMO/results_summary.md` for the line separating "measured" from
-"must be re-measured."
+**The false-alarm problem is not yet declared solved, and the first live test proved it out
+immediately.** Running the merged pipeline on 5 fresh NETRA clips for the first time (§2, full
+detail in `CCTV/demo/README.md`) surfaced a **confirmed false positive**: a Traffic-category
+(crash-free) clip scored **0.738 — the highest score of the set** — traced to 227 tracker IDs over
+221 frames of queued traffic and a spurious 1915 px/s reading on a visually-stationary vehicle.
+Rotation-gate alone has no defence against tracker identity-switch noise; this is exactly why the
+plan is to require rotation-gate agreement with at least one of NETRA's two independent geometric
+channels before a collision is `CONFIRMED` rather than `POSSIBLE`, mirroring System A's own
+spatio-temporal agreement-bonus idea. This must be re-measured on the combined clip set before any
+number is quoted as this submission's number — pre-merge numbers from either source system are
+reported above as history, not as claims about the shipped system. See
+`DEMO/results_summary.md` for the line separating "measured" from "must be re-measured."
 
 ---
 
-## 5. Drone — built ahead of footage, honestly labelled as such
+## 7. Drone — built ahead of footage, honestly labelled as such
 
 No drone footage exists yet. `DRONE/` is built so the pipeline runs mechanically today and drops
 in real weights/clips later without changing shape — every stubbed piece is loudly flagged in both
 code and its own JSON output (`detector_finetuned: false`, `telemetry_available: false`), never
-silently assumed to work.
+silently assumed to work, and visible live in the §2 drone-console screenshot.
 
 **The core unsolved problem drone footage introduces: recovering vehicle speed from a moving
 camera.** Two convergent, literature-grounded approaches:
@@ -176,7 +316,8 @@ camera.** Two convergent, literature-grounded approaches:
    and the road-plane homography. This is the standard answer for footage with no flight
    telemetry (verified against `arXiv:2605.11900`, *Mobile Traffic Camera Calibration from Road
    Geometry for UAV-Based Traffic Surveillance*, and a working reference implementation at
-   `github.com/Thamkench/uav-speedlab`).
+   `github.com/Thamkench/uav-speedlab`). Self-verified against a synthetic pan with known ground
+   truth: recovers the transform to within 0.1 px.
 2. **GPS/IMU/gimbal direct georeferencing** (stubbed in `telemetry_ingest.py`, not yet wired to
    real data) — every DJI/PX4 flight controller already broadcasts exact camera pose per frame as
    a byproduct of flying. Real systems fuse GPS (~10 Hz, too coarse alone) with IMU (accurate
@@ -195,7 +336,7 @@ records this decision and its current status (not yet fine-tuned).
 
 ---
 
-## 6. What we tried and rejected in the wider evaluation
+## 8. What we tried and rejected in the wider evaluation
 
 Two published hackathon competitor repos were cloned and actually run (not just read) into
 `EVAL/`, and one teammate research artifact (`NETRA`, above) was fully audited:
@@ -218,7 +359,7 @@ Two published hackathon competitor repos were cloned and actually run (not just 
 
 ---
 
-## 7. Validation ideas tried, kept honest
+## 9. Validation ideas tried, kept honest
 
 **SmolVLM2-256M-Video-Instruct as a collision-detection VLM** was tested end-to-end on all 15
 ground-truth clips. First pass: 14/15 responses collapsed to a bare token (`"YES"`/`"No"`/`"0"`)
@@ -232,59 +373,105 @@ a fraction of a second. This is recorded as a real, honest negative result, not 
 **Kept as a future-work idea, not shipped:** a VLM used this way is not a viable primary detector,
 but as a *secondary validator* — asked to describe a short window already flagged by the physics
 engine, rather than to find the collision cold across a whole clip — the sparse-sampling problem
-mostly disappears, since the window to search is already narrow. This is on the roadmap (§9), not
+mostly disappears, since the window to search is already narrow. This is on the roadmap (§11), not
 in the current pipeline.
 
 ---
 
-## 8. CPU-first — where we are against that goal
+## 10. CPU-first — where we are against that goal
 
 The stated long-term principle for this project is **CPU-only inference** — real deployment
 targets fixed CCTV infrastructure without a GPU budget per camera. Right now:
 
-- **This repo's rendered demo videos were generated on GPU** (RTX 4050 laptop) — explicitly for
-  speed while building, not as a claim about deployment hardware. This is stated here and in
-  `DEMO/results_summary.md` so it is never mistaken for a production benchmark.
+- **This repo's rendered demo videos and screenshots were generated on GPU** (RTX 4050 laptop) —
+  explicitly for speed while building, not as a claim about deployment hardware. This is stated
+  here and in `DEMO/results_summary.md` so it is never mistaken for a production benchmark.
 - The detection/tracking stack (`netra/detect.py`, `netra/track.py`) runs on Ultralytics YOLO,
   which supports CPU inference and ONNX export natively — the earlier `TEST/` system measured a
   **3.3× CPU speedup from ONNX Runtime over PyTorch CPU** on this exact class of detector
   (292 ms/frame → 88 ms/frame at 640px), and that path is the intended route to a CPU-viable
   demo, not yet wired into this merged pipeline.
 - `rotation_gate.py`, `response.py`, and all the event-engine logic are pure NumPy/Python — no
-  GPU dependency of any kind, already CPU-only.
+  GPU dependency of any kind, already CPU-only. `render_physics_demo.py` (§2's engine) runs
+  unchanged on `--device cpu`, just slower — no GPU-only code path anywhere in it.
 - **Not yet done:** benchmarking the merged pipeline's real CPU throughput, and switching the
   default `device` in `config/config.yaml` from `cuda` to an auto-detecting CPU/ONNX path. This is
   explicit unfinished work, not a silent gap.
 
 ---
 
-## 9. Future scope
+## 11. Future scope
 
 - **Reinforcement learning for prediction and threshold calibration.** The rotation-gate's
   constants (rotation floor, saturation references, interaction priors) are currently hand-tuned
   against 4 labelled videos — an RL or bandit-style approach that adjusts these against a growing
   labelled set, rather than a one-time manual fit, is a natural next step once more ground truth
   exists.
-- **SmolVLM (or a larger VLM) as a secondary validator**, per §7 — asked to confirm or refute a
+- **SmolVLM (or a larger VLM) as a secondary validator**, per §9 — asked to confirm or refute a
   physics-flagged window rather than search cold, which should sidestep the sparse-sampling
   failure mode actually measured this session.
 - **Real drone footage and flight telemetry** — VisDrone fine-tuning, GPS/IMU/gimbal fusion for
   direct georeferencing instead of vision-only GMC, and re-validating the literature accuracy
-  bands in §5 against our own footage once it exists.
-- **CPU deployment benchmarking and the ONNX path**, per §8.
+  bands in §7 against our own footage once it exists.
+- **CPU deployment benchmarking and the ONNX path**, per §10.
 - **Re-measuring the merged collision engine** on the combined clip set and closing the loop on
-  the false-alarm mitigation described in §4.
+  the false-alarm mitigation described in §6, including the confirmed false positive found live.
 
 ---
 
-## 10. Repo map, in one table
+## 12. Run it yourself
+
+These are the exact commands used to generate every screenshot in §2 — nothing here is staged.
+
+```bash
+# 1. CCTV backend (FastAPI + SQLite, port 8000)
+cd CCTV
+pip install -r requirements.txt
+cp .env.local.example .env.local   # if present; otherwise defaults are fine
+python run.py serve
+
+# 2. DRONE backend (FastAPI, port 8011) — separate process, separate terminal
+cd DRONE
+pip install -r requirements.txt
+python scripts/api.py
+
+# 3. Operator console (Next.js, port 3000) — separate terminal
+cd APP
+npm install
+cp .env.local.example .env.local
+npm run dev
+```
+
+Then open `http://localhost:3000`. `GET http://localhost:8000/api/health` and
+`GET http://localhost:8011/api/health` are the same two calls the console's `CCTV UP` / `DRONE UP`
+indicators poll.
+
+To reproduce a physics-render clip like the ones in §2:
+
+```bash
+cd CCTV
+python scripts/render_physics_demo.py --video <path-to-clip.mp4> --out demo/<name>_physics.mp4
+```
+
+To run the real incident pipeline against a configured camera (this is what populates the
+incidents feed — empty in §2's screenshot because this exact command hadn't been run yet against
+that server instance):
+
+```bash
+python run.py process --camera <camera-id> --video <path-to-clip.mp4>
+```
+
+---
+
+## 13. Repo map, in one table
 
 | Folder | Contents | Status |
 |---|---|---|
 | `CCTV/netra/` | Ported NETRA package — detection, tracking, scene/corridor model, 4 event engines, evidence, DB, API | Working — 77 pre-existing tests pass |
-| `CCTV/netra/events/rotation_gate.py` | Our physics engine, adapted for live in-process use | Working — 49 new tests pass |
-| `CCTV/response.py` | Diversion + simulated access routing, ported from an earlier system | Working, standalone — not yet wired into `api.py` |
-| `CCTV/demo/physics_reference/` | Our best pre-existing physics-rendered videos (4 ground-truth-confirmed clips) | Real, pre-merge output — see §4 caveat |
+| `CCTV/netra/events/rotation_gate.py` | Our physics engine, adapted for live in-process use | Working — 49 new tests pass, live-demonstrated in §2 |
+| `CCTV/response.py` | Diversion + simulated access routing, ported from an earlier system | Working, standalone — not yet wired into `api.py`, visible degrading honestly in §2's map screenshot |
+| `CCTV/demo/` | Physics-rendered first-look output on NETRA's own clips, including one confirmed false positive | Real, first-look output — see `CCTV/demo/README.md` |
+| `DEMO/clips/cctv_positive/` | Our 4 ground-truth-confirmed physics-rendered videos (pre-merge engine) | Real, pre-merge output — see §6 caveat |
 | `DRONE/` | GMC, hover-mode, telemetry/thermal stubs, placeholder-detector pipeline | Runs mechanically today, honestly labelled `not fine-tuned` |
 | `APP/` | Next.js operator console | Talks to real NETRA API routes; a documented `MISSING_ENDPOINTS` list covers the rest |
 | `DEMO/` | 5-minute video script, jury walkthrough, results summary | See `DEMO/results_summary.md` for the authoritative, sourced numbers |
