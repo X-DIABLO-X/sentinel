@@ -335,6 +335,91 @@ def get_incident_evidence(incident_id: int, name: str) -> FileResponse:
         "Cache-Control": "public, max-age=86400, immutable"})
 
 
+# -- every processed segment, event or not -------------------------------
+# The incident routes above only surface segments that produced a queue or
+# blockage event, which hides the ones that were analysed and found clean.
+# A clean segment is still a real result and worth showing, so these routes
+# expose all of them.
+
+def _clip_row(res: dict[str, Any]) -> dict[str, Any] | None:
+    annotated = res.get("annotated_video")
+    if not annotated:
+        return None
+    return {
+        "stem": Path(annotated).stem,
+        "file": annotated,
+        "source_video": res.get("source_video"),
+        "track_count": res.get("track_count"),
+        "queue_events": len((res.get("queue") or {}).get("events", [])),
+        "blockage_events": len((res.get("blockage") or {}).get("events", [])),
+        "gmc_health": (res.get("gmc") or {}).get("health"),
+        "detector_finetuned": res.get("provenance", {}).get("detector_finetuned"),
+    }
+
+
+def _find_clip(stem: str) -> dict[str, Any] | None:
+    for res in _load_all_results():
+        row = _clip_row(res)
+        if row and row["stem"] == stem:
+            return row
+    return None
+
+
+def _clip_path(name: str) -> Path:
+    """Resolve an annotated filename inside results/, refusing anything that
+    escapes it."""
+    path = (_CFG.processing.results_path / name).resolve()
+    root = _CFG.processing.results_path.resolve()
+    if root not in path.parents and path != root:
+        raise HTTPException(status_code=403, detail="forbidden path")
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail=f"no such clip on disk: {name}")
+    return path
+
+
+@app.get("/api/clips")
+def list_clips() -> list[dict[str, Any]]:
+    """Every analysed segment, including the ones with no events."""
+    rows = [r for r in (_clip_row(res) for res in _load_all_results()) if r]
+    rows.sort(key=lambda r: r["stem"].lower())
+    return rows
+
+
+@app.get("/api/clips/{stem}/video")
+def clip_video(stem: str) -> FileResponse:
+    row = _find_clip(stem)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"no such clip: {stem}")
+    return FileResponse(_clip_path(row["file"]), media_type="video/mp4", headers={
+        "Cache-Control": "public, max-age=86400, immutable"})
+
+
+@app.get("/api/clips/{stem}/poster")
+def clip_poster(stem: str) -> FileResponse:
+    """First frame, cached to disk on first request. Decoding a frame is slow
+    on this CPU, so it is done once per clip rather than per page load."""
+    row = _find_clip(stem)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"no such clip: {stem}")
+    source = _clip_path(row["file"])
+    poster = _CFG.processing.results_path / f".poster_{stem}.jpg"
+    if not poster.exists():
+        import cv2
+        cap = cv2.VideoCapture(str(source))
+        ok, frame = cap.read()
+        cap.release()
+        if not ok:
+            raise HTTPException(status_code=404, detail="could not decode a poster frame")
+        h, w = frame.shape[:2]
+        scale = min(1.0, 960.0 / max(w, h))
+        if scale < 1.0:
+            frame = cv2.resize(frame, (int(w * scale), int(h * scale)),
+                               interpolation=cv2.INTER_AREA)
+        cv2.imwrite(str(poster), frame, [cv2.IMWRITE_JPEG_QUALITY, 84])
+    return FileResponse(poster, media_type="image/jpeg", headers={
+        "Cache-Control": "public, max-age=86400, immutable"})
+
+
 if __name__ == "__main__":
     import uvicorn
     logging.basicConfig(level=logging.INFO)

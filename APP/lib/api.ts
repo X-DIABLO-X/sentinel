@@ -16,6 +16,7 @@ import type {
   Camera,
   DashboardSnapshot,
   DemoVideo,
+  DroneClip,
   Health,
   Incident,
   IncidentStatus,
@@ -337,6 +338,20 @@ export const demoVideoUrl = (stem: string, backend: Backend = "cctv") =>
 
 export const demoPosterUrl = (stem: string, backend: Backend = "cctv") =>
   apiUrl(`/api/demo-videos/${encodeURIComponent(stem)}/poster`, backend);
+
+/* -------------------------------------------------------------------------
+ * Drone analysed segments
+ * ---------------------------------------------------------------------- */
+
+/** Every analysed drone segment, including ones that produced no events. */
+export const getDroneClips = (signal?: AbortSignal) =>
+  request<DroneClip[]>("/api/clips", { backend: "drone", signal });
+
+export const droneClipVideoUrl = (stem: string) =>
+  apiUrl(`/api/clips/${encodeURIComponent(stem)}/video`, "drone");
+
+export const droneClipPosterUrl = (stem: string) =>
+  apiUrl(`/api/clips/${encodeURIComponent(stem)}/poster`, "drone");
 
 /* -------------------------------------------------------------------------
  * TODO - endpoints this console wants that the backend does NOT expose

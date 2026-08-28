@@ -1,6 +1,13 @@
 "use client";
 
-import { DRONE_API, getDashboard, getHealth } from "@/lib/api";
+import {
+  DRONE_API,
+  droneClipPosterUrl,
+  droneClipVideoUrl,
+  getDashboard,
+  getDroneClips,
+  getHealth,
+} from "@/lib/api";
 import { useApi } from "@/lib/useApi";
 import { DRONE_STATUS } from "@/lib/types";
 import EmptyState from "@/components/EmptyState";
@@ -25,6 +32,11 @@ export default function DronePage() {
     (signal) => getDashboard("drone", signal),
     [],
     15000,
+  );
+
+  const { data: clips, error: clipsError, firstLoad: clipsLoading } = useApi(
+    (signal) => getDroneClips(signal),
+    [],
   );
 
   const reachable = Boolean(health && !healthError);
@@ -104,6 +116,64 @@ export default function DronePage() {
               ))
             ) : (
               <EmptyState title="No drone escalations recorded yet" />
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {reachable ? (
+        <div className="panel">
+          <div className="panel-head">
+            <span className="panel-title">
+              Analysed segments{clipsLoading ? "" : ` (${clips?.length ?? 0})`}
+            </span>
+          </div>
+          <div className="p-4">
+            {clipsLoading ? (
+              <SkeletonPanel rows={3} />
+            ) : clipsError ? (
+              <EmptyState title="Segments unavailable" tone="warn" detail={clipsError.message} />
+            ) : clips?.length ? (
+              <>
+                <p className="mb-3 text-[11.5px] text-ink-3">
+                  Every segment the pipeline processed, including the ones that produced no
+                  event — a clean segment is a real result, not a gap.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {clips.map((clip) => (
+                    <div key={clip.stem} className="panel overflow-hidden">
+                      <video
+                        className="block w-full bg-panel-0"
+                        src={droneClipVideoUrl(clip.stem)}
+                        poster={droneClipPosterUrl(clip.stem)}
+                        controls
+                        muted
+                        playsInline
+                        preload="none"
+                      />
+                      <div className="px-3 py-2 text-[11.5px] text-ink-2">
+                        <div className="truncate font-mono">{clip.source_video ?? clip.file}</div>
+                        <div className="text-ink-3">
+                          {clip.track_count ?? 0} tracks ·{" "}
+                          {clip.queue_events ? `${clip.queue_events} queue` : "no queue"} ·{" "}
+                          {clip.blockage_events ? `${clip.blockage_events} blockage` : "no blockage"}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <EmptyState
+                title="No analysed segments on this backend"
+                detail={
+                  <>
+                    GET /api/clips returned nothing —{" "}
+                    <code className="font-mono">DRONE/results/</code> holds no results JSON on
+                    this host.
+                  </>
+                }
+              />
             )}
           </div>
         </div>

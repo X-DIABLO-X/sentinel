@@ -415,6 +415,26 @@ export interface DemoVideo {
 }
 
 /* -------------------------------------------------------------------------
+ * Drone analysed segments (GET /api/clips)
+ * ---------------------------------------------------------------------- */
+
+/**
+ * One processed drone segment. Unlike the incident routes, this lists every
+ * analysed clip including those that produced no queue or blockage event -- a
+ * clean segment is still a real result.
+ */
+export interface DroneClip {
+  stem: string;
+  file: string;
+  source_video?: string;
+  track_count?: number;
+  queue_events?: number;
+  blockage_events?: number;
+  gmc_health?: number;
+  detector_finetuned?: boolean;
+}
+
+/* -------------------------------------------------------------------------
  * Metrics / reports
  * ---------------------------------------------------------------------- */
 

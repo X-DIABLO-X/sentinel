@@ -22,9 +22,15 @@ momentum HUD added — detection and scoring are deterministic, so their
 pair/score/interaction numbers below are unchanged from the first run;
 `7/8/9/12` are new.
 
+The console's "Physics demo" panel lists the seven clips in this directory.
+Two further renders live in `_archive/` and are deliberately **not** on the
+dashboard — `4_physics` and the `13009518` Traffic clip. They are kept because
+the Traffic one is this project's documented false positive (see below) and
+deleting inconvenient evidence would be the wrong instinct; they are simply
+not part of the curated set.
+
 | Clip | Category (per NETRA's own filename) | Rotation-gate result |
 |---|---|---|
-| `4_physics.mp4` | Accidents | pair (3, 6), score **0.289**, crossing, 146.9° |
 | `7_physics.mp4` | Accidents | pair (10, 6), score **0.286**, following, 34.4° |
 | `8_physics.mp4` | Accidents | pair (16, 17), score **0.312**, crossing, 122.9° |
 | `9_physics.mp4` | Accidents | pair (24, 14), score **0.255**, interaction **unknown** — relative heading didn't resolve to a classified geometry bucket; reported as-is, not forced into a category |
@@ -32,7 +38,8 @@ pair/score/interaction numbers below are unchanged from the first run;
 | `12_physics.mp4` | Accidents | pair (21, 26), score **0.265**, crossing, 94.9° |
 | `13_physics.mp4` | Accidents | pair (8, 5), score **0.588**, crossing, 52.5° |
 | `14_physics.mp4` | Accidents | pair (47, 49), score **0.602**, crossing, 142.8° |
-| `13009518_1920_1080_30fps_physics.mp4` | **Traffic** (not labelled as a crash clip) | pair (8, 6), score **0.738** — the highest score of the set, and a **likely false positive**, see below |
+| `_archive/13009518_..._physics.mp4` | **Traffic** (not labelled as a crash clip) | pair (8, 6), score **0.738** — a **confirmed false positive**, see below. Archived, not on the dashboard. |
+| `_archive/4_physics.mp4` | Accidents | pair (3, 6), score **0.289**, crossing, 146.9°. Archived, not on the dashboard. |
 
 Full evidence breakdown (per-vehicle yaw/aspect shock, decel, momentum drop,
 contact geometry) is in the matching `*_physics_result.json` for each clip.
@@ -56,19 +63,19 @@ was not suppressed or altered after this was discovered; it is reported
 as-measured, with this explanation attached, in both this file and
 `13009518_1920_1080_30fps_physics_result.json`.
 
-The other 8 clips (Accidents-category: `4/7/8/9/11/12/13/14`) have **not**
+The 7 dashboard clips (`7/8/9/11/12/13/14`) have **not**
 been reviewed to this same depth and should be treated as open items, not
 confirmed positives, until someone checks them the way this one was checked.
 
-**Do not present this as "8/8 validated."** Present it as: the merged
+**Do not present this as "7/7 validated."** Present it as: the merged
 pipeline runs end-to-end on fresh footage and produces a real, inspectable,
 non-fabricated score with a full evidence trail — which is itself the
-demonstrable claim — while the *correctness* of these particular 8 scores is
+demonstrable claim — while the *correctness* of these particular 7 scores is
 an open item for manual review before the demo, not an established result.
-`4_physics.mp4`, `7_physics.mp4`, `9_physics.mp4`, and `12_physics.mp4` all
+`7_physics.mp4`, `9_physics.mp4` and `12_physics.mp4` all
 score noticeably lower (0.25–0.31, roughly half the others) than
 `11/13/14`'s 0.55–0.60 range — the most plausible "no real event, low
-ambiguous score" cases among the eight, and the safer ones to show as
+ambiguous score" cases among the seven, and the safer ones to show as
 clean-tracking examples rather than confirmed positives.
 
 ## Reproduce
