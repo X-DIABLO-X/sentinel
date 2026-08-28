@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { evidenceUrl } from "@/lib/api";
+import { analysedVideoUrl, evidenceUrl } from "@/lib/api";
 import type { Backend, Incident } from "@/lib/types";
 import EmptyState from "./EmptyState";
 import { secs } from "@/lib/format";
@@ -29,11 +29,15 @@ export default function EvidencePanel({
 
   const [frameFailed, setFrameFailed] = useState(false);
   const [clipFailed, setClipFailed] = useState(false);
+  // Set when no full-length render exists for this camera (the route 404s),
+  // which is the signal to fall back to the short evidence clip.
+  const [fullFailed, setFullFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
   const retry = () => {
     setFrameFailed(false);
     setClipFailed(false);
+    setFullFailed(false);
     setReloadKey((n) => n + 1);
   };
 
@@ -59,7 +63,7 @@ export default function EvidencePanel({
     return reloadKey ? `${base}&r=${reloadKey}` : base;
   };
 
-  if (!frame && !clip) {
+  if (!frame && !clip && (fullFailed || backend !== "cctv")) {
     return (
       <EmptyState
         title="No visual evidence recorded"
@@ -112,7 +116,34 @@ export default function EvidencePanel({
         </figure>
       ) : null}
 
-      {clip ? (
+      {/*
+        Prefer the full-length analysed video. The per-incident clip below is
+        cut from a rolling buffer at the moment of detection, so it holds only
+        the seconds leading up to the trigger and nothing after it -- fine as a
+        thumbnail of the onset, useless for watching what actually happened.
+        If no full render exists for this camera the <video> errors and we fall
+        back to that short clip rather than showing nothing.
+      */}
+      {!fullFailed && backend === "cctv" ? (
+        <figure className="panel overflow-hidden lg:col-span-2">
+          <video
+            key={`full-${incident.camera_id}-${reloadKey}`}
+            src={analysedVideoUrl(incident.camera_id, backend)}
+            controls
+            muted
+            playsInline
+            preload="metadata"
+            className="block w-full bg-panel-0"
+            onError={() => setFullFailed(true)}
+          />
+          <figcaption className="border-t border-line px-3 py-2 text-[11.5px] text-ink-3">
+            Full analysed video for {incident.camera_id} — the entire clip with the physics HUD,
+            not just the moment of detection.
+          </figcaption>
+        </figure>
+      ) : null}
+
+      {clip && fullFailed ? (
         <figure className="panel overflow-hidden">
           {clipFailed ? (
             <div className="space-y-2 px-4 py-6 text-[12.5px] text-ink-3">

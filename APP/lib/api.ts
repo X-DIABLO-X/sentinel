@@ -161,6 +161,17 @@ export const getCamera = (cameraId: string, backend: Backend = "cctv", signal?: 
 export const cameraFrameUrl = (cameraId: string, backend: Backend = "cctv") =>
   apiUrl(`/api/cameras/${encodeURIComponent(cameraId)}/frame`, backend);
 
+/**
+ * The camera's whole clip with the physics HUD burnt in.
+ *
+ * The per-incident evidence clip is cut from a rolling buffer at the moment of
+ * detection, so it is only seconds long and contains nothing after the event.
+ * This is the full-length render. 404s for cameras whose source clip was not
+ * available to render, and the panel falls back to the short clip.
+ */
+export const analysedVideoUrl = (cameraId: string, backend: Backend = "cctv") =>
+  apiUrl(`/api/cameras/${encodeURIComponent(cameraId)}/analysed-video`, backend);
+
 /** POST /api/cameras/{id}/calibration - body is {camera_id, payload}. */
 export const saveCalibration = (
   cameraId: string,

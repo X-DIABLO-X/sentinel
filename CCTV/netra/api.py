@@ -267,6 +267,32 @@ def create_app(config: dict | None = None) -> FastAPI:
             raise HTTPException(404, f"unknown camera {camera_id}")
         return sc.to_dict()
 
+    @app.get("/api/cameras/{camera_id}/analysed-video")
+    def camera_analysed_video(camera_id: str):
+        """The camera's whole clip with the physics HUD burnt in.
+
+        The per-incident evidence clip is only a few seconds long: it is cut
+        from a rolling in-memory buffer at the moment of detection, so it can
+        never contain anything after the event (the frames simply have not been
+        read yet). That is fine as a thumbnail of the onset but useless for
+        actually watching what happened.
+
+        This serves the full-length render instead, so an operator sees the
+        entire video rather than the instant around the trigger. Only cameras
+        whose source clip was available to render are present; the rest 404 and
+        the console falls back to the short evidence clip.
+        """
+        root = (ROOT / "full_renders").resolve()
+        path = (root / f"{camera_id}.mp4").resolve()
+        try:
+            path.relative_to(root)
+        except ValueError as exc:
+            raise HTTPException(403, "forbidden path") from exc
+        if not path.is_file():
+            raise HTTPException(404, f"no full-length render for {camera_id}")
+        return FileResponse(path, media_type="video/mp4", headers={
+            "Cache-Control": "public, max-age=86400, immutable"})
+
     @app.get("/api/cameras/{camera_id}/frame")
     def camera_frame(camera_id: str):
         """First frame of the camera's source -- the canvas for calibration."""

@@ -1,0 +1,190 @@
+{
+  "video": "D:\\HARSHIT\\ELCIA\\DATASET\\ACCIDENT\\POSITIVE\\15.mp4",
+  "resolution": [
+    960,
+    720
+  ],
+  "native_fps": 12.819,
+  "frame_count": 399,
+  "duration_s": 31.125,
+  "processing": {
+    "detector_weights": "D:\\HARSHIT\\ELCIA\\FINAL\\CCTV\\models\\yolo26m.pt",
+    "detector_backend": "torch",
+    "device": "cuda:0",
+    "tracker": {
+      "high_thresh": 0.35,
+      "low_thresh": 0.1,
+      "match_thresh": 0.8,
+      "second_match_thresh": 0.5,
+      "max_time_lost": 30,
+      "min_hits": 3
+    },
+    "frames_processed": 399,
+    "detect_track_seconds": 27.84,
+    "fps_processed": 14.33,
+    "detector_latency_ms": {
+      "n": 399,
+      "mean_ms": 56.55,
+      "median_ms": 54.34,
+      "p95_ms": 76.89,
+      "max_ms": 255.7,
+      "implied_fps": 17.68
+    },
+    "rotation_gate_score_calls": 400,
+    "rotation_gate_pairs_ever_considered": 180,
+    "speed_units_note": "px/s is the honest reported speed -- these cameras have no image-to-ground calibration (checked config/cameras/*.json). km/h figures are a class-width monocular ESTIMATE (same method rotation_gate uses internally), not a calibrated measurement."
+  },
+  "tracks": {
+    "2": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 1.248,
+      "last_t": 4.368,
+      "duration_s": 3.12,
+      "n_frames_confirmed": 39,
+      "max_speed_px_s": 347.71,
+      "best_rotation_gate_score": 0.2194,
+      "last_accel_mps2_estimate": 5.997,
+      "last_momentum_kgms_estimate": 4908.5
+    },
+    "3": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 2.886,
+      "last_t": 31.047,
+      "duration_s": 28.161,
+      "n_frames_confirmed": 360,
+      "max_speed_px_s": 343.24,
+      "best_rotation_gate_score": 0.1896,
+      "last_accel_mps2_estimate": 3.903,
+      "last_momentum_kgms_estimate": 482.3
+    },
+    "4": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 2.964,
+      "last_t": 4.68,
+      "duration_s": 1.716,
+      "n_frames_confirmed": 20,
+      "max_speed_px_s": 538.93,
+      "best_rotation_gate_score": 0.2194,
+      "last_accel_mps2_estimate": 2.941,
+      "last_momentum_kgms_estimate": 5366.6
+    },
+    "5": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 3.354,
+      "last_t": 3.822,
+      "duration_s": 0.468,
+      "n_frames_confirmed": 5,
+      "max_speed_px_s": 590.65,
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": null,
+      "last_momentum_kgms_estimate": null
+    },
+    "8": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 14.197,
+      "last_t": 25.586,
+      "duration_s": 11.389,
+      "n_frames_confirmed": 145,
+      "max_speed_px_s": 170.84,
+      "best_rotation_gate_score": 0.0212,
+      "last_accel_mps2_estimate": 3.024,
+      "last_momentum_kgms_estimate": 3694.3
+    },
+    "12": {
+      "cls": 0,
+      "cls_name": "person",
+      "first_t": 19.424,
+      "last_t": 25.04,
+      "duration_s": 5.617,
+      "n_frames_confirmed": 65,
+      "max_speed_px_s": 46.63,
+      "best_rotation_gate_score": 0.0212,
+      "last_accel_mps2_estimate": 10.096,
+      "last_momentum_kgms_estimate": 3500.5
+    },
+    "17": {
+      "cls": 2,
+      "cls_name": "car",
+      "first_t": 29.643,
+      "last_t": 31.047,
+      "duration_s": 1.404,
+      "n_frames_confirmed": 17,
+      "max_speed_px_s": 46.67,
+      "best_rotation_gate_score": 0.0,
+      "last_accel_mps2_estimate": 1.485,
+      "last_momentum_kgms_estimate": 970.6
+    }
+  },
+  "collision": {
+    "confident": true,
+    "threshold": 0.15,
+    "track_ids": [
+      4,
+      2
+    ],
+    "score": 0.2194,
+    "contact": 1.0,
+    "gap": -0.4087,
+    "contact_t": 3.387,
+    "contact_refined": true,
+    "interaction": "crossing",
+    "relative_heading_deg": 144.4,
+    "interaction_prior": 1.0,
+    "geometric_mean_evidence": 0.2194,
+    "evidence_a": {
+      "track_id": 4,
+      "rotation": 0.4641,
+      "gate": 0.5713,
+      "yaw_deg": 28.0747,
+      "aspect": 0.248,
+      "decel": 0.1805,
+      "speed_drop": 0.3903,
+      "momentum_drop": 0.2908,
+      "track_break": 0.0,
+      "appearance": null,
+      "kinematic": 0.1765,
+      "score": 0.1748,
+      "n_window": 19,
+      "channels_used": [
+        "decel",
+        "momentum",
+        "speed_drop",
+        "track_break"
+      ],
+      "yaw_gate_passed": true,
+      "aspect_gate_passed": true,
+      "note": "heading shock of 28 deg after a stable approach"
+    },
+    "evidence_b": {
+      "track_id": 2,
+      "rotation": 0.7073,
+      "gate": 0.7659,
+      "yaw_deg": 10.1765,
+      "aspect": 0.7372,
+      "decel": 0.0972,
+      "speed_drop": 0.1543,
+      "momentum_drop": 0.1099,
+      "track_break": 0.0,
+      "appearance": null,
+      "kinematic": 0.0749,
+      "score": 0.2753,
+      "n_window": 26,
+      "channels_used": [
+        "decel",
+        "momentum",
+        "speed_drop",
+        "track_break"
+      ],
+      "yaw_gate_passed": true,
+      "aspect_gate_passed": true,
+      "note": "silhouette changed by 74% after a stable approach"
+    },
+    "explain": "#4 and #2 came closest at t=3.39s (boxes overlapping, 144 deg relative heading -> crossing); #4: heading shock of 28 deg after a stable approach; #2: silhouette changed by 74% after a stable approach; score 0.219"
+  },
+  "rotation_gate_config_source": "COMBINED/config.yaml :: inference2"
+}
