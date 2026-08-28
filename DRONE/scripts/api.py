@@ -325,12 +325,8 @@ def get_incident_evidence(incident_id: int, name: str) -> FileResponse:
     row = _find_incident(incident_id)
     if row is None or row.get("evidence", {}).get("clip") != name:
         raise HTTPException(status_code=404, detail="no such evidence file for this incident")
-    path = (_CFG.processing.results_path / name).resolve()
-    root = _CFG.processing.results_path.resolve()
-    if root not in path.parents and path != root:
-        raise HTTPException(status_code=403, detail="forbidden path")
-    if not path.is_file():
-        raise HTTPException(status_code=404, detail="evidence file not found on disk")
+    # Same web-encoded copy the clip route serves, for the same reason.
+    path = _clip_path(name)
     return FileResponse(path, media_type="video/mp4", headers={
         "Cache-Control": "public, max-age=86400, immutable"})
 
@@ -365,11 +361,23 @@ def _find_clip(stem: str) -> dict[str, Any] | None:
     return None
 
 
-def _clip_path(name: str) -> Path:
+def _clip_path(name: str, prefer_web: bool = True) -> Path:
     """Resolve an annotated filename inside results/, refusing anything that
-    escapes it."""
-    path = (_CFG.processing.results_path / name).resolve()
+    escapes it.
+
+    The pipeline writes its annotated output at ~10 Mbps, which is right for an
+    archive but roughly 5x too heavy to stream -- a 60s clip lands at 70-110MB
+    and stalls in the browser long enough to look broken. If a web-encoded copy
+    exists under results/web/ it is served instead: same frames and same burnt-in
+    HUD, re-encoded at ~2 Mbps. The originals stay on disk untouched as the
+    archive of record.
+    """
     root = _CFG.processing.results_path.resolve()
+    if prefer_web:
+        web = (root / "web" / name).resolve()
+        if web.is_file() and (root in web.parents or web.parent == root):
+            return web
+    path = (root / name).resolve()
     if root not in path.parents and path != root:
         raise HTTPException(status_code=403, detail="forbidden path")
     if not path.is_file():
@@ -401,7 +409,7 @@ def clip_poster(stem: str) -> FileResponse:
     row = _find_clip(stem)
     if row is None:
         raise HTTPException(status_code=404, detail=f"no such clip: {stem}")
-    source = _clip_path(row["file"])
+    source = _clip_path(row["file"])  # web copy when present: cheaper to decode
     poster = _CFG.processing.results_path / f".poster_{stem}.jpg"
     if not poster.exists():
         import cv2
