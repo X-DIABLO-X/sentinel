@@ -1,0 +1,17 @@
+[Unit]
+Description=Sentinel DRONE backend (FastAPI, port 8011)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sentinel/DRONE
+ExecStart=/opt/sentinel/DRONE/.venv/bin/python scripts/api.py
+Restart=always
+RestartSec=5
+TimeoutStartSec=300
+StandardOutput=append:/var/log/sentinel-drone.log
+StandardError=append:/var/log/sentinel-drone.log
+
+[Install]
+WantedBy=multi-user.target

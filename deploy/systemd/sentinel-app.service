@@ -1,0 +1,18 @@
+[Unit]
+Description=Sentinel operator console (Next.js, port 3000)
+After=network-online.target sentinel-cctv.service sentinel-drone.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sentinel/APP
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+TimeoutStartSec=120
+StandardOutput=append:/var/log/sentinel-app.log
+StandardError=append:/var/log/sentinel-app.log
+
+[Install]
+WantedBy=multi-user.target

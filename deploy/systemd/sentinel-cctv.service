@@ -1,0 +1,19 @@
+[Unit]
+Description=Sentinel CCTV backend (FastAPI, port 8000)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sentinel/CCTV
+ExecStart=/opt/sentinel/CCTV/.venv/bin/python run.py serve
+Restart=always
+RestartSec=5
+# Model load (torch + ultralytics + 69 scene models) takes tens of seconds on
+# CPU; do not let systemd give up before it finishes binding.
+TimeoutStartSec=300
+StandardOutput=append:/var/log/sentinel-cctv.log
+StandardError=append:/var/log/sentinel-cctv.log
+
+[Install]
+WantedBy=multi-user.target
