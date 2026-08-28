@@ -29,10 +29,6 @@ export default function EvidencePanel({
 
   const [frameFailed, setFrameFailed] = useState(false);
   const [clipFailed, setClipFailed] = useState(false);
-  // Bumped to force a fresh request on retry. A media element will not re-fetch
-  // a src it has already failed on, and a transient failure (or a 404 the
-  // browser cached from before the file was deployed) otherwise latches
-  // permanently for the life of the page.
   const [reloadKey, setReloadKey] = useState(0);
 
   const retry = () => {
@@ -41,7 +37,27 @@ export default function EvidencePanel({
     setReloadKey((n) => n + 1);
   };
 
-  const bust = (url: string) => (reloadKey ? `${url}?r=${reloadKey}` : url);
+  /**
+   * Evidence URLs carry a stable version token, not a bare path.
+   *
+   * These files were 404ing for a window before the evidence tree was
+   * deployed, and browsers heuristically cache a 404 that carries no
+   * Cache-Control. Any client that loaded a detail page during that window
+   * holds a poisoned entry for the bare URL, and a media element will not
+   * re-fetch a src it has already failed on -- which is exactly the reported
+   * symptom: the clip fails on load, then works on Retry, because Retry was
+   * the only thing changing the URL.
+   *
+   * `v` is derived from the incident's own run, so it is IDENTICAL on every
+   * load (stays cacheable and fast -- unlike a random token, which would
+   * defeat caching entirely) while being a different cache key from the
+   * poisoned bare URL. `r` is appended only after an explicit Retry.
+   */
+  const version = String(incident.run_id ?? incident.updated_at ?? incident.id);
+  const mediaUrl = (name: string) => {
+    const base = `${evidenceUrl(incident.id, name, backend)}?v=${encodeURIComponent(version)}`;
+    return reloadKey ? `${base}&r=${reloadKey}` : base;
+  };
 
   if (!frame && !clip) {
     return (
@@ -84,7 +100,7 @@ export default function EvidencePanel({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={`frame-${reloadKey}`}
-              src={bust(evidenceUrl(incident.id, frame, backend))}
+              src={mediaUrl(frame)}
               alt={`Annotated evidence frame for incident ${incident.id}`}
               className="block w-full bg-panel-0"
               onError={() => setFrameFailed(true)}
@@ -110,7 +126,7 @@ export default function EvidencePanel({
           ) : (
             <video
               key={`clip-${reloadKey}`}
-              src={bust(evidenceUrl(incident.id, clip, backend))}
+              src={mediaUrl(clip)}
               controls
               muted
               loop

@@ -12,6 +12,7 @@ import SeverityBadge from "@/components/SeverityBadge";
 import EmptyState from "@/components/EmptyState";
 import { eventLabel, incidentRef } from "@/lib/format";
 import { electronicCityDemo } from "@/lib/electronicCityDemo";
+import { SkeletonBlock } from "@/components/Skeleton";
 
 /**
  * 3-column operator console: incident feed / centre map + run controls /
@@ -70,7 +71,7 @@ export default function MapPage() {
         </div>
         <div className="flex-1 overflow-y-auto p-2.5">
           {dashLoading ? (
-            <p className="p-2 text-[12.5px] text-ink-3">Loading…</p>
+            <div className="p-2"><SkeletonBlock className="h-24 w-full" /></div>
           ) : dashError ? (
             <EmptyState
               title="Backend unavailable"

@@ -16,6 +16,7 @@ import { useApi } from "@/lib/useApi";
 import IncidentCard from "@/components/IncidentCard";
 import EmptyState from "@/components/EmptyState";
 import CameraFrame from "@/components/CameraFrame";
+import { SkeletonCanvas, SkeletonPanel } from "@/components/Skeleton";
 
 /**
  * Pick a camera, see its calibration still + its recent event feed. The
@@ -77,7 +78,13 @@ export default function CctvPage() {
       </div>
 
       {camerasLoading ? (
-        <p className="text-[13px] text-ink-3">Loading cameras…</p>
+        <div className="grid gap-5 lg:grid-cols-3">
+          <SkeletonPanel rows={7} className="lg:col-span-1" />
+          <div className="space-y-5 lg:col-span-2">
+            <SkeletonCanvas className="h-[420px]" />
+            <SkeletonPanel rows={2} />
+          </div>
+        </div>
       ) : camerasError ? (
         <EmptyState title="Cameras unavailable" tone="warn" detail={camerasError.message} />
       ) : !cameras?.length ? (
@@ -167,7 +174,7 @@ export default function CctvPage() {
                   </div>
                   <div className="max-h-[420px] space-y-2 overflow-y-auto p-3">
                     {incidentsLoading ? (
-                      <p className="text-[12.5px] text-ink-3">Loading…</p>
+                      <SkeletonPanel rows={3} />
                     ) : incidents?.length ? (
                       incidents.map((incident) => (
                         <IncidentCard key={incident.id} incident={incident} />
@@ -193,7 +200,7 @@ export default function CctvPage() {
         </div>
         <div className="p-4">
           {demoLoading ? (
-            <p className="text-[12.5px] text-ink-3">Loading…</p>
+            <SkeletonPanel rows={3} />
           ) : !demoVideos?.length ? (
             <EmptyState
               title="No physics-render demo clips available"
@@ -239,7 +246,7 @@ export default function CctvPage() {
         </div>
         <div className="p-4">
           {problemLoading ? (
-            <p className="text-[12.5px] text-ink-3">Loading…</p>
+            <SkeletonPanel rows={3} />
           ) : !problemVideos?.length ? (
             <EmptyState
               title="No ProblemSet results available"

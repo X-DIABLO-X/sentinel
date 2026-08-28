@@ -6,6 +6,7 @@ import { DRONE_STATUS } from "@/lib/types";
 import EmptyState from "@/components/EmptyState";
 import KpiCard from "@/components/KpiCard";
 import IncidentCard from "@/components/IncidentCard";
+import { SkeletonKpis, SkeletonPanel } from "@/components/Skeleton";
 
 /**
  * Same shape as the CCTV page, pointed at the DRONE backend (port 8011 by
@@ -53,7 +54,7 @@ export default function DronePage() {
       </div>
 
       {healthLoading ? (
-        <p className="text-[13px] text-ink-3">Checking DRONE backend…</p>
+        <SkeletonKpis />
       ) : !reachable ? (
         <EmptyState
           title="DRONE backend not reachable"
@@ -94,7 +95,7 @@ export default function DronePage() {
           </div>
           <div className="space-y-2 p-3">
             {dashLoading ? (
-              <p className="text-[12.5px] text-ink-3">Loading…</p>
+              <SkeletonPanel rows={4} />
             ) : dashError ? (
               <EmptyState title="Dashboard unavailable" tone="warn" detail={dashError.message} />
             ) : dashboard?.incidents.length ? (

@@ -19,7 +19,9 @@ from typing import Any
 from urllib.parse import unquote
 
 from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -95,20 +97,24 @@ def create_app(config: dict | None = None) -> FastAPI:
     app.add_middleware(CORSMiddleware, allow_origins=["*"],
                        allow_methods=["*"], allow_headers=["*"])
 
-    @app.middleware("http")
-    async def _no_cache_on_errors(request, call_next):
+    @app.exception_handler(StarletteHTTPException)
+    async def _http_exception_handler(request, exc: StarletteHTTPException):
         """Never let a failure response be cached.
 
         Media routes hand back long-lived, immutable Cache-Control on success,
         which is right -- an evidence clip for a closed incident never changes.
-        But a 404 served while an asset was still being deployed could be
-        heuristically cached by the browser and then keep showing "could not be
-        loaded" long after the file was actually in place. Errors are always
-        transient here, so mark them explicitly uncacheable.
+        But a 404 served while an asset was still being deployed gets
+        heuristically cached by the browser (no Cache-Control on the error
+        means the browser picks its own), and then keeps showing "could not be
+        loaded" long after the file is really in place.
+
+        This is an exception handler rather than an HTTP middleware on purpose:
+        BaseHTTPMiddleware wraps every single request in an extra anyio task
+        and stream pair, which taxes the hot read paths for the sake of a
+        header that only matters on the error path.
         """
-        response = await call_next(request)
-        if response.status_code >= 400:
-            response.headers["Cache-Control"] = "no-store"
+        response = await http_exception_handler(request, exc)
+        response.headers["Cache-Control"] = "no-store"
         return response
 
     scene_cache: dict[str, SceneModel] | None = None

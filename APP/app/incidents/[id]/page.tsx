@@ -10,6 +10,7 @@ import EvidencePanel from "@/components/EvidencePanel";
 import StatusWorkflow from "@/components/StatusWorkflow";
 import SeverityBadge from "@/components/SeverityBadge";
 import EmptyState from "@/components/EmptyState";
+import { SkeletonPanel } from "@/components/Skeleton";
 import {
   clock,
   eventLabel,
@@ -32,7 +33,11 @@ function IncidentDetailInner({ id }: { id: string }) {
   );
 
   if (firstLoad) {
-    return <div className="p-5 text-[13px] text-ink-3">Loading incident…</div>;
+    return (
+      <div className="p-5">
+        <SkeletonPanel rows={4} />
+      </div>
+    );
   }
 
   if (error || !incident) {
@@ -231,7 +236,7 @@ function IncidentDetailInner({ id }: { id: string }) {
 
 export default function IncidentDetailPage({ params }: { params: { id: string } }) {
   return (
-    <Suspense fallback={<div className="p-5 text-[13px] text-ink-3">Loading incident…</div>}>
+    <Suspense fallback={<div className="p-5"><SkeletonPanel rows={4} /></div>}>
       <IncidentDetailInner id={params.id} />
     </Suspense>
   );

@@ -9,6 +9,7 @@ import { ALL_STATUSES } from "@/lib/types";
 import IncidentCard from "@/components/IncidentCard";
 import EmptyState from "@/components/EmptyState";
 import { eventLabel } from "@/lib/format";
+import { SkeletonPanel } from "@/components/Skeleton";
 
 /** Tabs mirror the shipped NETRA UI's event-type tabs, plus an "All" and an
  *  "Uploads" tab (source_kind === "upload", not an event type). */
@@ -114,7 +115,7 @@ function IncidentsInner() {
       </div>
 
       {firstLoad ? (
-        <p className="text-[13px] text-ink-3">Loading incidents…</p>
+        <SkeletonPanel rows={6} />
       ) : error ? (
         <EmptyState
           title="Incident feed unavailable"
@@ -141,7 +142,7 @@ function IncidentsInner() {
 
 export default function IncidentsPage() {
   return (
-    <Suspense fallback={<div className="p-5 text-[13px] text-ink-3">Loading…</div>}>
+    <Suspense fallback={<div className="p-5"><SkeletonPanel rows={4} /></div>}>
       <IncidentsInner />
     </Suspense>
   );

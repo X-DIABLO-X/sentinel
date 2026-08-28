@@ -7,6 +7,7 @@ import KpiCard from "@/components/KpiCard";
 import EmptyState from "@/components/EmptyState";
 import IncidentCard from "@/components/IncidentCard";
 import { eventLabel } from "@/lib/format";
+import { SkeletonHeader, SkeletonKpis, SkeletonPanel } from "@/components/Skeleton";
 
 /**
  * Overview — one consistent snapshot from GET /api/dashboard (summary +
@@ -22,9 +23,16 @@ export default function OverviewPage() {
   );
 
   if (firstLoad) {
+    // Same shape as app/loading.tsx, so the placeholder does not visibly
+    // change between the route transition and the first data fetch.
     return (
-      <div className="p-5">
-        <p className="text-[13px] text-ink-3">Loading dashboard…</p>
+      <div className="mx-auto max-w-[1300px] space-y-5 p-5">
+        <SkeletonHeader />
+        <SkeletonKpis />
+        <div className="grid gap-5 lg:grid-cols-2">
+          <SkeletonPanel rows={4} />
+          <SkeletonPanel rows={4} />
+        </div>
       </div>
     );
   }
